@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import {
   FlatList,
+  LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
@@ -11,11 +12,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
-import { SCREEN_WIDTH } from '../constants/responsive';
+import { MAX_CONTENT_WIDTH, SCREEN_WIDTH } from '../constants/responsive';
 import { Screen, NeonButton } from '../components/ui';
 import { useApp } from '../context/AppContext';
-
-const width = SCREEN_WIDTH;
 
 interface Slide {
   icon: keyof typeof Ionicons.glyphMap;
@@ -48,16 +47,29 @@ const SLIDES: Slide[] = [
 export const OnboardingScreen: React.FC = () => {
   const { completeOnboarding } = useApp();
   const [index, setIndex] = useState(0);
+  // The list viewport is constrained to MAX_CONTENT_WIDTH on web, so the slide
+  // width must match the actual rendered list width — not the full window width.
+  const [width, setWidth] = useState(Math.min(SCREEN_WIDTH, MAX_CONTENT_WIDTH));
   const listRef = useRef<FlatList<Slide>>(null);
+
+  const onLayout = (e: LayoutChangeEvent) => {
+    const w = e.nativeEvent.layout.width;
+    if (w > 0 && Math.abs(w - width) > 1) setWidth(w);
+  };
 
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const i = Math.round(e.nativeEvent.contentOffset.x / width);
-    if (i !== index) setIndex(i);
+    if (i !== index && i >= 0 && i < SLIDES.length) setIndex(i);
+  };
+
+  const goTo = (i: number) => {
+    setIndex(i);
+    listRef.current?.scrollToOffset({ offset: i * width, animated: true });
   };
 
   const next = () => {
     if (index < SLIDES.length - 1) {
-      listRef.current?.scrollToIndex({ index: index + 1, animated: true });
+      goTo(index + 1);
     } else {
       completeOnboarding();
     }
@@ -79,9 +91,11 @@ export const OnboardingScreen: React.FC = () => {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onScroll={onScroll}
+        onLayout={onLayout}
         scrollEventThrottle={16}
+        getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
         renderItem={({ item }) => (
-          <View style={styles.slide}>
+          <View style={[styles.slide, { width }]}>
             <View style={[styles.iconWrap, { borderColor: item.accent }, glow(item.accent, 20)]}>
               <LinearGradient
                 colors={[`${item.accent}33`, 'transparent']}
@@ -115,7 +129,7 @@ export const OnboardingScreen: React.FC = () => {
 const styles = StyleSheet.create({
   top: { alignItems: 'flex-end', paddingHorizontal: Spacing.lg, paddingTop: Spacing.sm },
   skip: { color: Colors.textSecondary, fontSize: FontSize.md, fontWeight: '600' },
-  slide: { width, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.xl },
+  slide: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.xl },
   iconWrap: {
     width: 140,
     height: 140,
