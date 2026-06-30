@@ -6,18 +6,29 @@ import { Colors, glow } from '../constants/colors';
 import { MAX_CONTENT_WIDTH } from '../constants/responsive';
 import { useApp } from '../context/AppContext';
 import { HomeScreen } from '../screens/HomeScreen';
+import { JourneyScreen } from '../screens/JourneyScreen';
 import { DocumentVaultScreen } from '../screens/DocumentVaultScreen';
-import { ChatScreen } from '../screens/ChatScreen';
+import { AIScreen } from '../screens/AIScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import type { MainTabParamList } from './types';
+import type { TranslationKey } from '../i18n/translations';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const ICONS: Record<keyof MainTabParamList, { active: keyof typeof Ionicons.glyphMap; inactive: keyof typeof Ionicons.glyphMap }> = {
   Home: { active: 'home', inactive: 'home-outline' },
-  DocumentVault: { active: 'folder', inactive: 'folder-outline' },
-  Chat: { active: 'chatbubble', inactive: 'chatbubble-outline' },
+  Journey: { active: 'map', inactive: 'map-outline' },
+  Documents: { active: 'folder', inactive: 'folder-outline' },
+  AI: { active: 'sparkles', inactive: 'sparkles-outline' },
   Profile: { active: 'person', inactive: 'person-outline' },
+};
+
+const TAB_LABELS: Record<keyof MainTabParamList, TranslationKey> = {
+  Home: 'tabHome',
+  Journey: 'tabJourney',
+  Documents: 'tabDocuments',
+  AI: 'tabAI',
+  Profile: 'tabProfile',
 };
 
 export const TabNavigator: React.FC = () => {
@@ -33,6 +44,8 @@ export const TabNavigator: React.FC = () => {
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.label,
         tabBarItemStyle: { paddingVertical: 6 },
+        tabBarLabel: t(TAB_LABELS[route.name]),
+        title: t(TAB_LABELS[route.name]),
         tabBarIcon: ({ focused, color, size }) => {
           const name = ICONS[route.name][focused ? 'active' : 'inactive'];
           return (
@@ -43,10 +56,11 @@ export const TabNavigator: React.FC = () => {
         },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ title: t('tabHome') }} />
-      <Tab.Screen name="DocumentVault" component={DocumentVaultScreen} options={{ title: t('tabDocuments') }} />
-      <Tab.Screen name="Chat" component={ChatScreen} options={{ title: t('tabChat') }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: t('tabProfile') }} />
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Journey" component={JourneyScreen} />
+      <Tab.Screen name="Documents" component={DocumentVaultScreen} />
+      <Tab.Screen name="AI" component={AIScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };

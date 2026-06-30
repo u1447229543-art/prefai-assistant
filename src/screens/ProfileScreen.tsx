@@ -1,133 +1,290 @@
-import React from 'react';
-import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Gradients, Radius, Spacing, glow } from '../constants/colors';
-import { Screen, Body, Header, Card, SectionTitle } from '../components/ui';
+import { Screen, Body, Header, Card, SectionTitle, NeonButton, ProgressBar } from '../components/ui';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { useApp } from '../context/AppContext';
 import { useSubscription } from '../hooks/useSubscription';
 import * as storage from '../services/storage';
-import type { RootStackParamList } from '../navigation/types';
-
-type Nav = NativeStackNavigationProp<RootStackParamList>;
+import { getJourney } from '../constants/journeys';
+import { NATIONALITIES, Nationality, getNationalityFlag } from '../constants/nationalities';
 
 export const ProfileScreen: React.FC = () => {
-  const navigation = useNavigation<Nav>();
-  const { user, logout, language, setLanguage, t } = useApp();
+  const navigation = useNavigation();
+  const {
+    user,
+    logout,
+    language,
+    setLanguage,
+    updateProfile,
+    refreshProfile,
+    profileSaving,
+    syncing,
+    syncError,
+    journey,
+    journeyPercent,
+    t,
+  } = useApp();
   const { plan, remaining, isUnlimited, usage } = useSubscription();
-  const [reminders, setReminders] = React.useState(true);
+
+  const [form, setForm] = useState({
+    firstName: user?.firstName ?? '',
+    lastName: user?.lastName ?? '',
+    nationality: user?.nationality ?? '',
+    city: user?.city ?? '',
+    phone: user?.phone ?? '',
+  });
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [natOpen, setNatOpen] = useState(false);
+  const [settings, setSettings] = useState<storage.AppSettings>({ notifications: true, darkMode: true });
+
+  useEffect(() => {
+    if (user) {
+      setForm({
+        firstName: user.firstName ?? '',
+        lastName: user.lastName ?? '',
+        nationality: user.nationality ?? '',
+        city: user.city ?? '',
+        phone: user.phone ?? '',
+      });
+    }
+  }, [user]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      void refreshProfile();
+    }, [refreshProfile])
+  );
+
+  useEffect(() => {
+    storage.loadSettings().then(setSettings);
+  }, []);
+
+  const set = (key: keyof typeof form) => (value: string) => {
+    setForm((f) => ({ ...f, [key]: value }));
+    setSaved(false);
+  };
+
+  const updateSetting = (key: keyof storage.AppSettings, value: boolean) => {
+    setSettings((prev) => {
+      const next = { ...prev, [key]: value };
+      storage.saveSettings(next);
+      return next;
+    });
+  };
+
+  const saveProfile = async () => {
+    setSaveError(null);
+    try {
+      await updateProfile(form);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : t('couldNotSaveProfile'));
+    }
+  };
 
   const confirmLogout = () => {
-    Alert.alert(t('logout'), 'Are you sure you want to log out?', [
+    Alert.alert(t('logout'), t('logoutConfirm'), [
       { text: t('cancel'), style: 'cancel' },
       { text: t('logout'), style: 'destructive', onPress: () => logout() },
     ]);
   };
 
-  const clearData = () => {
-    Alert.alert('Clear all data', 'This removes documents, deadlines and chat history from this device.', [
-      { text: t('cancel'), style: 'cancel' },
-      {
-        text: t('delete'),
-        style: 'destructive',
-        onPress: async () => {
-          await storage.clearAll();
-          logout();
-        },
-      },
-    ]);
-  };
+  const planName =
+    plan.id === 'free' ? t('free') : plan.id === 'basic' ? t('planBasic') : t('planPro');
+
+  const initials = `${form.firstName?.[0] ?? user?.name?.[0] ?? 'U'}${form.lastName?.[0] ?? ''}`.toUpperCase();
+  const fullName = `${form.firstName} ${form.lastName}`.trim() || user?.name || t('userFallback');
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
+    : '—';
+  const journeyData = journey.journeyId ? getJourney(journey.journeyId) : null;
 
   return (
     <Screen>
       <Header title={t('profileTitle')} />
       <Body>
-        {/* Profile header */}
-        <Pressable style={styles.profileRow} onPress={() => navigation.navigate('EditProfile')}>
-          <LinearGradient colors={Gradients.blueRed} style={[styles.avatar, glow(Colors.blue, 12)]}>
-            <Text style={styles.avatarText}>{(user?.name?.[0] ?? 'U').toUpperCase()}</Text>
-          </LinearGradient>
-          <View style={{ flex: 1, marginLeft: Spacing.md }}>
-            <Text style={styles.name}>{user?.name ?? 'User'}</Text>
-            <Text style={styles.email}>{user?.email ?? ''}</Text>
+        {syncing ? (
+          <View style={styles.syncBanner}>
+            <ActivityIndicator size="small" color={Colors.blue} />
+            <Text style={styles.syncText}>{t('syncingProfile')}</Text>
           </View>
-          <View style={styles.editBtn}>
-            <Ionicons name="create-outline" size={18} color={Colors.blue} />
-          </View>
-        </Pressable>
-
-        {!user?.idNumber || !user?.address ? (
-          <Pressable style={styles.completeBanner} onPress={() => navigation.navigate('EditProfile')}>
-            <Ionicons name="information-circle" size={18} color={Colors.warning} />
-            <Text style={styles.completeText}>
-              Complete your profile so letters and documents auto-fill your details.
-            </Text>
-            <Ionicons name="chevron-forward" size={16} color={Colors.warning} />
-          </Pressable>
         ) : null}
+        {syncError ? (
+          <View style={styles.warnBanner}>
+            <Ionicons name="cloud-offline-outline" size={16} color={Colors.warning} />
+            <Text style={styles.warnText}>{syncError}</Text>
+          </View>
+        ) : null}
+        {/* 1 — Header */}
+        <View style={styles.headerCard}>
+          <LinearGradient colors={Gradients.blueRed} style={[styles.avatar, glow(Colors.blue, 12)]}>
+            <Text style={styles.avatarText}>{initials}</Text>
+          </LinearGradient>
+          <Text style={styles.name}>{fullName}</Text>
+          <View style={styles.natRow}>
+            <Text style={styles.natFlag}>{getNationalityFlag(form.nationality)}</Text>
+            <Text style={styles.natName}>{form.nationality || t('addYourNationality')}</Text>
+          </View>
+          <Text style={styles.memberSince}>{t('memberSince')} {memberSince}</Text>
+        </View>
 
-        {/* Subscription card */}
-        <Pressable onPress={() => navigation.navigate('Subscription')}>
-          <Card style={styles.subCard}>
-            <View style={styles.subRow}>
-              <View>
-                <Text style={styles.subLabel}>{t('currentPlan')}</Text>
-                <Text style={styles.subPlan}>{plan.name}</Text>
-              </View>
-              <View style={styles.planBadge}>
-                <Ionicons name={plan.id === 'pro' ? 'star' : 'flash'} size={14} color={Colors.blue} />
-                <Text style={styles.planBadgeText}>{plan.priceLabel}{plan.price > 0 ? t('perMonth') : ''}</Text>
-              </View>
+        {/* 2 — Journey info */}
+        <Card style={styles.journeyCard}>
+          <View style={styles.journeyTop}>
+            <View style={styles.journeyIcon}>
+              <Ionicons name={journeyData?.icon ?? 'map-outline'} size={18} color={Colors.blue} />
             </View>
-            <View style={styles.usageBar}>
-              <View
-                style={[
-                  styles.usageFill,
-                  { width: isUnlimited ? '100%' : `${Math.min(100, (usage.documentsProcessed / (plan.documentLimit || 1)) * 100)}%` },
-                ]}
-              />
+            <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+              <Text style={styles.journeyKicker}>{t('yourJourney')}</Text>
+              <Text style={styles.journeyTitle}>{journeyData?.title ?? t('noJourneySelected')}</Text>
             </View>
-            <Text style={styles.usageText}>
-              {isUnlimited
-                ? 'Unlimited documents'
-                : `${remaining} of ${plan.documentLimit} ${t('documentsThisMonth')}`}
+            {journeyData ? <Text style={styles.journeyPct}>{journeyPercent}%</Text> : null}
+          </View>
+          {journeyData ? <View style={{ marginTop: Spacing.sm }}><ProgressBar percent={journeyPercent} /></View> : null}
+          <Pressable style={styles.changeJourney} onPress={() => navigation.navigate('Journey' as never)}>
+            <Ionicons name="swap-horizontal" size={16} color={Colors.blue} />
+            <Text style={styles.changeJourneyText}>
+              {journeyData ? t('changeJourney') : t('startJourney')}
             </Text>
-            <View style={styles.manageRow}>
-              <Text style={styles.manageText}>{t('manageSubscription')}</Text>
-              <Ionicons name="chevron-forward" size={16} color={Colors.blue} />
+          </Pressable>
+        </Card>
+
+        {/* 3 — Personal info (editable) */}
+        <SectionTitle>{t('personalInformation')}</SectionTitle>
+        <Card>
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldHalf}>
+              <Label>{t('firstName')}</Label>
+              <TextInput style={styles.input} value={form.firstName} onChangeText={set('firstName')} placeholder={t('firstName')} placeholderTextColor={Colors.textMuted} />
             </View>
-          </Card>
-        </Pressable>
+            <View style={styles.fieldHalf}>
+              <Label>{t('lastName')}</Label>
+              <TextInput style={styles.input} value={form.lastName} onChangeText={set('lastName')} placeholder={t('lastName')} placeholderTextColor={Colors.textMuted} />
+            </View>
+          </View>
 
-        {/* Language */}
-        <SectionTitle>{t('language')}</SectionTitle>
-        <LanguageSelector value={language} onChange={setLanguage} label={t('language')} />
+          <Label>{t('nationality')}</Label>
+          <Pressable style={styles.select} onPress={() => setNatOpen(true)}>
+            <Text style={styles.selectFlag}>{getNationalityFlag(form.nationality)}</Text>
+            <Text style={[styles.selectText, !form.nationality && { color: Colors.textMuted }]}>
+              {form.nationality || t('selectNationality')}
+            </Text>
+            <Ionicons name="chevron-down" size={18} color={Colors.textSecondary} />
+          </Pressable>
 
-        {/* Settings */}
-        <SectionTitle>{t('settings')}</SectionTitle>
+          <Label>{t('cityInFrance')}</Label>
+          <TextInput style={styles.input} value={form.city} onChangeText={set('city')} placeholder={t('cityPlaceholder')} placeholderTextColor={Colors.textMuted} />
+
+          <Label>{t('phoneOptional')}</Label>
+          <TextInput style={styles.input} value={form.phone} onChangeText={set('phone')} placeholder="+33 6 12 34 56 78" placeholderTextColor={Colors.textMuted} keyboardType="phone-pad" />
+
+          <NeonButton
+            title={saved ? t('savedSuccess') : t('saveChanges')}
+            onPress={saveProfile}
+            loading={profileSaving}
+            variant={saved ? 'blue' : 'blueRed'}
+            icon={saved ? 'checkmark' : 'save-outline'}
+            style={{ marginTop: Spacing.sm }}
+          />
+          {saveError ? <Text style={styles.saveError}>{saveError}</Text> : null}
+        </Card>
+
+        {/* 4 — App settings */}
+        <SectionTitle>{t('appSettings')}</SectionTitle>
         <Card>
           <View style={styles.settingRow}>
             <View style={styles.settingLeft}>
+              <Ionicons name="language-outline" size={20} color={Colors.blue} />
+              <Text style={styles.settingText}>{t('language')}</Text>
+            </View>
+          </View>
+          <LanguageSelector value={language} onChange={setLanguage} compact />
+          <View style={styles.divider} />
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingLeft}>
               <Ionicons name="notifications-outline" size={20} color={Colors.blue} />
-              <Text style={styles.settingText}>Deadline reminders</Text>
+              <Text style={styles.settingText}>{t('notifications')}</Text>
             </View>
             <Switch
-              value={reminders}
-              onValueChange={setReminders}
+              value={settings.notifications}
+              onValueChange={(v) => updateSetting('notifications', v)}
               trackColor={{ true: Colors.blue, false: Colors.border }}
               thumbColor={Colors.white}
             />
           </View>
           <View style={styles.divider} />
-          <SettingLink icon="help-circle-outline" label="Help & FAQ" onPress={() => navigation.navigate('Guides')} />
-          <View style={styles.divider} />
-          <SettingLink icon="shield-checkmark-outline" label="Privacy & data" onPress={clearData} danger />
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingLeft}>
+              <Ionicons name="moon-outline" size={20} color={Colors.blue} />
+              <Text style={styles.settingText}>{t('darkMode')}</Text>
+            </View>
+            <Switch
+              value={settings.darkMode}
+              onValueChange={(v) => updateSetting('darkMode', v)}
+              trackColor={{ true: Colors.blue, false: Colors.border }}
+              thumbColor={Colors.white}
+            />
+          </View>
         </Card>
 
-        {/* Logout */}
+        {/* 5 — Subscription */}
+        <SectionTitle>{t('subscription')}</SectionTitle>
+        <Card style={styles.subCard}>
+          <View style={styles.subRow}>
+            <View>
+              <Text style={styles.subLabel}>{t('currentPlan')}</Text>
+              <Text style={styles.subPlan}>{planName}</Text>
+            </View>
+            <View style={styles.planBadge}>
+              <Ionicons name={plan.id === 'pro' ? 'star' : 'flash'} size={14} color={Colors.blue} />
+              <Text style={styles.planBadgeText}>
+                {plan.priceLabel}
+                {plan.price > 0 ? t('perMonth') : ''}
+              </Text>
+            </View>
+          </View>
+          <View style={{ marginTop: Spacing.md }}>
+            <ProgressBar
+              percent={isUnlimited ? 100 : (usage.documentsProcessed / (plan.documentLimit || 1)) * 100}
+              height={6}
+            />
+          </View>
+          <Text style={styles.usageText}>
+            {isUnlimited
+              ? t('unlimitedDocuments')
+              : `${usage.documentsProcessed} ${t('of')} ${plan.documentLimit} ${t('documentsUsedThisMonth')}`}
+          </Text>
+          {plan.id !== 'pro' ? (
+            <NeonButton
+              title={t('upgrade')}
+              onPress={() => navigation.navigate('Subscription' as never)}
+              variant="blue"
+              icon="rocket-outline"
+              style={{ marginTop: Spacing.md }}
+            />
+          ) : null}
+        </Card>
+
+        {/* 6 — Logout */}
         <Pressable onPress={confirmLogout} style={styles.logout}>
           <Ionicons name="log-out-outline" size={18} color={Colors.red} />
           <Text style={styles.logoutText}>{t('logout')}</Text>
@@ -135,84 +292,146 @@ export const ProfileScreen: React.FC = () => {
 
         <Text style={styles.disclaimer}>{t('disclaimer')}</Text>
       </Body>
+
+      {/* Nationality picker */}
+      <Modal visible={natOpen} transparent animationType="slide" onRequestClose={() => setNatOpen(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setNatOpen(false)} />
+        <View style={styles.sheet}>
+          <View style={styles.sheetHandle} />
+          <Text style={styles.sheetTitle}>{t('selectNationality')}</Text>
+          <FlatList
+            data={NATIONALITIES}
+            keyExtractor={(i) => i.name}
+            contentContainerStyle={{ paddingBottom: Spacing.xl }}
+            renderItem={({ item }: { item: Nationality }) => {
+              const selected = item.name === form.nationality;
+              return (
+                <Pressable
+                  style={[styles.natOption, selected && styles.natOptionSelected]}
+                  onPress={() => {
+                    set('nationality')(item.name);
+                    setNatOpen(false);
+                  }}
+                >
+                  <Text style={styles.selectFlag}>{item.flag}</Text>
+                  <Text style={styles.natOptionText}>{item.name}</Text>
+                  {selected ? <Ionicons name="checkmark-circle" size={22} color={Colors.blue} /> : null}
+                </Pressable>
+              );
+            }}
+          />
+        </View>
+      </Modal>
     </Screen>
   );
 };
 
-const SettingLink: React.FC<{
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  onPress: () => void;
-  danger?: boolean;
-}> = ({ icon, label, onPress, danger }) => (
-  <Pressable style={styles.settingRow} onPress={onPress}>
-    <View style={styles.settingLeft}>
-      <Ionicons name={icon} size={20} color={danger ? Colors.red : Colors.blue} />
-      <Text style={[styles.settingText, danger && { color: Colors.red }]}>{label}</Text>
-    </View>
-    <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
-  </Pressable>
+const Label: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <Text style={styles.label}>{children}</Text>
 );
 
 const styles = StyleSheet.create({
-  profileRow: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.lg },
-  avatar: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { color: '#04121A', fontSize: FontSize.xl, fontWeight: '900' },
-  name: { color: Colors.white, fontSize: FontSize.xl, fontWeight: '800' },
-  email: { color: Colors.textSecondary, fontSize: FontSize.sm, marginTop: 2 },
-  editBtn: {
+  // Header
+  headerCard: { alignItems: 'center', marginBottom: Spacing.lg },
+  syncBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8 as unknown as number,
+    backgroundColor: Colors.glassBlue,
+    borderRadius: Radius.md,
+    padding: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  syncText: { color: Colors.blue, fontSize: FontSize.sm },
+  warnBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8 as unknown as number,
+    backgroundColor: 'rgba(255,180,0,0.10)',
+    borderRadius: Radius.md,
+    padding: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  warnText: { color: Colors.warning, fontSize: FontSize.xs, flex: 1 },
+  saveError: { color: Colors.red, fontSize: FontSize.sm, marginTop: Spacing.sm },
+  avatar: { width: 84, height: 84, borderRadius: 42, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { color: '#04121A', fontSize: FontSize.xxl, fontWeight: '900' },
+  name: { color: Colors.white, fontSize: FontSize.xl, fontWeight: '800', marginTop: Spacing.sm },
+  natRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  natFlag: { fontSize: 18, marginRight: 6 },
+  natName: { color: Colors.textSecondary, fontSize: FontSize.sm },
+  memberSince: { color: Colors.textMuted, fontSize: FontSize.xs, marginTop: 4 },
+
+  // Journey card
+  journeyCard: { marginBottom: Spacing.sm },
+  journeyTop: { flexDirection: 'row', alignItems: 'center' },
+  journeyIcon: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.card,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.glassBlue,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  completeBanner: {
+  journeyKicker: { color: Colors.blue, fontSize: FontSize.xs, fontWeight: '800', letterSpacing: 0.5 },
+  journeyTitle: { color: Colors.white, fontSize: FontSize.md, fontWeight: '700', marginTop: 2 },
+  journeyPct: { color: Colors.blue, fontSize: FontSize.lg, fontWeight: '800' },
+  changeJourney: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 as unknown as number, marginTop: Spacing.md, paddingVertical: 10, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.blue },
+  changeJourneyText: { color: Colors.blue, fontSize: FontSize.sm, fontWeight: '700' },
+
+  // Personal info
+  label: { color: Colors.textSecondary, fontSize: FontSize.xs, fontWeight: '600', marginBottom: 6, marginTop: Spacing.sm },
+  fieldRow: { flexDirection: 'row', gap: Spacing.sm as unknown as number },
+  fieldHalf: { flex: 1 },
+  input: {
+    backgroundColor: Colors.cardElevated,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    color: Colors.white,
+    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
+    fontSize: FontSize.md,
+  },
+  select: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,176,32,0.10)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,176,32,0.4)',
+    backgroundColor: Colors.cardElevated,
     borderRadius: Radius.md,
-    padding: Spacing.sm + 2,
-    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
   },
-  completeText: { color: Colors.textPrimary, fontSize: FontSize.xs, flex: 1, marginHorizontal: 8, lineHeight: 16 },
+  selectFlag: { fontSize: 20, marginRight: Spacing.sm },
+  selectText: { color: Colors.white, fontSize: FontSize.md, flex: 1 },
+
+  // Settings
+  settingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: Spacing.sm + 2 },
+  settingLeft: { flexDirection: 'row', alignItems: 'center' },
+  settingText: { color: Colors.textPrimary, fontSize: FontSize.md, marginLeft: Spacing.md },
+  divider: { height: 1, backgroundColor: Colors.border, marginVertical: 4 },
+
+  // Subscription
   subCard: { marginBottom: Spacing.sm },
   subRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   subLabel: { color: Colors.textSecondary, fontSize: FontSize.xs },
   subPlan: { color: Colors.white, fontSize: FontSize.xl, fontWeight: '800', marginTop: 2 },
-  planBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.glassBlue,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: Radius.pill,
-  },
+  planBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.glassBlue, paddingHorizontal: 10, paddingVertical: 6, borderRadius: Radius.pill },
   planBadgeText: { color: Colors.blue, fontSize: FontSize.xs, fontWeight: '700', marginLeft: 4 },
-  usageBar: { height: 6, borderRadius: 3, backgroundColor: Colors.border, marginTop: Spacing.md, overflow: 'hidden' },
-  usageFill: { height: '100%', backgroundColor: Colors.blue, borderRadius: 3 },
   usageText: { color: Colors.textSecondary, fontSize: FontSize.xs, marginTop: 6 },
-  manageRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginTop: Spacing.sm },
-  manageText: { color: Colors.blue, fontSize: FontSize.sm, fontWeight: '600', marginRight: 4 },
-  settingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: Spacing.sm + 2 },
-  settingLeft: { flexDirection: 'row', alignItems: 'center' },
-  settingText: { color: Colors.textPrimary, fontSize: FontSize.md, marginLeft: Spacing.md },
-  divider: { height: 1, backgroundColor: Colors.border },
-  logout: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.red,
-  },
+
+  // Logout
+  logout: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.lg, paddingVertical: Spacing.md, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.red },
   logoutText: { color: Colors.red, fontSize: FontSize.md, fontWeight: '700', marginLeft: 8 },
   disclaimer: { color: Colors.textMuted, fontSize: FontSize.xs, textAlign: 'center', marginTop: Spacing.lg, lineHeight: 16 },
+
+  // Nationality sheet
+  backdrop: { flex: 1, backgroundColor: Colors.overlay },
+  sheet: { backgroundColor: Colors.cardElevated, borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl, paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, maxHeight: '75%', borderTopWidth: 1, borderColor: Colors.border },
+  sheetHandle: { width: 44, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  sheetTitle: { color: Colors.white, fontSize: FontSize.lg, fontWeight: '700', marginBottom: Spacing.sm },
+  natOption: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.md, paddingHorizontal: Spacing.sm, borderRadius: Radius.md },
+  natOptionSelected: { backgroundColor: Colors.glassBlue },
+  natOptionText: { color: Colors.white, fontSize: FontSize.md, flex: 1, marginLeft: Spacing.md },
 });

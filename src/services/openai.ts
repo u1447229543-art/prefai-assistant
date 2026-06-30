@@ -366,6 +366,32 @@ export async function chat(
   );
 }
 
+/**
+ * Step-aware assistant. `stepContext` is pre-loaded so the model answers
+ * questions specifically about the administrative step the user is on.
+ */
+export async function askAboutStep(
+  stepContext: string,
+  history: ChatMessage[],
+  language: LanguageCode
+): Promise<string> {
+  return complete(
+    [
+      {
+        role: 'system',
+        content:
+          SYSTEM_BASE +
+          `\n\nThe user is working on this specific administrative step in France:\n${stepContext}\n\n` +
+          `Answer ONLY about this step and closely related questions. Be concrete and specific. ` +
+          `Reply in ${langName(language)} unless the user writes in another language. ` +
+          `Use short, plain language and bullet points or numbered steps. No legal jargon, no walls of text.`,
+      },
+      ...history,
+    ],
+    { temperature: 0.4, maxTokens: 700 }
+  );
+}
+
 export async function generateLetter(params: {
   purpose: string;
   recipient: string;

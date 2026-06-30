@@ -8,6 +8,9 @@ import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { TabNavigator } from './TabNavigator';
 import { EditProfileScreen } from '../screens/EditProfileScreen';
+import { JourneyStepScreen } from '../screens/JourneyStepScreen';
+import { EligibilityScreen } from '../screens/EligibilityScreen';
+import { DocumentPreviewScreen } from '../screens/DocumentPreviewScreen';
 import { DocumentExplainScreen } from '../screens/DocumentExplainScreen';
 import { TranslationScreen } from '../screens/TranslationScreen';
 import { AIReplyScreen } from '../screens/AIReplyScreen';
@@ -58,6 +61,9 @@ export const RootNavigator: React.FC = () => {
           <>
             <Stack.Screen name="Main" component={TabNavigator} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            <Stack.Screen name="JourneyStep" component={JourneyStepScreen} />
+            <Stack.Screen name="Eligibility" component={EligibilityScreen} />
+            <Stack.Screen name="DocumentPreview" component={DocumentPreviewScreen} />
             <Stack.Screen name="DocumentExplain" component={DocumentExplainScreen} />
             <Stack.Screen name="Translation" component={TranslationScreen} />
             <Stack.Screen name="AIReply" component={AIReplyScreen} />

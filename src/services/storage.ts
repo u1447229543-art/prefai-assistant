@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { LanguageCode } from '../constants/languages';
 import { PlanId } from '../constants/pricing';
+import { JourneyId } from '../constants/journeys';
 
 /**
  * Local persistence layer.
@@ -21,6 +22,9 @@ const Keys = {
   deadlines: '@prefai/deadlines',
   chat: '@prefai/chat',
   usage: '@prefai/usage',
+  journey: '@prefai/journey',
+  tasks: '@prefai/tasks',
+  settings: '@prefai/settings',
 } as const;
 
 // ---- Generic helpers ------------------------------------------------------
@@ -80,13 +84,23 @@ export interface StoredUser {
   phone: string;
   /** Full postal address in France. */
   address: string;
+  /** City in France. */
+  city: string;
   createdAt: string;
 }
 
 /** Profile fields that can be edited after registration. */
 export type EditableProfile = Pick<
   StoredUser,
-  'firstName' | 'lastName' | 'dateOfBirth' | 'nationality' | 'idNumber' | 'phone' | 'address' | 'email'
+  | 'firstName'
+  | 'lastName'
+  | 'dateOfBirth'
+  | 'nationality'
+  | 'idNumber'
+  | 'phone'
+  | 'address'
+  | 'city'
+  | 'email'
 >;
 
 export type DocumentCategory =
@@ -107,6 +121,8 @@ export interface StoredDocument {
   size?: number;
   createdAt: string;
   summary?: string;
+  /** Backend document id, if synced to the API (used for deletion). */
+  remoteId?: string;
 }
 
 export interface StoredDeadline {
@@ -130,6 +146,22 @@ export interface StoredChatMessage {
 export interface UsageRecord {
   month: string; // yyyy-mm
   documentsProcessed: number;
+}
+
+/** Progress through the user's selected administrative journey. */
+export interface JourneyProgress {
+  journeyId: JourneyId | null;
+  completedStepIds: string[];
+  startedAt?: string;
+  /** Progress percentage from the backend (0–100). */
+  progress?: number;
+}
+
+/** A small checkable item shown in "Today's Tasks". */
+export interface StoredTask {
+  id: string;
+  title: string;
+  done: boolean;
 }
 
 // ---- User -----------------------------------------------------------------
@@ -169,6 +201,7 @@ export async function removeDocument(id: string): Promise<StoredDocument[]> {
 // ---- Vault (secured documents) --------------------------------------------
 
 export const loadVault = () => getJSON<StoredDocument[]>(Keys.vault, []);
+export const saveVault = (docs: StoredDocument[]) => setJSON(Keys.vault, docs);
 export async function addToVault(doc: StoredDocument): Promise<StoredDocument[]> {
   const docs = await loadVault();
   const next = [doc, ...docs];
@@ -222,6 +255,30 @@ export async function incrementUsage(): Promise<UsageRecord> {
   await setJSON(Keys.usage, next);
   return next;
 }
+
+// ---- Journey --------------------------------------------------------------
+
+const EMPTY_JOURNEY: JourneyProgress = { journeyId: null, completedStepIds: [] };
+
+export const loadJourney = () => getJSON<JourneyProgress>(Keys.journey, EMPTY_JOURNEY);
+export const saveJourney = (p: JourneyProgress) => setJSON(Keys.journey, p);
+
+// ---- Today's tasks --------------------------------------------------------
+
+export const loadTasks = () => getJSON<StoredTask[]>(Keys.tasks, []);
+export const saveTasks = (tasks: StoredTask[]) => setJSON(Keys.tasks, tasks);
+
+// ---- App settings ---------------------------------------------------------
+
+export interface AppSettings {
+  notifications: boolean;
+  darkMode: boolean;
+}
+
+const DEFAULT_SETTINGS: AppSettings = { notifications: true, darkMode: true };
+
+export const loadSettings = () => getJSON<AppSettings>(Keys.settings, DEFAULT_SETTINGS);
+export const saveSettings = (s: AppSettings) => setJSON(Keys.settings, s);
 
 // ---- Reset ----------------------------------------------------------------
 

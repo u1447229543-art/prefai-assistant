@@ -12,14 +12,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Gradients, Radius, Spacing, glow } from '../constants/colors';
 import { Screen, Body, NeonButton } from '../components/ui';
+import { NationalityPicker } from '../components/NationalityPicker';
+import { DateOfBirthPicker, buildDateOfBirth } from '../components/DateOfBirthPicker';
 import { useApp } from '../context/AppContext';
+import { ApiError } from '../services/api';
 
 const EMPTY_FORM = {
   firstName: '',
   lastName: '',
   email: '',
   password: '',
-  dateOfBirth: '',
   nationality: '',
   idNumber: '',
   phone: '',
@@ -27,9 +29,12 @@ const EMPTY_FORM = {
 };
 
 export const AuthScreen: React.FC = () => {
-  const { login, register, t } = useApp();
+  const { login, register, t, authLoading } = useApp();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [form, setForm] = useState(EMPTY_FORM);
+  const [dobDay, setDobDay] = useState('');
+  const [dobMonth, setDobMonth] = useState('');
+  const [dobYear, setDobYear] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,31 +42,66 @@ export const AuthScreen: React.FC = () => {
   const set = (key: keyof typeof EMPTY_FORM) => (value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  const resetRegisterForm = () => {
+    setForm(EMPTY_FORM);
+    setDobDay('');
+    setDobMonth('');
+    setDobYear('');
+    setError(null);
+  };
+
+  const validateRegister = (): string | null => {
+    if (!form.firstName.trim()) return t('errFirstNameRequired');
+    if (!form.lastName.trim()) return t('errLastNameRequired');
+    if (!form.email.trim() || !form.email.includes('@')) return t('errEmailRequired');
+    if (form.password.length < 6) return t('errPasswordMin');
+    const partialDob = !!(dobDay || dobMonth || dobYear);
+    const fullDob = !!(dobDay && dobMonth && dobYear);
+    if (partialDob && !fullDob) return t('errDobIncomplete');
+    return null;
+  };
+
+  const validateLogin = (): string | null => {
+    if (!form.email.trim() || !form.email.includes('@')) return t('errEmailInvalid');
+    if (form.password.length < 6) return t('errPasswordMin');
+    return null;
+  };
+
   const submit = async () => {
     setError(null);
-    if (!form.email.includes('@') || form.password.length < 4) {
-      setError('Enter a valid email and a password of at least 4 characters.');
+
+    const validationError = isRegister ? validateRegister() : validateLogin();
+    if (validationError) {
+      setError(validationError);
       return;
     }
-    if (isRegister) {
-      if (!form.firstName.trim() || !form.lastName.trim()) {
-        setError('Please enter your first and last name.');
-        return;
-      }
-      if (form.dateOfBirth && !/^\d{4}-\d{2}-\d{2}$/.test(form.dateOfBirth.trim())) {
-        setError('Date of birth must be in the format YYYY-MM-DD.');
-        return;
-      }
-    }
+
     setLoading(true);
     try {
       if (isRegister) {
-        await register(form);
+        await register({
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          email: form.email.trim(),
+          password: form.password,
+          dateOfBirth: buildDateOfBirth(dobDay, dobMonth, dobYear),
+          nationality: form.nationality.trim(),
+          idNumber: form.idNumber.trim(),
+          phone: form.phone.trim(),
+          address: form.address.trim(),
+        });
+        // RootNavigator switches to Main automatically when isAuthenticated becomes true.
       } else {
-        await login(form.email, form.password);
+        await login(form.email.trim(), form.password);
       }
-    } catch {
-      setError('Authentication failed. Please try again.');
+    } catch (e) {
+      if (e instanceof ApiError) {
+        setError(e.message);
+      } else if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        setError(isRegister ? t('errRegisterFailed') : t('errLoginFailed'));
+      }
     } finally {
       setLoading(false);
     }
@@ -86,10 +126,24 @@ export const AuthScreen: React.FC = () => {
           <View style={styles.form}>
             {isRegister ? (
               <>
-                <Text style={styles.sectionLabel}>Account</Text>
+                <Text style={styles.sectionLabel}>{t('required')}</Text>
+                <Field
+                  icon="person-outline"
+                  placeholder={`${t('firstNamePlaceholder')} *`}
+                  value={form.firstName}
+                  onChangeText={set('firstName')}
+                  autoCapitalize="words"
+                />
+                <Field
+                  icon="person-outline"
+                  placeholder={`${t('lastNamePlaceholder')} *`}
+                  value={form.lastName}
+                  onChangeText={set('lastName')}
+                  autoCapitalize="words"
+                />
                 <Field
                   icon="mail-outline"
-                  placeholder={t('email')}
+                  placeholder={`${t('email')} *`}
                   value={form.email}
                   onChangeText={set('email')}
                   keyboardType="email-address"
@@ -97,66 +151,49 @@ export const AuthScreen: React.FC = () => {
                 />
                 <Field
                   icon="lock-closed-outline"
-                  placeholder={t('password')}
+                  placeholder={`${t('password')} * ${t('passwordMinHint')}`}
                   value={form.password}
                   onChangeText={set('password')}
                   secureTextEntry
                   autoCapitalize="none"
                 />
 
-                <Text style={styles.sectionLabel}>Personal details</Text>
-                <Field
-                  icon="person-outline"
-                  placeholder="First name (Prénom)"
-                  value={form.firstName}
-                  onChangeText={set('firstName')}
-                  autoCapitalize="words"
+                <Text style={styles.sectionLabel}>{t('optionalDetails')}</Text>
+                <DateOfBirthPicker
+                  day={dobDay}
+                  month={dobMonth}
+                  year={dobYear}
+                  onChangeDay={setDobDay}
+                  onChangeMonth={setDobMonth}
+                  onChangeYear={setDobYear}
                 />
-                <Field
-                  icon="person-outline"
-                  placeholder="Last name (Nom de famille)"
-                  value={form.lastName}
-                  onChangeText={set('lastName')}
-                  autoCapitalize="words"
-                />
-                <Field
-                  icon="calendar-outline"
-                  placeholder="Date of birth — YYYY-MM-DD (Date de naissance)"
-                  value={form.dateOfBirth}
-                  onChangeText={set('dateOfBirth')}
-                  keyboardType="numbers-and-punctuation"
-                />
-                <Field
-                  icon="flag-outline"
-                  placeholder="Nationality (Nationalité)"
+                <NationalityPicker
                   value={form.nationality}
-                  onChangeText={set('nationality')}
-                  autoCapitalize="words"
+                  onChange={set('nationality')}
+                  placeholder={t('nationalityOptional')}
                 />
                 <Field
                   icon="card-outline"
-                  placeholder="National ID / Passport number"
+                  placeholder={t('idNumberOptional')}
                   value={form.idNumber}
                   onChangeText={set('idNumber')}
                   autoCapitalize="characters"
                 />
                 <Field
                   icon="call-outline"
-                  placeholder="Phone number"
+                  placeholder={t('phoneOptional')}
                   value={form.phone}
                   onChangeText={set('phone')}
                   keyboardType="phone-pad"
                 />
                 <Field
                   icon="home-outline"
-                  placeholder="Address in France (Adresse)"
+                  placeholder={t('addressInFranceOptional')}
                   value={form.address}
                   onChangeText={set('address')}
                   multiline
                 />
-                <Text style={styles.privacyNote}>
-                  🔒 Stored only on your device and used to auto-fill your letters & documents.
-                </Text>
+                <Text style={styles.privacyNote}>{t('profilePrivacyNote')}</Text>
               </>
             ) : (
               <>
@@ -179,12 +216,17 @@ export const AuthScreen: React.FC = () => {
               </>
             )}
 
-            {error ? <Text style={styles.error}>{error}</Text> : null}
+            {error ? (
+              <View style={styles.errorBox}>
+                <Ionicons name="alert-circle" size={18} color={Colors.red} />
+                <Text style={styles.error}>{error}</Text>
+              </View>
+            ) : null}
 
             <NeonButton
               title={isRegister ? t('register') : t('login')}
               onPress={submit}
-              loading={loading}
+              loading={loading || authLoading}
               variant="blueRed"
               style={{ marginTop: Spacing.sm }}
             />
@@ -192,7 +234,7 @@ export const AuthScreen: React.FC = () => {
             <Pressable
               onPress={() => {
                 setMode(isRegister ? 'login' : 'register');
-                setError(null);
+                resetRegisterForm();
               }}
               style={styles.switch}
             >
@@ -267,7 +309,16 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     marginLeft: Spacing.sm,
   },
-  error: { color: Colors.red, fontSize: FontSize.sm, marginBottom: Spacing.sm },
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8 as unknown as number,
+    backgroundColor: 'rgba(255,45,85,0.10)',
+    borderRadius: Radius.md,
+    padding: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  error: { color: Colors.red, fontSize: FontSize.sm, flex: 1, lineHeight: 20 },
   switch: { alignItems: 'center', marginTop: Spacing.lg },
   switchText: { color: Colors.blue, fontSize: FontSize.sm, fontWeight: '600' },
   disclaimer: {

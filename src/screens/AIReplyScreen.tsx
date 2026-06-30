@@ -18,10 +18,10 @@ const ORGS: { id: AdminOrg; icon: keyof typeof Ionicons.glyphMap }[] = [
   { id: 'Other', icon: 'ellipsis-horizontal' },
 ];
 
-const TONES: { id: 'formal' | 'polite' | 'firm'; label: string }[] = [
-  { id: 'formal', label: 'Formal' },
-  { id: 'polite', label: 'Polite' },
-  { id: 'firm', label: 'Firm' },
+const TONES: { id: 'formal' | 'polite' | 'firm'; labelKey: 'formal' | 'polite' | 'firm' }[] = [
+  { id: 'formal', labelKey: 'formal' },
+  { id: 'polite', labelKey: 'polite' },
+  { id: 'firm', labelKey: 'firm' },
 ];
 
 export const AIReplyScreen: React.FC = () => {
@@ -94,7 +94,7 @@ export const AIReplyScreen: React.FC = () => {
           })}
         </View>
 
-        <Text style={styles.label}>Tone</Text>
+        <Text style={styles.label}>{t('tone')}</Text>
         <View style={styles.toneRow}>
           {TONES.map((tn) => {
             const active = tn.id === tone;
@@ -104,7 +104,7 @@ export const AIReplyScreen: React.FC = () => {
                 onPress={() => setTone(tn.id)}
                 style={[styles.toneChip, active && styles.toneChipActive]}
               >
-                <Text style={[styles.toneText, active && { color: '#04121A' }]}>{tn.label}</Text>
+                <Text style={[styles.toneText, active && { color: '#04121A' }]}>{t(tn.labelKey)}</Text>
               </Pressable>
             );
           })}

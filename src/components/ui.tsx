@@ -5,6 +5,7 @@ import {
   Pressable,
   ScrollView,
   ScrollViewProps,
+  StyleProp,
   StyleSheet,
   Text,
   TextStyle,
@@ -73,7 +74,7 @@ export const Header: React.FC<{
 /** Card surface. */
 export const Card: React.FC<{
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   onPress?: () => void;
 }> = ({ children, style, onPress }) => {
   const content = <View style={[styles.card, style]}>{children}</View>;
@@ -215,6 +216,24 @@ export const ScrollableText: React.FC<{
   </ScrollView>
 );
 
+/** Slim neon progress bar. `percent` is 0–100. */
+export const ProgressBar: React.FC<{ percent: number; height?: number }> = ({
+  percent,
+  height = 8,
+}) => {
+  const clamped = Math.max(0, Math.min(100, percent));
+  return (
+    <View style={[styles.progressTrack, { height, borderRadius: height / 2 }]}>
+      <LinearGradient
+        colors={Gradients.blueRed}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{ width: `${clamped}%`, height: '100%', borderRadius: height / 2 }}
+      />
+    </View>
+  );
+};
+
 /** Small rounded pill / chip. */
 export const Chip: React.FC<{
   label: string;
@@ -284,6 +303,7 @@ const styles = StyleSheet.create({
   btnInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   btnText: { color: '#04121A', fontSize: FontSize.md, fontWeight: '800' },
   btnDisabled: { opacity: 0.5 },
+  progressTrack: { width: '100%', backgroundColor: Colors.border, overflow: 'hidden' },
   empty: { alignItems: 'center', paddingVertical: Spacing.xl },
   emptyIcon: {
     width: 64,

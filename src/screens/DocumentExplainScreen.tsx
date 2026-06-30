@@ -29,7 +29,7 @@ export const DocumentExplainScreen: React.FC = () => {
         setResult(null);
       }
     } catch {
-      Alert.alert(t('error'), 'Could not open the file picker.');
+      Alert.alert(t('error'), t('couldNotOpenPicker'));
     }
   };
 
@@ -42,7 +42,7 @@ export const DocumentExplainScreen: React.FC = () => {
 
     const allowed = await registerDocumentUse();
     if (!allowed) {
-      Alert.alert('Limit reached', 'You have used all your documents this month. Upgrade your plan to continue.');
+      Alert.alert(t('limitReached'), t('limitReachedMsg'));
       return;
     }
 

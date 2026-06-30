@@ -9,10 +9,25 @@ export interface PickedDocument {
   size?: number;
 }
 
-/** Opens the system document picker. Returns null if cancelled. */
+/** Accepted document types: PDF, JPG/JPEG and PNG. */
+const ACCEPTED_MIME = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+const WEB_ACCEPT = '.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png';
+
+/**
+ * Opens the system document picker for PDF / JPG / PNG. Returns null if the
+ * user cancels.
+ *
+ * On web we use a native <input type="file"> because it is the most reliable
+ * way to trigger the browser file dialog from a user gesture. On iOS/Android we
+ * use expo-document-picker.
+ */
 export async function pickDocument(): Promise<PickedDocument | null> {
+  if (Platform.OS === 'web') {
+    return pickViaWebInput();
+  }
+
   const result = await DocumentPicker.getDocumentAsync({
-    type: ['application/pdf', 'image/*', 'text/*', 'application/msword'],
+    type: ACCEPTED_MIME,
     copyToCacheDirectory: true,
     multiple: false,
   });
@@ -25,6 +40,61 @@ export async function pickDocument(): Promise<PickedDocument | null> {
     mimeType: asset.mimeType,
     size: asset.size ?? undefined,
   };
+}
+
+/** Web-only: opens the browser file dialog via a hidden input element. */
+function pickViaWebInput(): Promise<PickedDocument | null> {
+  return new Promise((resolve) => {
+    if (typeof document === 'undefined') {
+      resolve(null);
+      return;
+    }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = WEB_ACCEPT;
+    input.style.display = 'none';
+
+    let settled = false;
+    const cleanup = () => {
+      input.onchange = null;
+      input.oncancel = null;
+      if (input.parentNode) input.parentNode.removeChild(input);
+    };
+    const finish = (value: PickedDocument | null) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(value);
+    };
+
+    input.onchange = () => {
+      const file = input.files && input.files[0];
+      if (!file) {
+        finish(null);
+        return;
+      }
+      finish({
+        name: file.name,
+        uri: URL.createObjectURL(file),
+        mimeType: file.type || undefined,
+        size: file.size,
+      });
+    };
+    // Fired when the user closes the dialog without choosing a file (modern browsers).
+    input.oncancel = () => finish(null);
+
+    document.body.appendChild(input);
+    input.click();
+  });
+}
+
+/** Human-readable file size, e.g. "1.4 MB". */
+export function formatBytes(bytes?: number): string {
+  if (!bytes || bytes <= 0) return '—';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const value = bytes / Math.pow(1024, i);
+  return `${value >= 10 || i === 0 ? Math.round(value) : value.toFixed(1)} ${units[i]}`;
 }
 
 /**

@@ -15,42 +15,43 @@ import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
 import { MAX_CONTENT_WIDTH, SCREEN_WIDTH } from '../constants/responsive';
 import { Screen, NeonButton } from '../components/ui';
 import { useApp } from '../context/AppContext';
+import type { TranslationKey } from '../i18n/translations';
 
 interface Slide {
   icon: keyof typeof Ionicons.glyphMap;
   accent: string;
-  title: string;
-  body: string;
+  titleKey: TranslationKey;
+  bodyKey: TranslationKey;
 }
 
 const SLIDES: Slide[] = [
   {
     icon: 'language-outline',
     accent: Colors.blue,
-    title: 'Understand any French letter',
-    body: 'Upload a document from CAF, CPAM, Préfecture or Impôts and get a clear explanation in your language.',
+    titleKey: 'onboardingSlide1Title',
+    bodyKey: 'onboardingSlide1Body',
   },
   {
     icon: 'create-outline',
     accent: Colors.red,
-    title: 'Reply & fill forms with confidence',
-    body: 'Generate official French responses, understand every form field, and never miss a deadline again.',
+    titleKey: 'onboardingSlide2Title',
+    bodyKey: 'onboardingSlide2Body',
   },
   {
     icon: 'shield-checkmark-outline',
     accent: '#2EE6A6',
-    title: 'Your documents, organized & safe',
-    body: 'Store passport, visa and contracts securely on your device. PrefAI helps you — it never replaces official services.',
+    titleKey: 'onboardingSlide3Title',
+    bodyKey: 'onboardingSlide3Body',
   },
 ];
 
 export const OnboardingScreen: React.FC = () => {
-  const { completeOnboarding } = useApp();
+  const { completeOnboarding, t } = useApp();
   const [index, setIndex] = useState(0);
-  // The list viewport is constrained to MAX_CONTENT_WIDTH on web, so the slide
-  // width must match the actual rendered list width — not the full window width.
   const [width, setWidth] = useState(Math.min(SCREEN_WIDTH, MAX_CONTENT_WIDTH));
   const listRef = useRef<FlatList<Slide>>(null);
+
+  const slides = SLIDES;
 
   const onLayout = (e: LayoutChangeEvent) => {
     const w = e.nativeEvent.layout.width;
@@ -59,7 +60,7 @@ export const OnboardingScreen: React.FC = () => {
 
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const i = Math.round(e.nativeEvent.contentOffset.x / width);
-    if (i !== index && i >= 0 && i < SLIDES.length) setIndex(i);
+    if (i !== index && i >= 0 && i < slides.length) setIndex(i);
   };
 
   const goTo = (i: number) => {
@@ -68,7 +69,7 @@ export const OnboardingScreen: React.FC = () => {
   };
 
   const next = () => {
-    if (index < SLIDES.length - 1) {
+    if (index < slides.length - 1) {
       goTo(index + 1);
     } else {
       completeOnboarding();
@@ -79,13 +80,13 @@ export const OnboardingScreen: React.FC = () => {
     <Screen edges={['top', 'bottom']}>
       <View style={styles.top}>
         <Pressable onPress={completeOnboarding} hitSlop={10}>
-          <Text style={styles.skip}>Skip</Text>
+          <Text style={styles.skip}>{t('skip')}</Text>
         </Pressable>
       </View>
 
       <FlatList
         ref={listRef}
-        data={SLIDES}
+        data={slides}
         keyExtractor={(_, i) => String(i)}
         horizontal
         pagingEnabled
@@ -103,23 +104,23 @@ export const OnboardingScreen: React.FC = () => {
               />
               <Ionicons name={item.icon} size={56} color={item.accent} />
             </View>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.body}>{item.body}</Text>
+            <Text style={styles.title}>{t(item.titleKey)}</Text>
+            <Text style={styles.body}>{t(item.bodyKey)}</Text>
           </View>
         )}
       />
 
       <View style={styles.footer}>
         <View style={styles.dots}>
-          {SLIDES.map((_, i) => (
+          {slides.map((_, i) => (
             <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
           ))}
         </View>
         <NeonButton
-          title={index === SLIDES.length - 1 ? 'Get Started' : 'Next'}
+          title={index === slides.length - 1 ? t('getStarted') : t('next')}
           onPress={next}
-          variant={index === SLIDES.length - 1 ? 'blueRed' : 'blue'}
-          icon={index === SLIDES.length - 1 ? 'rocket-outline' : undefined}
+          variant={index === slides.length - 1 ? 'blueRed' : 'blue'}
+          icon={index === slides.length - 1 ? 'rocket-outline' : undefined}
         />
       </View>
     </Screen>

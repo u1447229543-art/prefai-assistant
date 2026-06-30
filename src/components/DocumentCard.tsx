@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { DocumentCategory, StoredDocument } from '../services/storage';
+import { useApp } from '../context/AppContext';
+import { getCategoryLabel } from '../i18n/helpers';
 
 const CATEGORY_META: Record<
   DocumentCategory,
@@ -41,7 +43,9 @@ export interface DocumentCardProps {
 }
 
 export const DocumentCard: React.FC<DocumentCardProps> = ({ document, onPress, onDelete }) => {
+  const { t } = useApp();
   const meta = CATEGORY_META[document.category];
+  const categoryLabel = getCategoryLabel(t, document.category);
   return (
     <Pressable
       onPress={onPress}
@@ -55,7 +59,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ document, onPress, o
           {document.name}
         </Text>
         <Text style={styles.meta} numberOfLines={1}>
-          {meta.label} · {formatDate(document.createdAt)}
+          {categoryLabel} · {formatDate(document.createdAt)}
           {document.size ? ` · ${formatSize(document.size)}` : ''}
         </Text>
       </View>

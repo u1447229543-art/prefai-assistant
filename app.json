@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "PrefAI Assistant",
-    "slug": "france-assistant",
+    "slug": "david",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -49,6 +49,12 @@
           "iCloudContainerEnvironment": "Production"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e21ba0f2-2bc0-492b-9a6e-c47c233c93f3"
+      }
+    },
+    "owner": "prefaifrance"
   }
 }
