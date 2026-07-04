@@ -16,7 +16,7 @@ import { Screen, Body, Header, Card, NeonButton } from '../components/ui';
 import { ChatBubble } from '../components/ChatBubble';
 import { useApp } from '../context/AppContext';
 import { getJourney, getJourneyStep } from '../constants/journeys';
-import { askAboutStep, ChatMessage, isConfigured } from '../services/openai';
+import { askAboutStep, ChatMessage, isStepAiConfigured } from '../services/openai';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -524,9 +524,9 @@ export const JourneyStepScreen: React.FC = () => {
                 </View>
               )}
 
-              {!isConfigured() ? (
+              {!isStepAiConfigured() ? (
                 <Text style={styles.aiWarn}>
-                  Add your OpenAI API key to enable live answers.
+                  Step assistant is not available yet.
                 </Text>
               ) : null}
 

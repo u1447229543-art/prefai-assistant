@@ -271,4 +271,101 @@ export async function deleteDocument(id: string): Promise<{ success: boolean; id
   return request(`/api/documents/${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
 
+// ---- AI (proxied through backend; OpenAI key stays server-side) ------------
+
+export interface DocumentExplanation {
+  summary: string;
+  keyPoints: string[];
+  deadlines: string[];
+  nextSteps: string[];
+  organization: string;
+}
+
+export interface FormFieldHelp {
+  field: string;
+  whatItMeans: string;
+  whatToWrite: string;
+}
+
+export interface AdminReply {
+  french: string;
+  translation: string;
+  language: string;
+}
+
+export type AdminOrg =
+  | 'CAF'
+  | 'CPAM'
+  | 'Préfecture'
+  | 'Impôts'
+  | 'Pôle Emploi'
+  | 'ANEF'
+  | 'Other';
+
+export interface SenderProfile {
+  fullName?: string;
+  dateOfBirth?: string;
+  nationality?: string;
+  idNumber?: string;
+  phone?: string;
+  address?: string;
+  email?: string;
+}
+
+export async function aiExplainDocument(
+  documentText: string,
+  language: string
+): Promise<DocumentExplanation> {
+  return request('/api/ai/explain', {
+    method: 'POST',
+    body: JSON.stringify({ documentText, language }),
+  });
+}
+
+export async function aiTranslate(
+  text: string,
+  target: string,
+  source: string | 'auto' = 'fr'
+): Promise<{ text: string }> {
+  return request('/api/ai/translate', {
+    method: 'POST',
+    body: JSON.stringify({ text, target, source }),
+  });
+}
+
+export async function aiGenerateReply(params: {
+  organization: AdminOrg;
+  situation: string;
+  tone?: 'formal' | 'firm' | 'polite';
+  language: string;
+  sender?: SenderProfile;
+}): Promise<AdminReply> {
+  return request('/api/ai/reply', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+}
+
+export async function aiExplainForm(
+  formNameOrText: string,
+  language: string
+): Promise<{ intro: string; fields: FormFieldHelp[]; requiredDocuments: string[] }> {
+  return request('/api/ai/form-assist', {
+    method: 'POST',
+    body: JSON.stringify({ formNameOrText, language }),
+  });
+}
+
+export async function aiGenerateLetter(params: {
+  purpose: string;
+  recipient: string;
+  language: string;
+  sender?: SenderProfile;
+}): Promise<{ letter: string }> {
+  return request('/api/ai/pdf', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+}
+
 export { API_URL };

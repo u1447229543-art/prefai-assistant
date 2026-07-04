@@ -26,18 +26,18 @@ Built with **React Native + Expo (TypeScript)**, a dark neon theme, and OpenAI `
 
 ```bash
 npm install
-cp .env.example .env   # add your OpenAI key
+cp .env.example .env   # set EXPO_PUBLIC_API_URL to your backend
 npm run web            # or: npm run android / npm run ios
 ```
 
-Without an API key the app runs in **demo mode** with placeholder AI responses, so the full UI is still navigable.
+Without a backend URL (or when not logged in) AI features run in **demo mode** with placeholder responses, so the full UI is still navigable.
 
 ## Configuration
 
-- `EXPO_PUBLIC_OPENAI_API_KEY` – enables real AI (document explanation, translation, replies, chat…).
-- `EXPO_PUBLIC_API_URL` – your backend that creates Stripe Checkout sessions. Empty = subscription demo mode.
+- `EXPO_PUBLIC_API_URL` – PrefAI backend on Railway (auth, journeys, documents, and **AI proxy** at `/api/ai/*`). Defaults to `http://localhost:3001` if empty.
+- OpenAI is **not** configured in the mobile app. Set `OPENAI_API_KEY` on the backend (Railway environment variables), never in the client bundle.
 
-> For production, never ship the OpenAI key in the client — proxy AI calls through your backend. The services in `src/services/openai.ts` are structured so this swap is easy.
+Stripe subscriptions use the same backend URL; leave `EXPO_PUBLIC_API_URL` empty to run subscription flows in demo mode.
 
 ## Project structure
 
