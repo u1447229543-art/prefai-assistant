@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton } from '../components/ui';
 import { useApp } from '../context/AppContext';
-import { AdminOrg, AdminReply, generateAdminReply } from '../services/openai';
+import { AdminOrg, AdminReply, aiGenerateReply, ApiError } from '../services/api';
 import { copyOrShare } from '../services/clipboard';
 
 const ORGS: { id: AdminOrg; icon: keyof typeof Ionicons.glyphMap }[] = [
@@ -41,7 +41,7 @@ export const AIReplyScreen: React.FC = () => {
     setResult(null);
     setError(null);
     try {
-      const out = await generateAdminReply({
+      const out = await aiGenerateReply({
         organization: org,
         situation: situation.trim(),
         tone,
@@ -60,7 +60,15 @@ export const AIReplyScreen: React.FC = () => {
       });
       setResult(out);
     } catch (e) {
-      setError(String(e instanceof Error ? e.message : e));
+      if (e instanceof ApiError && e.status === 401) {
+        setError('Session expired. Please log in again to use AI features.');
+      } else if (e instanceof ApiError && e.status === 404) {
+        setError('AI Reply is not available on the server yet. Please try again after the backend is updated.');
+      } else if (e instanceof ApiError && e.status === 502 && e.message.includes('OpenAI rejected the API key')) {
+        setError('The server OpenAI API key is invalid. Update OPENAI_API_KEY on Railway.');
+      } else {
+        setError(String(e instanceof Error ? e.message : e));
+      }
     } finally {
       setLoading(false);
     }

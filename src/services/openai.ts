@@ -54,8 +54,18 @@ function mapApiError(e: unknown): Error {
     if (e.status === 401) {
       return new Error('Session expired. Please log in again to use AI features.');
     }
+    if (e.status === 404) {
+      return new Error(
+        'AI service is not available on the server yet. Redeploy the backend with /api/ai routes enabled.'
+      );
+    }
     if (e.status === 429) {
       return new Error('OpenAI rate limit / quota reached (429). Check your plan and billing, then try again.');
+    }
+    if (e.status === 502 && e.message.includes('OpenAI rejected the API key')) {
+      return new Error(
+        'The server OpenAI API key is invalid. Update OPENAI_API_KEY on Railway and redeploy the backend.'
+      );
     }
     if (e.status === 503) {
       return new Error('AI is not configured on the server. Add OPENAI_API_KEY to the backend.');
