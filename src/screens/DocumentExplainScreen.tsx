@@ -8,11 +8,12 @@ import { useApp } from '../context/AppContext';
 import { useSubscription } from '../hooks/useSubscription';
 import { pickDocument, readDocumentText, toStoredDocument, PickedDocument } from '../services/documents';
 import { explainDocument, DocumentExplanation } from '../services/openai';
+import { CATEGORY_TO_BACKEND } from '../services/api';
 import * as storage from '../services/storage';
 
 export const DocumentExplainScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { language, t } = useApp();
+  const { language, t, uploadDocument, addCachedDocument } = useApp();
   const { registerDocumentUse, remaining, isUnlimited } = useSubscription();
 
   const [picked, setPicked] = useState<PickedDocument | null>(null);
@@ -56,7 +57,13 @@ export const DocumentExplainScreen: React.FC = () => {
 
       if (picked) {
         const category = guessCategory(explanation.organization);
-        await storage.addDocument(toStoredDocument(picked, category, explanation.summary));
+        const local = toStoredDocument(picked, category, explanation.summary);
+        try {
+          await uploadDocument(local, CATEGORY_TO_BACKEND[category]);
+        } catch {
+          // Offline or API failure: still keep the file in the local vault.
+          await addCachedDocument(local);
+        }
       }
 
       if (explanation.deadlines.length > 0) {

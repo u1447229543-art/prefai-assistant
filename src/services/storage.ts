@@ -17,7 +17,6 @@ const Keys = {
   subscription: '@prefai/subscription',
   language: '@prefai/language',
   onboarded: '@prefai/onboarded',
-  documents: '@prefai/documents',
   vault: '@prefai/vault',
   deadlines: '@prefai/deadlines',
   chat: '@prefai/chat',
@@ -26,6 +25,9 @@ const Keys = {
   tasks: '@prefai/tasks',
   settings: '@prefai/settings',
 } as const;
+
+/** Legacy key used before vault consolidation. Migrated on first loadVault(). */
+const LEGACY_DOCUMENTS_KEY = '@prefai/documents';
 
 // ---- Generic helpers ------------------------------------------------------
 
@@ -183,36 +185,63 @@ export const loadLanguage = () => getJSON<LanguageCode | null>(Keys.language, nu
 export const setOnboarded = (v: boolean) => setJSON(Keys.onboarded, v);
 export const loadOnboarded = () => getJSON<boolean>(Keys.onboarded, false);
 
-// ---- Documents (recent / processed) ---------------------------------------
+// ---- Document vault (single store: @prefai/vault) -------------------------
 
-export const loadDocuments = () => getJSON<StoredDocument[]>(Keys.documents, []);
-export async function addDocument(doc: StoredDocument): Promise<StoredDocument[]> {
-  const docs = await loadDocuments();
-  const next = [doc, ...docs].slice(0, 100);
-  await setJSON(Keys.documents, next);
-  return next;
+/**
+ * Merge any leftover `@prefai/documents` entries into the vault, then delete
+ * the legacy key so data is not lost and never written to the old key again.
+ */
+async function migrateLegacyDocumentsIntoVault(
+  vault: StoredDocument[]
+): Promise<StoredDocument[]> {
+  const raw = await AsyncStorage.getItem(LEGACY_DOCUMENTS_KEY);
+  if (raw === null) return vault;
+
+  let legacy: StoredDocument[] = [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (Array.isArray(parsed)) legacy = parsed as StoredDocument[];
+  } catch {
+    // Corrupt legacy payload — drop the key below.
+  }
+
+  const vaultIds = new Set(vault.map((d) => d.id));
+  const extras = legacy.filter((d) => d?.id && !vaultIds.has(d.id));
+  const merged = extras.length > 0 ? [...vault, ...extras] : vault;
+
+  if (extras.length > 0) {
+    await setJSON(Keys.vault, merged);
+  }
+  await AsyncStorage.removeItem(LEGACY_DOCUMENTS_KEY);
+  return merged;
 }
-export async function removeDocument(id: string): Promise<StoredDocument[]> {
-  const docs = (await loadDocuments()).filter((d) => d.id !== id);
-  await setJSON(Keys.documents, docs);
-  return docs;
+
+export async function loadVault(): Promise<StoredDocument[]> {
+  const vault = await getJSON<StoredDocument[]>(Keys.vault, []);
+  return migrateLegacyDocumentsIntoVault(Array.isArray(vault) ? vault : []);
 }
 
-// ---- Vault (secured documents) --------------------------------------------
-
-export const loadVault = () => getJSON<StoredDocument[]>(Keys.vault, []);
 export const saveVault = (docs: StoredDocument[]) => setJSON(Keys.vault, docs);
+
 export async function addToVault(doc: StoredDocument): Promise<StoredDocument[]> {
   const docs = await loadVault();
-  const next = [doc, ...docs];
+  const next = [doc, ...docs.filter((d) => d.id !== doc.id)].slice(0, 100);
   await setJSON(Keys.vault, next);
   return next;
 }
+
 export async function removeFromVault(id: string): Promise<StoredDocument[]> {
   const docs = (await loadVault()).filter((d) => d.id !== id);
   await setJSON(Keys.vault, docs);
   return docs;
 }
+
+/** @deprecated Use loadVault — alias after consolidating stores. */
+export const loadDocuments = loadVault;
+/** @deprecated Use addToVault — alias after consolidating stores. */
+export const addDocument = addToVault;
+/** @deprecated Use removeFromVault — alias after consolidating stores. */
+export const removeDocument = removeFromVault;
 
 // ---- Deadlines ------------------------------------------------------------
 
@@ -283,6 +312,9 @@ export const saveSettings = (s: AppSettings) => setJSON(Keys.settings, s);
 // ---- Reset ----------------------------------------------------------------
 
 export async function clearAll(): Promise<void> {
-  await AsyncStorage.multiRemove(Object.values(Keys).filter((k) => k.startsWith('@')));
+  await AsyncStorage.multiRemove([
+    ...Object.values(Keys).filter((k) => k.startsWith('@')),
+    LEGACY_DOCUMENTS_KEY,
+  ]);
   await clearToken();
 }

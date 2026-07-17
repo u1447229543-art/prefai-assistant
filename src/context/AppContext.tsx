@@ -65,6 +65,8 @@ interface AppContextValue {
     doc: storage.StoredDocument,
     backendCategory: string
   ) => Promise<storage.StoredDocument>;
+  /** Save a document to the local vault (+ React state) without requiring the API. */
+  addCachedDocument: (doc: storage.StoredDocument) => Promise<void>;
   removeDocument: (id: string) => Promise<void>;
 
   // today's tasks (local only)
@@ -147,8 +149,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const { documents: list } = await api.getDocuments();
       const mapped = list.map(api.toStoredDocument);
-      setDocuments(mapped);
-      await storage.saveVault(mapped);
+      // Keep local-only vault entries (e.g. migrated from @prefai/documents or
+      // offline explain saves) so a server sync never deletes them.
+      const cached = await storage.loadVault();
+      const remoteIds = new Set(mapped.map((d) => d.remoteId ?? d.id));
+      const localOnly = cached.filter((d) => !d.remoteId && !remoteIds.has(d.id));
+      const next = [...mapped, ...localOnly];
+      setDocuments(next);
+      await storage.saveVault(next);
       setSyncError(null);
     } catch (e) {
       if (api.isNetworkError(e)) {
@@ -460,9 +468,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         category: backendCategory,
         fileUrl: doc.uri,
       });
-      const saved = api.toStoredDocument(document);
+      const saved: storage.StoredDocument = {
+        ...api.toStoredDocument(document),
+        summary: doc.summary,
+      };
       setDocuments((prev) => {
-        const next = [saved, ...prev];
+        const next = [saved, ...prev.filter((d) => d.id !== saved.id && d.id !== doc.id)];
         void storage.saveVault(next);
         return next;
       });
@@ -471,6 +482,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     },
     [refreshUsage]
   );
+
+  const addCachedDocument = useCallback(async (doc: storage.StoredDocument) => {
+    const next = await storage.addToVault(doc);
+    setDocuments(next);
+  }, []);
 
   const removeDocument = useCallback(async (id: string) => {
     const doc = documents.find((d) => d.id === id);
@@ -555,6 +571,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       documentsLoading,
       refreshDocuments,
       uploadDocument,
+      addCachedDocument,
       removeDocument,
       tasks,
       toggleTask,
@@ -594,6 +611,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       documentsLoading,
       refreshDocuments,
       uploadDocument,
+      addCachedDocument,
       removeDocument,
       tasks,
       toggleTask,
