@@ -4,12 +4,12 @@ import { PlanId, getPlan } from '../constants/pricing';
  * Stripe service.
  *
  * Native Stripe (`@stripe/stripe-react-native`) requires a custom dev build, so this
- * module is written as a thin client that talks to YOUR backend. Point
- * `EXPO_PUBLIC_API_URL` at a server that creates Checkout Sessions / Payment Intents
- * with your secret key. Until then it runs in a safe "demo" mode that simulates the flow.
+ * module is a thin client that talks to the PrefAI backend. Point
+ * `EXPO_PUBLIC_API_URL` at the Railway API; paid plans must have a real
+ * `stripePriceId` in `constants/pricing.ts`.
  */
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? '';
+const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/+$/, '');
 
 export const isConfigured = (): boolean => API_URL.length > 0;
 
@@ -35,17 +35,19 @@ export async function startCheckout(
     return { success: true, planId, message: 'You are on the Free plan.' };
   }
 
-  if (!isConfigured() || !plan.stripePriceId) {
-    // Demo mode: pretend the payment succeeded so the UI flow can be tested.
-    await new Promise((r) => setTimeout(r, 900));
-    return {
-      success: true,
-      planId,
-      message: `[Demo] Subscribed to ${plan.name} (€${plan.price}/mo). Configure EXPO_PUBLIC_API_URL + Stripe to take real payments.`,
-    };
+  if (!isConfigured()) {
+    throw new Error(
+      'Payments are not configured. Set EXPO_PUBLIC_API_URL to your PrefAI backend.'
+    );
   }
 
-  const res = await fetch(`${API_URL}/create-checkout-session`, {
+  if (!plan.stripePriceId) {
+    throw new Error(
+      `Stripe is not configured for the ${plan.name} plan. Add a valid stripePriceId in pricing settings.`
+    );
+  }
+
+  const res = await fetch(`${API_URL}/api/create-checkout-session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -70,10 +72,11 @@ export async function startCheckout(
 
 export async function cancelSubscription(customerEmail: string): Promise<boolean> {
   if (!isConfigured()) {
-    await new Promise((r) => setTimeout(r, 600));
-    return true;
+    throw new Error(
+      'Payments are not configured. Set EXPO_PUBLIC_API_URL to your PrefAI backend.'
+    );
   }
-  const res = await fetch(`${API_URL}/cancel-subscription`, {
+  const res = await fetch(`${API_URL}/api/cancel-subscription`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: customerEmail }),
@@ -88,7 +91,7 @@ export async function getSubscriptionStatus(
     return { planId: 'free', active: true };
   }
   const res = await fetch(
-    `${API_URL}/subscription-status?email=${encodeURIComponent(customerEmail)}`
+    `${API_URL}/api/subscription-status?email=${encodeURIComponent(customerEmail)}`
   );
   if (!res.ok) return { planId: 'free', active: true };
   return res.json();
