@@ -1,4 +1,4 @@
-import { LanguageCode } from '../constants/languages';
+import { LanguageCode, getLanguage } from '../constants/languages';
 import {
   API_URL,
   ApiError,
@@ -17,9 +17,14 @@ import {
 /**
  * AI service for PrefAI Assistant.
  *
- * All OpenAI calls are proxied through the PrefAI backend (`/api/ai/*`).
- * The OpenAI API key lives server-side only (`OPENAI_API_KEY` on Railway).
+ * Most OpenAI calls are proxied through the PrefAI backend (`/api/ai/*`).
+ * Journey step chat still uses `EXPO_PUBLIC_OPENAI_API_KEY` on the client
+ * until a dedicated `/api/ai/step` route is available.
  */
+
+const STEP_OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
+const STEP_MODEL = 'gpt-4o';
+const STEP_API_KEY = (process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? '').trim();
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -29,8 +34,8 @@ export interface ChatMessage {
 /** True when the app can reach the backend AI proxy (requires login for real calls). */
 export const isConfigured = (): boolean => API_URL.length > 0;
 
-/** Journey step chat is not proxied yet — kept separate from main AI features. */
-export const isStepAiConfigured = (): boolean => false;
+/** True when journey step chat can call OpenAI (client key present). */
+export const isStepAiConfigured = (): boolean => STEP_API_KEY.length > 0;
 
 export function getDiagnostics() {
   return {
@@ -38,6 +43,7 @@ export function getDiagnostics() {
     backendUrl: API_URL || '(empty)',
     proxyMode: true,
     model: 'gpt-4o (server)',
+    stepAiConfigured: isStepAiConfigured(),
   };
 }
 
@@ -45,7 +51,7 @@ if (typeof __DEV__ !== 'undefined' && __DEV__) {
   const d = getDiagnostics();
   // eslint-disable-next-line no-console
   console.log(
-    `[PrefAI][AI] proxyMode=${d.proxyMode} backend=${d.backendUrl} configured=${d.configured}`
+    `[PrefAI][AI] proxyMode=${d.proxyMode} backend=${d.backendUrl} configured=${d.configured} stepAi=${d.stepAiConfigured}`
   );
 }
 
@@ -170,12 +176,71 @@ export async function chat(_history: ChatMessage[], _language: LanguageCode): Pr
   throw new Error('General chat is not available in this version.');
 }
 
+const STEP_SYSTEM_BASE =
+  'You are PrefAI Assistant, an expert in French administrative procedures (CAF, CPAM, ANEF, Préfecture, Impôts, Pôle Emploi, etc.). ' +
+  'You help immigrants, expats and refugees understand and manage French bureaucracy. ' +
+  'You are accurate, reassuring and never invent legal facts. You always remind users you do not replace official government services.';
+
+async function completeStepChat(messages: ChatMessage[]): Promise<string> {
+  if (!isStepAiConfigured()) {
+    throw new Error(
+      'Step assistant is not configured. Add EXPO_PUBLIC_OPENAI_API_KEY to your .env and restart the app.'
+    );
+  }
+
+  const res = await fetch(STEP_OPENAI_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${STEP_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: STEP_MODEL,
+      temperature: 0.4,
+      max_tokens: 700,
+      messages,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    if (res.status === 401) {
+      throw new Error(
+        'OpenAI rejected the API key (401). Set a valid EXPO_PUBLIC_OPENAI_API_KEY in .env and restart.'
+      );
+    }
+    if (res.status === 429) {
+      throw new Error('OpenAI rate limit / quota reached (429). Check your plan and billing, then try again.');
+    }
+    throw new Error(`OpenAI error ${res.status}: ${text.slice(0, 300)}`);
+  }
+
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content?.trim() ?? '';
+}
+
+/**
+ * Step-aware assistant. `stepContext` is pre-loaded so the model answers
+ * questions specifically about the administrative step the user is on.
+ */
 export async function askAboutStep(
-  _stepContext: string,
-  _history: ChatMessage[],
-  _language: LanguageCode
+  stepContext: string,
+  history: ChatMessage[],
+  language: LanguageCode
 ): Promise<string> {
-  throw new Error('Step assistant is not available in this version.');
+  const langName = getLanguage(language).englishName;
+  return completeStepChat([
+    {
+      role: 'system',
+      content:
+        STEP_SYSTEM_BASE +
+        `\n\nThe user is working on this specific administrative step in France:\n${stepContext}\n\n` +
+        `Answer ONLY about this step and closely related questions. Be concrete and specific. ` +
+        `Reply in ${langName} unless the user writes in another language. ` +
+        `Use short, plain language and bullet points or numbered steps. No legal jargon, no walls of text.`,
+    },
+    ...history.filter((m) => m.role === 'user' || m.role === 'assistant'),
+  ]);
 }
 
 export async function generateLetter(params: {

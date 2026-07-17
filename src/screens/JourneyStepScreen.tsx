@@ -484,77 +484,75 @@ export const JourneyStepScreen: React.FC = () => {
         </Card>
 
         {/* 7. AI ASSISTANT --------------------------------------------- */}
-        <SectionLabel icon="sparkles-outline" text={t('askAiAboutStep')} color={Colors.blue} />
-        <Card style={styles.block}>
-          {!chatOpen ? (
-            <>
-              <Text style={styles.aiIntro}>
-                Get answers specific to this step — like what to do if a document is missing.
-              </Text>
-              <NeonButton
-                title={t('askAiBtn')}
-                icon="chatbubbles-outline"
-                onPress={() => setChatOpen(true)}
-              />
-            </>
-          ) : (
-            <>
-              {messages.length === 0 ? (
-                <View>
-                  <Text style={styles.aiIntro}>Tap a question or type your own:</Text>
-                  {suggestions.map((q) => (
-                    <Pressable
-                      key={q}
-                      style={styles.suggestion}
-                      onPress={() => {
-                        setInput(q);
-                      }}
-                    >
-                      <Ionicons name="help-circle-outline" size={15} color={Colors.blue} />
-                      <Text style={styles.suggestionText}>{q}</Text>
-                    </Pressable>
-                  ))}
-                </View>
+        {isStepAiConfigured() ? (
+          <>
+            <SectionLabel icon="sparkles-outline" text={t('askAiAboutStep')} color={Colors.blue} />
+            <Card style={styles.block}>
+              {!chatOpen ? (
+                <>
+                  <Text style={styles.aiIntro}>
+                    Get answers specific to this step — like what to do if a document is missing.
+                  </Text>
+                  <NeonButton
+                    title={t('askAiBtn')}
+                    icon="chatbubbles-outline"
+                    onPress={() => setChatOpen(true)}
+                  />
+                </>
               ) : (
-                <View style={styles.chatLog}>
-                  {messages.map((m, i) => (
-                    <ChatBubble key={i} role={m.role as 'user' | 'assistant'} text={m.content} />
-                  ))}
-                  {thinking ? <ChatBubble role="assistant" text="" pending /> : null}
-                </View>
-              )}
-
-              {!isStepAiConfigured() ? (
-                <Text style={styles.aiWarn}>
-                  Step assistant is not available yet.
-                </Text>
-              ) : null}
-
-              <View style={styles.inputRow}>
-                <TextInput
-                  value={input}
-                  onChangeText={setInput}
-                  placeholder="Type your question…"
-                  placeholderTextColor={Colors.textMuted}
-                  style={styles.input}
-                  multiline
-                  onSubmitEditing={send}
-                />
-                <Pressable
-                  onPress={send}
-                  disabled={thinking || !input.trim()}
-                  style={[styles.sendBtn, (thinking || !input.trim()) && { opacity: 0.4 }]}
-                >
-                  {thinking ? (
-                    <ActivityIndicator size="small" color="#04121A" />
+                <>
+                  {messages.length === 0 ? (
+                    <View>
+                      <Text style={styles.aiIntro}>Tap a question or type your own:</Text>
+                      {suggestions.map((q) => (
+                        <Pressable
+                          key={q}
+                          style={styles.suggestion}
+                          onPress={() => {
+                            setInput(q);
+                          }}
+                        >
+                          <Ionicons name="help-circle-outline" size={15} color={Colors.blue} />
+                          <Text style={styles.suggestionText}>{q}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
                   ) : (
-                    <Ionicons name="arrow-up" size={18} color="#04121A" />
+                    <View style={styles.chatLog}>
+                      {messages.map((m, i) => (
+                        <ChatBubble key={i} role={m.role as 'user' | 'assistant'} text={m.content} />
+                      ))}
+                      {thinking ? <ChatBubble role="assistant" text="" pending /> : null}
+                    </View>
                   )}
-                </Pressable>
-              </View>
-            </>
-          )}
-        </Card>
+
+                  <View style={styles.inputRow}>
+                    <TextInput
+                      value={input}
+                      onChangeText={setInput}
+                      placeholder="Type your question…"
+                      placeholderTextColor={Colors.textMuted}
+                      style={styles.input}
+                      multiline
+                      onSubmitEditing={send}
+                    />
+                    <Pressable
+                      onPress={send}
+                      disabled={thinking || !input.trim()}
+                      style={[styles.sendBtn, (thinking || !input.trim()) && { opacity: 0.4 }]}
+                    >
+                      {thinking ? (
+                        <ActivityIndicator size="small" color="#04121A" />
+                      ) : (
+                        <Ionicons name="arrow-up" size={18} color="#04121A" />
+                      )}
+                    </Pressable>
+                  </View>
+                </>
+              )}
+            </Card>
+          </>
+        ) : null}
 
         {/* 8. OFFICIAL SOURCE ------------------------------------------ */}
         {step.officialUrl ? (
@@ -766,7 +764,6 @@ const styles = StyleSheet.create({
 
   // AI
   aiIntro: { color: Colors.textSecondary, fontSize: FontSize.sm, lineHeight: 20, marginBottom: Spacing.sm },
-  aiWarn: { color: Colors.warning, fontSize: FontSize.xs, marginBottom: Spacing.sm },
   suggestion: {
     flexDirection: 'row',
     alignItems: 'center',
