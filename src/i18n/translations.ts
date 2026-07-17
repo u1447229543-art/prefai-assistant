@@ -6,6 +6,7 @@ import { hi as hiLocale } from './locales/hi';
 import { ka as kaLocale } from './locales/ka';
 import { pt as ptLocale } from './locales/pt';
 import { zh as zhLocale } from './locales/zh';
+import { ELIGIBILITY_I18N, type EligibilityTranslationKey } from './eligibilityStrings';
 
 /**
  * UI string dictionary. English is the master/fallback.
@@ -130,6 +131,7 @@ export type TranslationKey =
   | 'startOver'
   | 'resultsHeading'
   | 'eligibilityNoMatch'
+  | EligibilityTranslationKey
   // onboarding
   | 'onboardingSlide1Title'
   | 'onboardingSlide1Body'
@@ -300,7 +302,7 @@ export type TranslationKey =
 
 type Dict = Partial<Record<TranslationKey, string>>;
 
-const en: Record<TranslationKey, string> = {
+const enCore: Dict = {
   appName: 'PrefAI Assistant',
   tagline: 'Your French bureaucracy assistant',
   continue: 'Continue',
@@ -567,7 +569,7 @@ const en: Record<TranslationKey, string> = {
     'PrefAI helps you understand French administration. It does not replace official government services.',
 };
 
-const fr: Record<TranslationKey, string> = {
+const frCore: Dict = {
   appName: 'PrefAI Assistant',
   tagline: 'Votre assistant administratif français',
   continue: 'Continuer',
@@ -835,15 +837,15 @@ const fr: Record<TranslationKey, string> = {
     "PrefAI vous aide à comprendre l'administration française. Il ne remplace pas les services officiels.",
 };
 
-const es = esLocale as Record<TranslationKey, string>;
-const ar = arLocale as Record<TranslationKey, string>;
-const ka = kaLocale as Record<TranslationKey, string>;
-const bn = bnLocale as Record<TranslationKey, string>;
-const zh = zhLocale as Record<TranslationKey, string>;
-const hi = hiLocale as Record<TranslationKey, string>;
-const pt = ptLocale as Record<TranslationKey, string>;
+const es = esLocale as Dict;
+const ar = arLocale as Dict;
+const ka = kaLocale as Dict;
+const bn = bnLocale as Dict;
+const zh = zhLocale as Dict;
+const hi = hiLocale as Dict;
+const pt = ptLocale as Dict;
 
-const ru: Record<TranslationKey, string> = {
+const ruCore: Dict = {
   appName: 'PrefAI Assistant',
   tagline: 'Ваш помощник по французской бюрократии',
   continue: 'Продолжить',
@@ -1112,16 +1114,19 @@ const ru: Record<TranslationKey, string> = {
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Dict> = {
-  en,
-  fr,
-  es,
-  ru,
-  ar,
-  ka,
-  bn,
-  zh,
-  hi,
-  pt,
+  en: { ...enCore, ...ELIGIBILITY_I18N.en },
+  fr: { ...frCore, ...ELIGIBILITY_I18N.fr },
+  es: { ...es, ...ELIGIBILITY_I18N.es },
+  ru: { ...ruCore, ...ELIGIBILITY_I18N.ru },
+  ar: { ...ar, ...ELIGIBILITY_I18N.ar },
+  ka: { ...ka, ...ELIGIBILITY_I18N.ka },
+  bn: { ...bn, ...ELIGIBILITY_I18N.bn },
+  zh: { ...zh, ...ELIGIBILITY_I18N.zh },
+  hi: { ...hi, ...ELIGIBILITY_I18N.hi },
+  pt: { ...pt, ...ELIGIBILITY_I18N.pt },
 };
 
-export const ENGLISH = en;
+export const ENGLISH: Record<TranslationKey, string> = {
+  ...enCore,
+  ...ELIGIBILITY_I18N.en,
+} as Record<TranslationKey, string>;

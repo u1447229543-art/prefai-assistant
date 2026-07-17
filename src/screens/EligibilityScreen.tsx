@@ -7,12 +7,7 @@ import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton, ProgressBar } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { JourneyId } from '../constants/journeys';
-import {
-  QUESTIONS,
-  Answers,
-  evaluateEligibility,
-  ELIGIBILITY_DISCLAIMER,
-} from '../constants/eligibility';
+import { QUESTIONS, Answers, evaluateEligibility } from '../constants/eligibility';
 import type { RootStackParamList } from '../navigation/types';
 import type { TranslationKey } from '../i18n/translations';
 
@@ -92,7 +87,7 @@ export const EligibilityScreen: React.FC = () => {
           />
         ) : (
           <View>
-            <Text style={styles.question}>{current.question}</Text>
+            <Text style={styles.question}>{t(current.questionKey)}</Text>
             <View style={styles.options}>
               {current.options.map((opt) => {
                 const selected = answers[current.id] === opt.id;
@@ -107,7 +102,7 @@ export const EligibilityScreen: React.FC = () => {
                     ]}
                   >
                     <Text style={[styles.optionText, selected && styles.optionTextSelected]}>
-                      {opt.label}
+                      {t(opt.labelKey)}
                     </Text>
                     <Ionicons
                       name={selected ? 'checkmark-circle' : 'chevron-forward'}
@@ -144,13 +139,13 @@ const ResultsView: React.FC<{
         <Card key={b.id} style={styles.benefitCard}>
           <View style={styles.benefitHead}>
             <Text style={styles.benefitEmoji}>{b.emoji}</Text>
-            <Text style={styles.benefitName}>{b.name}</Text>
+            <Text style={styles.benefitName}>{t(b.nameKey)}</Text>
           </View>
-          <Text style={styles.benefitExplain}>{b.explanation}</Text>
-          {b.estimate ? (
+          <Text style={styles.benefitExplain}>{t(b.explanationKey)}</Text>
+          {b.estimateKey ? (
             <View style={styles.estimateRow}>
               <Ionicons name="cash-outline" size={14} color={Colors.success} />
-              <Text style={styles.estimateText}>{b.estimate}</Text>
+              <Text style={styles.estimateText}>{t(b.estimateKey)}</Text>
             </View>
           ) : null}
           <NeonButton
@@ -173,7 +168,7 @@ const ResultsView: React.FC<{
 
     <View style={styles.disclaimer}>
       <Ionicons name="alert-circle-outline" size={15} color={Colors.textMuted} />
-      <Text style={styles.disclaimerText}>{ELIGIBILITY_DISCLAIMER}</Text>
+      <Text style={styles.disclaimerText}>{t('eligibilityDisclaimer')}</Text>
     </View>
   </View>
 );
@@ -206,7 +201,6 @@ const styles = StyleSheet.create({
   optionText: { color: Colors.textPrimary, fontSize: FontSize.md, fontWeight: '600', flex: 1 },
   optionTextSelected: { color: Colors.white, fontWeight: '700' },
 
-  // Results
   resultsHeading: {
     color: Colors.white,
     fontSize: FontSize.lg,
