@@ -26,10 +26,10 @@ export const PLANS: Plan[] = [
     highlighted: false,
     stripePriceId: null,
     features: [
-      '5 documents / month',
-      'Document explanations',
+      '7-day free AI trial, then 3 AI requests / day',
+      '5 documents total',
+      'Access to 2 journeys',
       'Basic translation (10 languages)',
-      'AI chat assistant (limited)',
     ],
   },
   {
@@ -73,3 +73,9 @@ export const PLANS: Plan[] = [
 export const getPlan = (id: PlanId): Plan => PLANS.find((p) => p.id === id) ?? PLANS[0];
 
 export const FREE_DOCUMENT_LIMIT = 5;
+/** Days of unlimited AI on the free plan before the daily cap applies. */
+export const FREE_TRIAL_DAYS = 7;
+/** AI requests per calendar day on free after the trial ends. */
+export const FREE_AI_DAILY_LIMIT = 3;
+/** Distinct journeys a free user may unlock. */
+export const FREE_JOURNEY_LIMIT = 2;

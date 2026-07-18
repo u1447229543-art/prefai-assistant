@@ -7,9 +7,12 @@ import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
 import { Screen, Body, Card, ProgressBar } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { JOURNEYS, JourneyId, JourneyStep, getJourney } from '../constants/journeys';
+import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
+import type { TranslationKey } from '../i18n/translations';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+type TFn = (key: TranslationKey) => string;
 
 export const JourneyScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
@@ -21,8 +24,18 @@ export const JourneyScreen: React.FC = () => {
     }, [refreshJourney])
   );
 
+  const onPickJourney = useCallback(
+    async (id: JourneyId) => {
+      const ok = await selectJourney(id);
+      if (!ok) {
+        promptUpgrade(t, 'upgradeJourneyLimitMsg', () => navigation.navigate('Subscription'));
+      }
+    },
+    [selectJourney, t, navigation]
+  );
+
   if (!journey.journeyId) {
-    return <SituationPicker onPick={selectJourney} t={t} />;
+    return <SituationPicker onPick={onPickJourney} t={t} />;
   }
 
   const data = getJourney(journey.journeyId);
@@ -86,13 +99,9 @@ export const JourneyScreen: React.FC = () => {
   );
 };
 
-import type { TranslationKey } from '../i18n/translations';
-
-type TFn = (key: TranslationKey) => string;
-
 // ---- Situation picker -----------------------------------------------------
 
-const SituationPicker: React.FC<{ onPick: (id: JourneyId) => void; t: TFn }> = ({ onPick, t }) => (
+const SituationPicker: React.FC<{ onPick: (id: JourneyId) => void | Promise<void>; t: TFn }> = ({ onPick, t }) => (
   <Screen>
     <Body>
       <Text style={styles.pickerTitle}>{t('whatAreYouTrying')}</Text>
@@ -102,7 +111,7 @@ const SituationPicker: React.FC<{ onPick: (id: JourneyId) => void; t: TFn }> = (
         {JOURNEYS.map((j) => (
           <Pressable
             key={j.id}
-            onPress={() => onPick(j.id)}
+            onPress={() => void onPick(j.id)}
             style={({ pressed }) => [styles.option, pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] }]}
           >
             <View style={[styles.optionIcon, { borderColor: j.accent }, glow(j.accent, 6)]}>

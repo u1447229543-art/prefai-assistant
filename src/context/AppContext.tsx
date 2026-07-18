@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { I18nManager } from 'react-native';
 import { DEFAULT_LANGUAGE, LanguageCode, getLanguage } from '../constants/languages';
-import { PlanId, getPlan } from '../constants/pricing';
+import { PlanId, getPlan, FREE_DOCUMENT_LIMIT, FREE_TRIAL_DAYS, FREE_AI_DAILY_LIMIT, FREE_JOURNEY_LIMIT } from '../constants/pricing';
 import { JourneyId, getJourney } from '../constants/journeys';
 import * as storage from '../services/storage';
 import * as api from '../services/api';
@@ -45,14 +45,21 @@ interface AppContextValue {
   setPlan: (planId: PlanId) => Promise<void>;
   usage: storage.UsageRecord;
   refreshUsage: () => Promise<void>;
+  /** Reserve a vault slot (free: total docs; paid: plan monthly limit). */
   registerDocumentUse: () => Promise<boolean>;
   canProcessDocument: boolean;
+  canAddDocument: boolean;
+  /** Consume one free-tier AI request (unlimited during trial / on paid plans). */
+  consumeAiRequest: () => Promise<boolean>;
+  isInTrial: boolean;
+  trialDaysLeft: number;
+  aiRemainingToday: number;
 
   // journey
   journey: storage.JourneyProgress;
   journeyPercent: number;
   journeySyncing: boolean;
-  selectJourney: (id: JourneyId) => Promise<void>;
+  selectJourney: (id: JourneyId) => Promise<boolean>;
   toggleJourneyStep: (stepId: string) => Promise<void>;
   resetJourney: () => Promise<void>;
   refreshJourney: () => Promise<void>;
@@ -107,6 +114,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [usage, setUsage] = useState<storage.UsageRecord>({
     month: new Date().toISOString().slice(0, 7),
     documentsProcessed: 0,
+    trialStartedAt: new Date().toISOString(),
+    aiDate: undefined,
+    aiCount: 0,
+    unlockedJourneyIds: [],
   });
   const [journey, setJourney] = useState<storage.JourneyProgress>({
     journeyId: null,
@@ -125,10 +136,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await storage.saveSubscription(apiUser.subscriptionPlan || 'free');
     setUser(u);
     setPlanId(apiUser.subscriptionPlan || 'free');
-    setUsage({
+    setUsage((prev) => ({
+      ...prev,
       month: new Date().toISOString().slice(0, 7),
       documentsProcessed: apiUser.documentsUsedThisMonth ?? 0,
-    });
+      trialStartedAt: prev.trialStartedAt ?? new Date().toISOString(),
+      unlockedJourneyIds: prev.unlockedJourneyIds ?? [],
+      aiDate: prev.aiDate,
+      aiCount: prev.aiCount ?? 0,
+    }));
     return u;
   }, []);
 
@@ -267,7 +283,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setPlanId(savedSub.planId);
       if (savedLang) setLanguageState(savedLang);
       setOnboarded(savedOnboarded);
-      setUsage(savedUsage);
+
+      // Seed unlocked journeys from any in-progress journey so existing users aren't locked out.
+      let usageForState = savedUsage;
+      if (
+        savedJourney.journeyId &&
+        !(savedUsage.unlockedJourneyIds ?? []).includes(savedJourney.journeyId)
+      ) {
+        usageForState = {
+          ...savedUsage,
+          unlockedJourneyIds: [...(savedUsage.unlockedJourneyIds ?? []), savedJourney.journeyId],
+        };
+        await storage.saveUsage(usageForState);
+      }
+      setUsage(usageForState);
       setJourney(savedJourney);
       setDocuments(savedVault);
       setTasks(savedTasks.length ? savedTasks : DEFAULT_TASKS);
@@ -373,10 +402,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const sub = await api.getSubscription();
       setPlanId(sub.plan as PlanId);
-      setUsage({
+      setUsage((prev) => ({
+        ...prev,
         month: new Date().toISOString().slice(0, 7),
         documentsProcessed: sub.documentsUsedThisMonth,
-      });
+      }));
     } catch (e) {
       if (api.isNetworkError(e)) {
         setUsage(await storage.loadUsage());
@@ -385,25 +415,94 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const plan = getPlan(planId);
-  const canProcessDocument =
-    plan.documentLimit === null || usage.documentsProcessed < plan.documentLimit;
+  const isFree = planId === 'free';
+
+  const isInTrial = useMemo(() => {
+    if (!isFree) return false;
+    const started = usage.trialStartedAt;
+    if (!started) return true;
+    const elapsed = Date.now() - new Date(started).getTime();
+    return elapsed < FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000;
+  }, [isFree, usage.trialStartedAt]);
+
+  const trialDaysLeft = useMemo(() => {
+    if (!isFree || !usage.trialStartedAt) return FREE_TRIAL_DAYS;
+    const elapsed = Date.now() - new Date(usage.trialStartedAt).getTime();
+    const left = Math.ceil(FREE_TRIAL_DAYS - elapsed / (24 * 60 * 60 * 1000));
+    return Math.max(0, left);
+  }, [isFree, usage.trialStartedAt]);
+
+  const todayKey = () => new Date().toISOString().slice(0, 10);
+
+  const aiRemainingToday = useMemo(() => {
+    if (!isFree || isInTrial) return Infinity;
+    const count = usage.aiDate === todayKey() ? usage.aiCount ?? 0 : 0;
+    return Math.max(0, FREE_AI_DAILY_LIMIT - count);
+  }, [isFree, isInTrial, usage.aiDate, usage.aiCount]);
+
+  const canAddDocument = useMemo(() => {
+    if (plan.documentLimit === null) return true;
+    if (isFree) return documents.length < FREE_DOCUMENT_LIMIT;
+    return usage.documentsProcessed < plan.documentLimit;
+  }, [plan.documentLimit, isFree, documents.length, usage.documentsProcessed]);
+
+  const canProcessDocument = canAddDocument;
+
+  const consumeAiRequest = useCallback(async (): Promise<boolean> => {
+    if (!isFree) return true;
+    if (isInTrial) return true;
+
+    const today = todayKey();
+    const current = usage.aiDate === today ? usage.aiCount ?? 0 : 0;
+    if (current >= FREE_AI_DAILY_LIMIT) return false;
+
+    const next: storage.UsageRecord = {
+      ...usage,
+      aiDate: today,
+      aiCount: current + 1,
+    };
+    setUsage(next);
+    await storage.saveUsage(next);
+    return true;
+  }, [isFree, isInTrial, usage]);
 
   const registerDocumentUse = useCallback(async (): Promise<boolean> => {
-    const limit = getPlan(planId).documentLimit;
-    if (limit !== null && usage.documentsProcessed >= limit) return false;
-    setUsage((prev) => ({
-      ...prev,
-      documentsProcessed: prev.documentsProcessed + 1,
-    }));
+    if (plan.documentLimit === null) return true;
+    if (isFree) {
+      return documents.length < FREE_DOCUMENT_LIMIT;
+    }
+    if (usage.documentsProcessed >= plan.documentLimit) return false;
+    const next: storage.UsageRecord = {
+      ...usage,
+      documentsProcessed: usage.documentsProcessed + 1,
+    };
+    setUsage(next);
+    await storage.saveUsage(next);
     return true;
-  }, [planId, usage.documentsProcessed]);
+  }, [plan.documentLimit, isFree, documents.length, usage]);
 
   const selectJourney = useCallback(
-    async (id: JourneyId) => {
+    async (id: JourneyId): Promise<boolean> => {
+      if (isFree) {
+        const unlocked = usage.unlockedJourneyIds ?? [];
+        if (!unlocked.includes(id) && unlocked.length >= FREE_JOURNEY_LIMIT) {
+          return false;
+        }
+        if (!unlocked.includes(id)) {
+          const nextUsage: storage.UsageRecord = {
+            ...usage,
+            unlockedJourneyIds: [...unlocked, id],
+          };
+          setUsage(nextUsage);
+          await storage.saveUsage(nextUsage);
+        }
+      }
+
       setJourneySyncing(true);
       try {
         const { journey: j } = await api.setJourney(id);
         await applyJourney(j);
+        return true;
       } catch (e) {
         if (api.isNetworkError(e)) {
           const next: storage.JourneyProgress = {
@@ -415,14 +514,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setJourney(next);
           await storage.saveJourney(next);
           setSyncError('Journey saved locally — will sync when back online.');
-        } else {
-          throw e;
+          return true;
         }
+        throw e;
       } finally {
         setJourneySyncing(false);
       }
     },
-    [applyJourney]
+    [applyJourney, isFree, usage]
   );
 
   const toggleJourneyStep = useCallback(
@@ -461,6 +560,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const uploadDocument = useCallback(
     async (doc: storage.StoredDocument, backendCategory: string): Promise<storage.StoredDocument> => {
+      if (isFree && documents.length >= FREE_DOCUMENT_LIMIT) {
+        throw new Error('DOCUMENT_LIMIT');
+      }
       const { document } = await api.addDocument({
         fileName: doc.name,
         fileSize: doc.size,
@@ -480,13 +582,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await refreshUsage();
       return saved;
     },
-    [refreshUsage]
+    [refreshUsage, isFree, documents.length]
   );
 
-  const addCachedDocument = useCallback(async (doc: storage.StoredDocument) => {
-    const next = await storage.addToVault(doc);
-    setDocuments(next);
-  }, []);
+  const addCachedDocument = useCallback(
+    async (doc: storage.StoredDocument) => {
+      if (isFree && documents.length >= FREE_DOCUMENT_LIMIT) {
+        throw new Error('DOCUMENT_LIMIT');
+      }
+      const next = await storage.addToVault(doc);
+      setDocuments(next);
+    },
+    [isFree, documents.length]
+  );
 
   const removeDocument = useCallback(async (id: string) => {
     const doc = documents.find((d) => d.id === id);
@@ -560,6 +668,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       refreshUsage,
       registerDocumentUse,
       canProcessDocument,
+      canAddDocument,
+      consumeAiRequest,
+      isInTrial,
+      trialDaysLeft,
+      aiRemainingToday,
       journey,
       journeyPercent,
       journeySyncing,
@@ -600,6 +713,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       refreshUsage,
       registerDocumentUse,
       canProcessDocument,
+      canAddDocument,
+      consumeAiRequest,
+      isInTrial,
+      trialDaysLeft,
+      aiRemainingToday,
       journey,
       journeyPercent,
       journeySyncing,

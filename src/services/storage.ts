@@ -148,6 +148,14 @@ export interface StoredChatMessage {
 export interface UsageRecord {
   month: string; // yyyy-mm
   documentsProcessed: number;
+  /** ISO timestamp when the free AI trial started (persisted locally). */
+  trialStartedAt?: string;
+  /** Calendar day (yyyy-mm-dd) for the AI counter. */
+  aiDate?: string;
+  /** AI requests consumed on `aiDate`. */
+  aiCount?: number;
+  /** Distinct journey IDs unlocked on the free plan. */
+  unlockedJourneyIds?: JourneyId[];
 }
 
 /** Progress through the user's selected administrative journey. */
@@ -270,12 +278,36 @@ export async function loadUsage(): Promise<UsageRecord> {
     month: currentMonth(),
     documentsProcessed: 0,
   });
+  let next: UsageRecord = { ...usage };
+  let dirty = false;
+
   if (usage.month !== currentMonth()) {
-    const reset = { month: currentMonth(), documentsProcessed: 0 };
-    await setJSON(Keys.usage, reset);
-    return reset;
+    next = {
+      ...next,
+      month: currentMonth(),
+      documentsProcessed: 0,
+    };
+    dirty = true;
   }
-  return usage;
+  if (!next.trialStartedAt) {
+    next.trialStartedAt = new Date().toISOString();
+    dirty = true;
+  }
+  if (!next.unlockedJourneyIds) {
+    next.unlockedJourneyIds = [];
+    dirty = true;
+  }
+  if (next.aiCount === undefined) {
+    next.aiCount = 0;
+    dirty = true;
+  }
+
+  if (dirty) await setJSON(Keys.usage, next);
+  return next;
+}
+
+export async function saveUsage(usage: UsageRecord): Promise<void> {
+  await setJSON(Keys.usage, usage);
 }
 
 export async function incrementUsage(): Promise<UsageRecord> {

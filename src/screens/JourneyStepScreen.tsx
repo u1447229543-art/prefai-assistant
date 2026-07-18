@@ -17,6 +17,7 @@ import { ChatBubble } from '../components/ChatBubble';
 import { useApp } from '../context/AppContext';
 import { getJourney, getJourneyStep } from '../constants/journeys';
 import { askAboutStep, ChatMessage, isStepAiConfigured } from '../services/openai';
+import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -139,15 +140,18 @@ const FALLBACK_PLACES: Partial<Record<OrgType, Record<string, FallbackPlace>>> =
 
 export const JourneyStepScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { params } = useRoute<StepRoute>();
-  const { journey, toggleJourneyStep, language, t } = useApp();
+  const route = useRoute<StepRoute>();
+  const params = route.params;
+  const { journey, toggleJourneyStep, language, t, consumeAiRequest } = useApp();
 
-  const journeyData = getJourney(params.journeyId);
-  const step = getJourneyStep(params.journeyId, params.stepId);
+  const journeyId = params?.journeyId;
+  const stepId = params?.stepId;
+  const journeyData = journeyId ? getJourney(journeyId) : null;
+  const step = journeyId && stepId ? getJourneyStep(journeyId, stepId) : undefined;
 
-  const index = journeyData.steps.findIndex((s) => s.id === params.stepId);
+  const index = journeyData && stepId ? journeyData.steps.findIndex((s) => s.id === stepId) : -1;
   const done = step ? journey.completedStepIds.includes(step.id) : false;
-  const accent = journeyData.accent;
+  const accent = journeyData?.accent ?? Colors.blue;
 
   // Interactive "what to bring" checklist (local — what the user has ready).
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -168,7 +172,7 @@ export const JourneyStepScreen: React.FC = () => {
   const [searchedCity, setSearchedCity] = useState('');
 
   const stepContext = useMemo(() => {
-    if (!step) return '';
+    if (!step || !journeyData) return '';
     return [
       `Journey: ${journeyData.title}`,
       `Step ${index + 1} of ${journeyData.steps.length}: ${step.title}`,
@@ -181,12 +185,14 @@ export const JourneyStepScreen: React.FC = () => {
     ].join('\n');
   }, [step, journeyData, index]);
 
-  if (!step) {
+  if (!journeyId || !stepId || !step || !journeyData) {
     return (
       <Screen>
         <Header title={t('stepLabel')} onBack={() => navigation.goBack()} />
         <Body>
-          <Text style={styles.purpose}>{t('stepNotFound')}</Text>
+          <Text style={styles.purpose}>
+            {!journeyId || !stepId ? t('journeyMissingParams') : t('stepNotFound')}
+          </Text>
         </Body>
       </Screen>
     );
@@ -238,6 +244,11 @@ export const JourneyStepScreen: React.FC = () => {
   const send = async () => {
     const text = input.trim();
     if (!text || thinking) return;
+    const allowed = await consumeAiRequest();
+    if (!allowed) {
+      promptUpgrade(t, 'upgradeAiDailyMsg', () => navigation.navigate('Subscription'));
+      return;
+    }
     const next: ChatMessage[] = [...messages, { role: 'user', content: text }];
     setMessages(next);
     setInput('');

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton, ScrollableText } from '../components/ui';
@@ -10,17 +11,32 @@ import { pickDocument, readDocumentText, toStoredDocument, PickedDocument } from
 import { explainDocument, DocumentExplanation } from '../services/openai';
 import { CATEGORY_TO_BACKEND } from '../services/api';
 import * as storage from '../services/storage';
+import { promptUpgrade, fillTemplate } from '../utils/quotaPrompt';
+import type { RootStackParamList } from '../navigation/types';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export const DocumentExplainScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<Nav>();
   const { language, t, uploadDocument, addCachedDocument } = useApp();
-  const { registerDocumentUse, remaining, isUnlimited } = useSubscription();
+  const {
+    registerDocumentUse,
+    remaining,
+    isUnlimited,
+    consumeAiRequest,
+    canAddDocument,
+    isInTrial,
+    trialDaysLeft,
+    aiRemainingToday,
+  } = useSubscription();
 
   const [picked, setPicked] = useState<PickedDocument | null>(null);
   const [pastedText, setPastedText] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<DocumentExplanation | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const goUpgrade = () => navigation.navigate('Subscription');
 
   const onPick = async () => {
     try {
@@ -41,10 +57,23 @@ export const DocumentExplainScreen: React.FC = () => {
       return;
     }
 
-    const allowed = await registerDocumentUse();
-    if (!allowed) {
-      Alert.alert(t('limitReached'), t('limitReachedMsg'));
+    if (picked && !canAddDocument) {
+      promptUpgrade(t, 'upgradeDocLimitMsg', goUpgrade);
       return;
+    }
+
+    const aiOk = await consumeAiRequest();
+    if (!aiOk) {
+      promptUpgrade(t, 'upgradeAiDailyMsg', goUpgrade);
+      return;
+    }
+
+    if (picked) {
+      const allowed = await registerDocumentUse();
+      if (!allowed) {
+        promptUpgrade(t, 'upgradeDocLimitMsg', goUpgrade);
+        return;
+      }
     }
 
     setLoading(true);
@@ -60,9 +89,18 @@ export const DocumentExplainScreen: React.FC = () => {
         const local = toStoredDocument(picked, category, explanation.summary);
         try {
           await uploadDocument(local, CATEGORY_TO_BACKEND[category]);
-        } catch {
-          // Offline or API failure: still keep the file in the local vault.
-          await addCachedDocument(local);
+        } catch (e) {
+          if (e instanceof Error && e.message === 'DOCUMENT_LIMIT') {
+            promptUpgrade(t, 'upgradeDocLimitMsg', goUpgrade);
+          } else {
+            try {
+              await addCachedDocument(local);
+            } catch (err) {
+              if (err instanceof Error && err.message === 'DOCUMENT_LIMIT') {
+                promptUpgrade(t, 'upgradeDocLimitMsg', goUpgrade);
+              }
+            }
+          }
         }
       }
 
@@ -70,7 +108,7 @@ export const DocumentExplainScreen: React.FC = () => {
         await storage.addDeadlines(
           explanation.deadlines.map((d, i) => ({
             id: `dl_${Date.now()}_${i}`,
-            title: explanation.organization + ' deadline',
+            title: `${explanation.organization} ${t('deadlineTitleSuffix')}`,
             date: normalizeDate(d),
             description: d,
             organization: explanation.organization,
@@ -95,11 +133,11 @@ export const DocumentExplainScreen: React.FC = () => {
           </View>
           <Text style={styles.dropTitle}>{picked ? picked.name : t('explainUpload')}</Text>
           <Text style={styles.dropHint}>
-            {picked ? 'Tap to choose another file' : 'PDF, image or text · CAF, CPAM, Préfecture…'}
+            {picked ? t('explainTapAnother') : t('explainDropHint')}
           </Text>
         </Card>
 
-        <Text style={styles.orText}>— or paste the text —</Text>
+        <Text style={styles.orText}>{t('explainOrPaste')}</Text>
 
         <TextInput
           style={styles.textArea}
@@ -112,7 +150,16 @@ export const DocumentExplainScreen: React.FC = () => {
 
         {!isUnlimited ? (
           <Text style={styles.quota}>
-            {remaining} {t('documentsThisMonth')}
+            {fillTemplate(t('documentsRemaining'), { count: remaining === Infinity ? '∞' : remaining })}
+          </Text>
+        ) : null}
+        {isInTrial ? (
+          <Text style={styles.quota}>
+            {fillTemplate(t('trialDaysLeft'), { days: trialDaysLeft })}
+          </Text>
+        ) : aiRemainingToday !== Infinity ? (
+          <Text style={styles.quota}>
+            {fillTemplate(t('aiRequestsRemaining'), { count: aiRemainingToday })}
           </Text>
         ) : null}
 

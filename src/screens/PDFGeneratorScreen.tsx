@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,10 +9,14 @@ import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton, ScrollableText } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { generateLetter } from '../services/openai';
+import { promptUpgrade } from '../utils/quotaPrompt';
+import type { RootStackParamList } from '../navigation/types';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export const PDFGeneratorScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const { language, t, user } = useApp();
+  const navigation = useNavigation<Nav>();
+  const { language, t, user, consumeAiRequest } = useApp();
   const [purpose, setPurpose] = useState('');
   const [recipient, setRecipient] = useState('');
   const [letter, setLetter] = useState('');
@@ -20,6 +25,11 @@ export const PDFGeneratorScreen: React.FC = () => {
 
   const generate = async () => {
     if (!purpose.trim()) return;
+    const allowed = await consumeAiRequest();
+    if (!allowed) {
+      promptUpgrade(t, 'upgradeAiDailyMsg', () => navigation.navigate('Subscription'));
+      return;
+    }
     setLoading(true);
     setLetter('');
     try {
@@ -56,9 +66,9 @@ export const PDFGeneratorScreen: React.FC = () => {
       if (Platform.OS === 'web') {
         await Print.printAsync({ html });
       } else if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'PrefAI letter' });
+        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: t('pdfShareTitle') });
       } else {
-        Alert.alert('PDF created', uri);
+        Alert.alert(t('pdfCreated'), uri);
       }
     } catch (e) {
       Alert.alert(t('error'), String(e instanceof Error ? e.message : e));
@@ -74,7 +84,7 @@ export const PDFGeneratorScreen: React.FC = () => {
         <Text style={styles.label}>{t('pdfRecipient')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="e.g. CAF de Paris"
+          placeholder={t('pdfRecipientPlaceholder')}
           placeholderTextColor={Colors.textMuted}
           value={recipient}
           onChangeText={setRecipient}
@@ -83,7 +93,7 @@ export const PDFGeneratorScreen: React.FC = () => {
         <Text style={styles.label}>{t('pdfPurpose')}</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
-          placeholder="e.g. Contest a decision, request a document, explain a delay…"
+          placeholder={t('pdfPurposePlaceholder')}
           placeholderTextColor={Colors.textMuted}
           multiline
           value={purpose}

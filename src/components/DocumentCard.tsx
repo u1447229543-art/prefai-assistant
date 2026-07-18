@@ -19,7 +19,7 @@ const CATEGORY_META: Record<
   other: { label: 'Other', icon: 'folder-outline', color: '#9A9AB2' },
 };
 
-export const getCategoryMeta = (c: DocumentCategory) => CATEGORY_META[c];
+export const getCategoryMeta = (c: DocumentCategory) => CATEGORY_META[c] ?? CATEGORY_META.other;
 
 const formatSize = (bytes?: number) => {
   if (!bytes) return '';

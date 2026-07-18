@@ -7,6 +7,7 @@ import { ka as kaLocale } from './locales/ka';
 import { pt as ptLocale } from './locales/pt';
 import { zh as zhLocale } from './locales/zh';
 import { ELIGIBILITY_I18N, type EligibilityTranslationKey } from './eligibilityStrings';
+import { UI_I18N, type UiTranslationKey } from './uiStrings';
 
 /**
  * UI string dictionary. English is the master/fallback.
@@ -132,6 +133,7 @@ export type TranslationKey =
   | 'resultsHeading'
   | 'eligibilityNoMatch'
   | EligibilityTranslationKey
+  | UiTranslationKey
   // onboarding
   | 'onboardingSlide1Title'
   | 'onboardingSlide1Body'
@@ -1114,19 +1116,20 @@ const ruCore: Dict = {
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Dict> = {
-  en: { ...enCore, ...ELIGIBILITY_I18N.en },
-  fr: { ...frCore, ...ELIGIBILITY_I18N.fr },
-  es: { ...es, ...ELIGIBILITY_I18N.es },
-  ru: { ...ruCore, ...ELIGIBILITY_I18N.ru },
-  ar: { ...ar, ...ELIGIBILITY_I18N.ar },
-  ka: { ...ka, ...ELIGIBILITY_I18N.ka },
-  bn: { ...bn, ...ELIGIBILITY_I18N.bn },
-  zh: { ...zh, ...ELIGIBILITY_I18N.zh },
-  hi: { ...hi, ...ELIGIBILITY_I18N.hi },
-  pt: { ...pt, ...ELIGIBILITY_I18N.pt },
+  en: { ...enCore, ...ELIGIBILITY_I18N.en, ...UI_I18N.en },
+  fr: { ...frCore, ...ELIGIBILITY_I18N.fr, ...UI_I18N.fr },
+  es: { ...es, ...ELIGIBILITY_I18N.es, ...UI_I18N.es },
+  ru: { ...ruCore, ...ELIGIBILITY_I18N.ru, ...UI_I18N.ru },
+  ar: { ...ar, ...ELIGIBILITY_I18N.ar, ...UI_I18N.ar },
+  ka: { ...ka, ...ELIGIBILITY_I18N.ka, ...UI_I18N.ka },
+  bn: { ...bn, ...ELIGIBILITY_I18N.bn, ...UI_I18N.bn },
+  zh: { ...zh, ...ELIGIBILITY_I18N.zh, ...UI_I18N.zh },
+  hi: { ...hi, ...ELIGIBILITY_I18N.hi, ...UI_I18N.hi },
+  pt: { ...pt, ...ELIGIBILITY_I18N.pt, ...UI_I18N.pt },
 };
 
 export const ENGLISH: Record<TranslationKey, string> = {
   ...enCore,
   ...ELIGIBILITY_I18N.en,
+  ...UI_I18N.en,
 } as Record<TranslationKey, string>;

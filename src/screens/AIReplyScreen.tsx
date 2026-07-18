@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { AdminOrg, AdminReply, aiGenerateReply, ApiError } from '../services/api';
 import { copyOrShare } from '../services/clipboard';
+import { promptUpgrade, fillTemplate } from '../utils/quotaPrompt';
+import type { RootStackParamList } from '../navigation/types';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const ORGS: { id: AdminOrg; icon: keyof typeof Ionicons.glyphMap }[] = [
   { id: 'CAF', icon: 'home-outline' },
@@ -25,8 +30,8 @@ const TONES: { id: 'formal' | 'polite' | 'firm'; labelKey: 'formal' | 'polite' |
 ];
 
 export const AIReplyScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const { language, t, user } = useApp();
+  const navigation = useNavigation<Nav>();
+  const { language, t, user, consumeAiRequest } = useApp();
   const [org, setOrg] = useState<AdminOrg>('CAF');
   const [tone, setTone] = useState<'formal' | 'polite' | 'firm'>('formal');
   const [situation, setSituation] = useState('');
@@ -37,6 +42,11 @@ export const AIReplyScreen: React.FC = () => {
 
   const run = async () => {
     if (!situation.trim()) return;
+    const allowed = await consumeAiRequest();
+    if (!allowed) {
+      promptUpgrade(t, 'upgradeAiDailyMsg', () => navigation.navigate('Subscription'));
+      return;
+    }
     setLoading(true);
     setResult(null);
     setError(null);
@@ -61,11 +71,11 @@ export const AIReplyScreen: React.FC = () => {
       setResult(out);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
-        setError('Session expired. Please log in again to use AI features.');
+        setError(t('errSessionExpired'));
       } else if (e instanceof ApiError && e.status === 404) {
-        setError('AI Reply is not available on the server yet. Please try again after the backend is updated.');
+        setError(t('errAiUnavailable'));
       } else if (e instanceof ApiError && e.status === 502 && e.message.includes('OpenAI rejected the API key')) {
-        setError('The server OpenAI API key is invalid. Update OPENAI_API_KEY on Railway.');
+        setError(t('errInvalidServerKey'));
       } else {
         setError(String(e instanceof Error ? e.message : e));
       }
@@ -119,12 +129,10 @@ export const AIReplyScreen: React.FC = () => {
         </View>
 
         <Text style={styles.label}>{t('describeSituation')}</Text>
-        <Text style={styles.anyLang}>
-          ✍️ Write in any language — Georgian, العربية, 中文, Русский, हिन्दी… we detect it automatically.
-        </Text>
+        <Text style={styles.anyLang}>{t('replyAnyLangHint')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="აღწერეთ თქვენი სიტუაცია / اكتب وضعك / 描述你的情况 / describe your situation…"
+          placeholder={t('replySituationPlaceholder')}
           placeholderTextColor={Colors.textMuted}
           multiline
           value={situation}
@@ -136,7 +144,7 @@ export const AIReplyScreen: React.FC = () => {
         {loading ? (
           <View style={styles.loading}>
             <ActivityIndicator color={Colors.blue} />
-            <Text style={styles.loadingText}>Drafting your official reply…</Text>
+            <Text style={styles.loadingText}>{t('replyDrafting')}</Text>
           </View>
         ) : null}
 
@@ -154,7 +162,7 @@ export const AIReplyScreen: React.FC = () => {
               <View style={styles.resultHeader}>
                 <View style={styles.letterLabelRow}>
                   <Text style={styles.flag}>🇫🇷</Text>
-                  <Text style={styles.resultLabel}>Official letter (French)</Text>
+                  <Text style={styles.resultLabel}>{t('replyOfficialLetter')}</Text>
                 </View>
                 <Pressable onPress={copy} hitSlop={8} style={styles.copyBtn}>
                   <Ionicons
@@ -179,14 +187,14 @@ export const AIReplyScreen: React.FC = () => {
               <Card style={{ marginTop: Spacing.md }}>
                 <View style={styles.translationHeader}>
                   <Ionicons name="language-outline" size={16} color={Colors.blue} />
-                  <Text style={styles.translationLabel}>What it says in {result.language}</Text>
+                  <Text style={styles.translationLabel}>
+                    {fillTemplate(t('replyWhatItSays'), { language: result.language })}
+                  </Text>
                 </View>
-                <Text style={styles.translationHint}>
-                  A full translation so you understand the letter — send the French version above.
-                </Text>
+                <Text style={styles.translationHint}>{t('replyTranslationHint')}</Text>
                 <View style={styles.translationBox}>
                   <Text selectable style={styles.translationText}>
-                    {result.translation || 'Translation unavailable — please try again.'}
+                    {result.translation || t('replyTranslationUnavailable')}
                   </Text>
                 </View>
               </Card>

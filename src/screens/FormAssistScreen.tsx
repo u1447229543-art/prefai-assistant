@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { explainForm, FormFieldHelp } from '../services/openai';
+import { promptUpgrade } from '../utils/quotaPrompt';
+import type { RootStackParamList } from '../navigation/types';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const SUGGESTIONS = [
   'CERFA 13360 (RSA)',
@@ -16,8 +21,8 @@ const SUGGESTIONS = [
 ];
 
 export const FormAssistScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const { language, t } = useApp();
+  const navigation = useNavigation<Nav>();
+  const { language, t, consumeAiRequest } = useApp();
   const [form, setForm] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
@@ -30,6 +35,11 @@ export const FormAssistScreen: React.FC = () => {
     const query = (value ?? form).trim();
     if (!query) return;
     if (value) setForm(value);
+    const allowed = await consumeAiRequest();
+    if (!allowed) {
+      promptUpgrade(t, 'upgradeAiDailyMsg', () => navigation.navigate('Subscription'));
+      return;
+    }
     setLoading(true);
     setResult(null);
     try {
@@ -49,7 +59,7 @@ export const FormAssistScreen: React.FC = () => {
         <Text style={styles.label}>{t('formInputLabel')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="e.g. Demande APL CAF, CERFA 13360…"
+          placeholder={t('formPlaceholder')}
           placeholderTextColor={Colors.textMuted}
           value={form}
           onChangeText={setForm}

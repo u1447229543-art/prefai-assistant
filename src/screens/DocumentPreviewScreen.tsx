@@ -10,9 +10,10 @@ import {
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
-import { Screen, Header, NeonButton } from '../components/ui';
+import { Screen, Header, NeonButton, Body } from '../components/ui';
 import { formatBytes } from '../services/documents';
 import { getCategoryMeta } from '../components/DocumentCard';
+import { useApp } from '../context/AppContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type PreviewRoute = RouteProp<RootStackParamList, 'DocumentPreview'>;
@@ -24,7 +25,24 @@ const isPdf = (mime?: string, name?: string) =>
 
 export const DocumentPreviewScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { document } = useRoute<PreviewRoute>().params;
+  const { t } = useApp();
+  const params = useRoute<PreviewRoute>().params;
+  const document = params?.document;
+
+  if (!document) {
+    return (
+      <Screen>
+        <Header title={t('previewMissingDocument')} onBack={() => navigation.goBack()} />
+        <Body>
+          <View style={styles.errorBox}>
+            <Ionicons name="alert-circle-outline" size={40} color={Colors.red} />
+            <Text style={styles.errorText}>{t('previewMissingDocumentMsg')}</Text>
+          </View>
+        </Body>
+      </Screen>
+    );
+  }
+
   const meta = getCategoryMeta(document.category);
   const image = isImage(document.mimeType, document.name);
   const pdf = isPdf(document.mimeType, document.name);
@@ -35,12 +53,7 @@ export const DocumentPreviewScreen: React.FC = () => {
 
   const renderPreview = () => {
     if (!document.uri) {
-      return (
-        <Info
-          icon="cloud-offline-outline"
-          text="This document has no stored file to preview. Re-upload it to view its contents."
-        />
-      );
+      return <Info icon="cloud-offline-outline" text={t('previewNoFile')} />;
     }
 
     if (image) {
@@ -73,11 +86,7 @@ export const DocumentPreviewScreen: React.FC = () => {
     return (
       <Info
         icon={pdf ? 'document-text-outline' : 'document-outline'}
-        text={
-          pdf
-            ? 'PDF preview opens in your device viewer.'
-            : 'This file type opens in your device viewer.'
-        }
+        text={pdf ? t('pdfPreviewOpens') : t('filePreviewOpens')}
       />
     );
   };
@@ -116,7 +125,7 @@ export const DocumentPreviewScreen: React.FC = () => {
 
       {document.uri && Platform.OS !== 'web' && !image ? (
         <NeonButton
-          title={pdf ? 'Open PDF' : 'Open file'}
+          title={pdf ? t('openPdf') : t('openFile')}
           onPress={openExternally}
           variant="blue"
           icon="open-outline"
@@ -171,4 +180,11 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   openBtn: { marginHorizontal: Spacing.lg, marginBottom: Spacing.lg },
+  errorBox: { alignItems: 'center', paddingVertical: Spacing.xl, gap: Spacing.md },
+  errorText: {
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
 });

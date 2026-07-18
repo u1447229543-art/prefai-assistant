@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton, ScrollableText } from '../components/ui';
@@ -9,10 +10,14 @@ import { useApp } from '../context/AppContext';
 import { LanguageCode, getLanguage } from '../constants/languages';
 import { translateText } from '../services/openai';
 import { copyOrShare } from '../services/clipboard';
+import { promptUpgrade } from '../utils/quotaPrompt';
+import type { RootStackParamList } from '../navigation/types';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export const TranslationScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const { language, t } = useApp();
+  const navigation = useNavigation<Nav>();
+  const { language, t, consumeAiRequest } = useApp();
   const [source, setSource] = useState<LanguageCode>('fr');
   const [target, setTarget] = useState<LanguageCode>(language === 'fr' ? 'en' : language);
   const [text, setText] = useState('');
@@ -29,6 +34,11 @@ export const TranslationScreen: React.FC = () => {
 
   const run = async () => {
     if (!text.trim()) return;
+    const allowed = await consumeAiRequest();
+    if (!allowed) {
+      promptUpgrade(t, 'upgradeAiDailyMsg', () => navigation.navigate('Subscription'));
+      return;
+    }
     setLoading(true);
     setResult('');
     try {
