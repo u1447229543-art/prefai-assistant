@@ -40,7 +40,7 @@ export const PLANS: Plan[] = [
     tagline: 'For everyday admin tasks',
     documentLimit: 50,
     highlighted: true,
-    stripePriceId: 'price_basic_monthly',
+    stripePriceId: 'price_1TuVERD753169kynCHFrqS6s',
     features: [
       '50 documents / month',
       'Everything in Free',
@@ -58,7 +58,7 @@ export const PLANS: Plan[] = [
     tagline: 'Unlimited power for complex cases',
     documentLimit: null,
     highlighted: false,
-    stripePriceId: 'price_pro_monthly',
+    stripePriceId: 'price_1TuVFED753169kynJ7KC63JM',
     features: [
       'Unlimited documents',
       'Everything in Basic',

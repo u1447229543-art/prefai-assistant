@@ -7,11 +7,17 @@ import { PlanId, getPlan } from '../constants/pricing';
  * module is a thin client that talks to the PrefAI backend. Point
  * `EXPO_PUBLIC_API_URL` at the Railway API; paid plans must have a real
  * `stripePriceId` in `constants/pricing.ts`.
+ *
+ * `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` is required so checkout is marked ready
+ * (and available for native Payment Sheet if you add it later).
  */
 
 const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/+$/, '');
+const PUBLISHABLE_KEY = (process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '').trim();
 
-export const isConfigured = (): boolean => API_URL.length > 0;
+export const getPublishableKey = (): string => PUBLISHABLE_KEY;
+
+export const isConfigured = (): boolean => API_URL.length > 0 && PUBLISHABLE_KEY.length > 0;
 
 export interface CheckoutResult {
   success: boolean;
@@ -35,9 +41,15 @@ export async function startCheckout(
     return { success: true, planId, message: 'You are on the Free plan.' };
   }
 
-  if (!isConfigured()) {
+  if (!API_URL) {
     throw new Error(
       'Payments are not configured. Set EXPO_PUBLIC_API_URL to your PrefAI backend.'
+    );
+  }
+
+  if (!PUBLISHABLE_KEY) {
+    throw new Error(
+      'Stripe publishable key missing. Set EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY in your .env file.'
     );
   }
 
@@ -54,6 +66,8 @@ export async function startCheckout(
       priceId: plan.stripePriceId,
       email: customerEmail,
       planId,
+      // Sent so the backend can verify the client is using the expected Stripe account.
+      publishableKey: PUBLISHABLE_KEY,
     }),
   });
 
@@ -73,7 +87,7 @@ export async function startCheckout(
 export async function cancelSubscription(customerEmail: string): Promise<boolean> {
   if (!isConfigured()) {
     throw new Error(
-      'Payments are not configured. Set EXPO_PUBLIC_API_URL to your PrefAI backend.'
+      'Payments are not configured. Set EXPO_PUBLIC_API_URL and EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY.'
     );
   }
   const res = await fetch(`${API_URL}/api/cancel-subscription`, {
