@@ -66,8 +66,9 @@ export async function startCheckout(
       priceId: plan.stripePriceId,
       email: customerEmail,
       planId,
-      // Sent so the backend can verify the client is using the expected Stripe account.
       publishableKey: PUBLISHABLE_KEY,
+      success_url: 'https://prefai.app/subscription?success=1&session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://prefai.app/subscription?canceled=1',
     }),
   });
 
