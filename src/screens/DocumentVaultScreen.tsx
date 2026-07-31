@@ -1,5 +1,15 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,12 +20,32 @@ import { useApp } from '../context/AppContext';
 import * as storage from '../services/storage';
 import { CATEGORY_TO_BACKEND, ApiError, isNetworkError } from '../services/api';
 import { pickDocument, toStoredDocument, formatBytes, PickedDocument } from '../services/documents';
+import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 
 import { getCategoryLabel } from '../i18n/helpers';
 import type { TranslationKey } from '../i18n/translations';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+
+/** Alert.alert is a no-op on web for multi-button dialogs — use window.confirm there. */
+function confirmAction(
+  title: string,
+  message: string,
+  labels: { cancel: string; confirm: string },
+  onConfirm: () => void
+): void {
+  if (Platform.OS === 'web') {
+    if (typeof window !== 'undefined' && window.confirm(`${title}\n\n${message}`)) {
+      onConfirm();
+    }
+    return;
+  }
+  Alert.alert(title, message, [
+    { text: labels.cancel, style: 'cancel' },
+    { text: labels.confirm, style: 'destructive', onPress: onConfirm },
+  ]);
+}
 
 const CATEGORY_IDS: { id: storage.DocumentCategory | 'all'; key: TranslationKey }[] = [
   { id: 'all', key: 'catAll' },
@@ -49,6 +79,7 @@ export const DocumentVaultScreen: React.FC = () => {
     syncError,
   } = useApp();
   const navigation = useNavigation<Nav>();
+  const goUpgrade = () => navigation.navigate('Subscription');
   const [filter, setFilter] = useState<storage.DocumentCategory | 'all'>('all');
   const [picking, setPicking] = useState<PickedDocument | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -70,7 +101,11 @@ export const DocumentVaultScreen: React.FC = () => {
       const doc = await pickDocument();
       if (doc) setPicking(doc);
     } catch {
-      Alert.alert(t('error'), t('couldNotOpenPicker'));
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.alert(t('couldNotOpenPicker'));
+      } else {
+        Alert.alert(t('error'), t('couldNotOpenPicker'));
+      }
     }
   };
 
@@ -85,6 +120,9 @@ export const DocumentVaultScreen: React.FC = () => {
     } catch (e) {
       if (isNetworkError(e)) {
         setUploadError(t('couldNotReachServer'));
+      } else if (e instanceof Error && e.message === 'DOCUMENT_LIMIT') {
+        promptUpgrade(t, 'upgradeDocLimitMsg', goUpgrade);
+        setPicking(null);
       } else if (e instanceof ApiError) {
         setUploadError(e.message);
       } else {
@@ -96,20 +134,20 @@ export const DocumentVaultScreen: React.FC = () => {
   };
 
   const remove = (id: string) => {
-    Alert.alert(t('delete'), t('removeDocConfirm'), [
-      { text: t('cancel'), style: 'cancel' },
-      {
-        text: t('delete'),
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await removeDocument(id);
-          } catch (e) {
-            Alert.alert(t('error'), e instanceof Error ? e.message : t('couldNotDeleteDoc'));
+    confirmAction(t('delete'), t('removeDocConfirm'), { cancel: t('cancel'), confirm: t('delete') }, () => {
+      void (async () => {
+        try {
+          await removeDocument(id);
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : t('couldNotDeleteDoc');
+          if (Platform.OS === 'web' && typeof window !== 'undefined') {
+            window.alert(msg);
+          } else {
+            Alert.alert(t('error'), msg);
           }
-        },
-      },
-    ]);
+        }
+      })();
+    });
   };
 
   return (

@@ -562,7 +562,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const uploadDocument = useCallback(
     async (doc: storage.StoredDocument, backendCategory: string): Promise<storage.StoredDocument> => {
       if (isFree && documents.length >= FREE_DOCUMENT_LIMIT) {
-        throw new Error('DOCUMENT_LIMIT');
+        throw new api.ApiError('DOCUMENT_LIMIT', 403);
       }
       const { document } = await api.addDocument({
         fileName: doc.name,
@@ -589,7 +589,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addCachedDocument = useCallback(
     async (doc: storage.StoredDocument) => {
       if (isFree && documents.length >= FREE_DOCUMENT_LIMIT) {
-        throw new Error('DOCUMENT_LIMIT');
+        throw new api.ApiError('DOCUMENT_LIMIT', 403);
       }
       const next = await storage.addToVault(doc);
       setDocuments(next);
@@ -598,15 +598,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   );
 
   const removeDocument = useCallback(async (id: string) => {
-    const doc = documents.find((d) => d.id === id);
-    const remoteId = doc?.remoteId ?? id;
-    try {
-      await api.deleteDocument(remoteId);
-    } catch (e) {
-      if (!api.isNetworkError(e)) throw e;
+    const doc = documents.find((d) => d.id === id || d.remoteId === id);
+    const remoteId = doc?.remoteId ?? (doc && api.isMongoObjectId(doc.id) ? doc.id : undefined);
+
+    // Local-only / legacy client ids (doc_…) were never in Mongo — skip API.
+    if (remoteId && api.isMongoObjectId(remoteId)) {
+      try {
+        await api.deleteDocument(remoteId);
+      } catch (e) {
+        if (!(e instanceof api.ApiError && e.status === 404) && !api.isNetworkError(e)) {
+          throw e;
+        }
+      }
     }
     setDocuments((prev) => {
-      const next = prev.filter((d) => d.id !== id);
+      const next = prev.filter((d) => d.id !== id && d.remoteId !== id && d.remoteId !== remoteId);
       void storage.saveVault(next);
       return next;
     });

@@ -64,7 +64,15 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ document, onPress, o
         </Text>
       </View>
       {onDelete ? (
-        <Pressable onPress={onDelete} hitSlop={10} style={styles.deleteBtn}>
+        <Pressable
+          onPress={(e) => {
+            // Prevent the parent card's onPress (open preview) from firing.
+            (e as unknown as { stopPropagation?: () => void })?.stopPropagation?.();
+            onDelete();
+          }}
+          hitSlop={10}
+          style={styles.deleteBtn}
+        >
           <Ionicons name="trash-outline" size={18} color={Colors.textMuted} />
         </Pressable>
       ) : (

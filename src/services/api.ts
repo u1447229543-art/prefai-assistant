@@ -17,6 +17,11 @@ export class ApiError extends Error {
   }
 }
 
+/** MongoDB ObjectId hex string (24 chars). Client `doc_*` ids are not. */
+export function isMongoObjectId(id: string): boolean {
+  return /^[a-fA-F0-9]{24}$/.test(id);
+}
+
 export const isNetworkError = (e: unknown): boolean =>
   e instanceof ApiError && e.status === 0;
 
