@@ -7,6 +7,7 @@ import {
   aiGenerateLetter,
   aiGenerateReply,
   aiTranslate,
+  aiAskAnything,
   AdminOrg,
   AdminReply,
   DocumentExplanation,
@@ -172,8 +173,14 @@ export async function extractDeadlines(
   return [];
 }
 
-export async function chat(_history: ChatMessage[], _language: LanguageCode): Promise<string> {
-  throw new Error('General chat is not available in this version.');
+export async function chat(_history: ChatMessage[], language: LanguageCode): Promise<string> {
+  // `_history` is unused: the backend loads and persists the server-side thread.
+  const lastUser = [..._history].reverse().find((m) => m.role === 'user');
+  if (!lastUser?.content?.trim()) {
+    throw new Error('Empty message');
+  }
+  const { reply } = await aiAskAnything(lastUser.content.trim(), language);
+  return reply;
 }
 
 const STEP_SYSTEM_BASE =

@@ -19,6 +19,7 @@ export type RootStackParamList = {
   PDFGenerator: undefined;
   Guides: undefined;
   Subscription: undefined;
+  Chat: undefined;
 };
 
 export type MainTabParamList = {

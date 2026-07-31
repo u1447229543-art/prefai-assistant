@@ -36,7 +36,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build": "expo export --platform web",
-    "vercel-build": "expo export --platform web"
+    "vercel-build": "expo export --platform web",
+    "translate:journey-steps": "node scripts/translate-journey-steps.cjs"
   },
   "private": true
 }

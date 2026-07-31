@@ -20,6 +20,13 @@ const TOOL_DEFS: {
   route: keyof RootStackParamList;
 }[] = [
   {
+    titleKey: 'askAnythingCta',
+    descKey: 'askAnythingDesc',
+    icon: 'chatbubbles-outline',
+    accent: '#2EE6A6',
+    route: 'Chat',
+  },
+  {
     titleKey: 'eligibilityChecker',
     descKey: 'eligibilityCheckerDesc',
     icon: 'shield-checkmark-outline',

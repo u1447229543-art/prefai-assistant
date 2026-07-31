@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { Screen, Body, Header, NeonButton } from '../components/ui';
 import { useApp } from '../context/AppContext';
+import type { UserStatus } from '../services/storage';
+import type { TranslationKey } from '../i18n/translations';
+
+const STATUS_OPTIONS: { id: UserStatus; labelKey: TranslationKey }[] = [
+  { id: 'student', labelKey: 'statusStudent' },
+  { id: 'asylum_seeker', labelKey: 'statusAsylumSeeker' },
+  { id: 'entrepreneur', labelKey: 'statusEntrepreneur' },
+  { id: 'employee', labelKey: 'statusEmployee' },
+  { id: 'job_seeker', labelKey: 'statusJobSeeker' },
+  { id: 'other', labelKey: 'statusOther' },
+  { id: 'unknown', labelKey: 'statusUnknown' },
+];
 
 export const EditProfileScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { user, updateProfile } = useApp();
+  const { user, updateProfile, t } = useApp();
 
   const [form, setForm] = useState({
     firstName: user?.firstName ?? '',
@@ -19,6 +31,7 @@ export const EditProfileScreen: React.FC = () => {
     idNumber: user?.idNumber ?? '',
     phone: user?.phone ?? '',
     address: user?.address ?? '',
+    status: (user?.status ?? 'unknown') as UserStatus,
   });
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -41,41 +54,61 @@ export const EditProfileScreen: React.FC = () => {
 
   return (
     <Screen>
-      <Header title="Edit Profile" onBack={() => navigation.goBack()} />
+      <Header title={t('editProfile')} onBack={() => navigation.goBack()} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Body>
-          <Text style={styles.note}>
-            This information auto-fills your generated letters and documents. It is stored only on this device.
-          </Text>
+          <Text style={styles.note}>{t('profilePrivacyNote')}</Text>
 
-          <Label>First name (Prénom)</Label>
-          <Field icon="person-outline" value={form.firstName} onChangeText={set('firstName')} placeholder="Prénom" autoCapitalize="words" />
+          <Label>{t('yourSituation')}</Label>
+          <Text style={styles.hint}>{t('yourSituationHint')}</Text>
+          <View style={styles.statusRow}>
+            {STATUS_OPTIONS.map((opt) => {
+              const active = form.status === opt.id;
+              return (
+                <Pressable
+                  key={opt.id}
+                  onPress={() => {
+                    setForm((f) => ({ ...f, status: opt.id }));
+                    setSaved(false);
+                  }}
+                  style={[styles.statusChip, active && styles.statusChipActive]}
+                >
+                  <Text style={[styles.statusChipText, active && styles.statusChipTextActive]}>
+                    {t(opt.labelKey)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
 
-          <Label>Last name (Nom de famille)</Label>
-          <Field icon="person-outline" value={form.lastName} onChangeText={set('lastName')} placeholder="Nom de famille" autoCapitalize="words" />
+          <Label>{t('firstName')}</Label>
+          <Field icon="person-outline" value={form.firstName} onChangeText={set('firstName')} placeholder={t('firstNamePlaceholder')} autoCapitalize="words" />
 
-          <Label>Email</Label>
+          <Label>{t('lastName')}</Label>
+          <Field icon="person-outline" value={form.lastName} onChangeText={set('lastName')} placeholder={t('lastNamePlaceholder')} autoCapitalize="words" />
+
+          <Label>{t('email')}</Label>
           <Field icon="mail-outline" value={form.email} onChangeText={set('email')} placeholder="email@example.com" keyboardType="email-address" autoCapitalize="none" />
 
-          <Label>Date of birth (Date de naissance)</Label>
+          <Label>{t('dateOfBirth')}</Label>
           <Field icon="calendar-outline" value={form.dateOfBirth} onChangeText={set('dateOfBirth')} placeholder="YYYY-MM-DD" keyboardType="numbers-and-punctuation" />
 
-          <Label>Nationality (Nationalité)</Label>
-          <Field icon="flag-outline" value={form.nationality} onChangeText={set('nationality')} placeholder="e.g. Georgian" autoCapitalize="words" />
+          <Label>{t('nationality')}</Label>
+          <Field icon="flag-outline" value={form.nationality} onChangeText={set('nationality')} placeholder={t('addYourNationality')} autoCapitalize="words" />
 
-          <Label>National ID / Passport number</Label>
-          <Field icon="card-outline" value={form.idNumber} onChangeText={set('idNumber')} placeholder="ID / Passport" autoCapitalize="characters" />
+          <Label>{t('idNumber')}</Label>
+          <Field icon="card-outline" value={form.idNumber} onChangeText={set('idNumber')} placeholder={t('idNumberOptional')} autoCapitalize="characters" />
 
-          <Label>Phone number</Label>
+          <Label>{t('phoneOptional')}</Label>
           <Field icon="call-outline" value={form.phone} onChangeText={set('phone')} placeholder="+33 6 12 34 56 78" keyboardType="phone-pad" />
 
-          <Label>Address in France (Adresse)</Label>
-          <Field icon="home-outline" value={form.address} onChangeText={set('address')} placeholder="Street, postal code, city" multiline />
+          <Label>{t('address')}</Label>
+          <Field icon="home-outline" value={form.address} onChangeText={set('address')} placeholder={t('addressInFranceOptional')} multiline />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <NeonButton
-            title={saved ? 'Saved ✓' : 'Save profile'}
+            title={saved ? t('savedSuccess') : t('saveProfile')}
             onPress={save}
             variant={saved ? 'blue' : 'blueRed'}
             icon={saved ? 'checkmark' : 'save-outline'}
@@ -102,7 +135,21 @@ const Field: React.FC<
 
 const styles = StyleSheet.create({
   note: { color: Colors.textSecondary, fontSize: FontSize.sm, lineHeight: 20, marginBottom: Spacing.md },
+  hint: { color: Colors.textMuted, fontSize: FontSize.xs, marginBottom: Spacing.sm, lineHeight: 16 },
   label: { color: Colors.textSecondary, fontSize: FontSize.xs, fontWeight: '600', marginBottom: 6, marginTop: Spacing.sm },
+  statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.sm },
+  statusChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.card,
+    marginBottom: 4,
+  },
+  statusChipActive: { borderColor: Colors.blue, backgroundColor: Colors.glassBlue },
+  statusChipText: { color: Colors.textSecondary, fontSize: FontSize.xs, fontWeight: '600' },
+  statusChipTextActive: { color: Colors.blue },
   field: {
     flexDirection: 'row',
     alignItems: 'center',

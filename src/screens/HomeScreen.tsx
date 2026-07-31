@@ -159,6 +159,17 @@ export const HomeScreen: React.FC = () => {
           ))}
         </Card>
 
+        <Pressable style={styles.askBanner} onPress={() => go('Chat')}>
+          <View style={styles.askIcon}>
+            <Ionicons name="chatbubbles" size={22} color="#04121A" />
+          </View>
+          <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+            <Text style={styles.askTitle}>{t('askAnythingCta')}</Text>
+            <Text style={styles.askSub}>{t('askAnythingDesc')}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.blue} />
+        </Pressable>
+
         <Pressable style={styles.eligBanner} onPress={() => go('Eligibility')}>
           <View style={styles.eligIcon}>
             <Ionicons name="shield-checkmark" size={20} color="#04121A" />
@@ -252,6 +263,27 @@ const styles = StyleSheet.create({
   taskTextDone: { color: Colors.textMuted, textDecorationLine: 'line-through' },
 
   viewAll: { color: Colors.blue, fontSize: FontSize.sm, fontWeight: '600' },
+  askBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: '#2EE6A6',
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  askIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.md,
+    backgroundColor: '#2EE6A6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  askTitle: { color: Colors.white, fontSize: FontSize.md, fontWeight: '800' },
+  askSub: { color: Colors.textSecondary, fontSize: FontSize.xs, marginTop: 2 },
   eligBanner: {
     flexDirection: 'row',
     alignItems: 'center',

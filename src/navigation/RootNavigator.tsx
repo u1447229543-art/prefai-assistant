@@ -19,6 +19,7 @@ import { DeadlineTrackerScreen } from '../screens/DeadlineTrackerScreen';
 import { PDFGeneratorScreen } from '../screens/PDFGeneratorScreen';
 import { GuidesScreen } from '../screens/GuidesScreen';
 import { SubscriptionScreen } from '../screens/SubscriptionScreen';
+import { ChatScreen } from '../screens/ChatScreen';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -71,6 +72,7 @@ export const RootNavigator: React.FC = () => {
             <Stack.Screen name="DeadlineTracker" component={DeadlineTrackerScreen} />
             <Stack.Screen name="PDFGenerator" component={PDFGeneratorScreen} />
             <Stack.Screen name="Guides" component={GuidesScreen} />
+            <Stack.Screen name="Chat" component={ChatScreen} />
             <Stack.Screen
               name="Subscription"
               component={SubscriptionScreen}

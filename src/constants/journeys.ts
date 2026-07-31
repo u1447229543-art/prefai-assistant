@@ -27,6 +27,14 @@ export interface JourneyStep {
   title: string;
   /** One short sentence: why this step matters. */
   purpose: string;
+  /** French original title (optional, curated/static). */
+  title_fr?: string;
+  /** French original purpose (optional, curated/static). */
+  purpose_fr?: string;
+  /** Localized titles keyed by language code (en, ka, …). */
+  title_i18n?: Partial<Record<string, string>>;
+  /** Localized purposes keyed by language code (en, ka, …). */
+  purpose_i18n?: Partial<Record<string, string>>;
   /** Human estimate, e.g. "1–2 weeks". */
   duration: string;
   /** Required documents for this step. */
@@ -43,6 +51,16 @@ export interface JourneyStep {
   commonMistakes: string[];
   /** One sentence: what to expect after completing this step. */
   whatNext: string;
+}
+
+/** Localized step title for UI lists — falls back to English `title`. */
+export function getStepTitle(step: JourneyStep, lang: string): string {
+  return step.title_i18n?.[lang] || step.title_i18n?.en || step.title;
+}
+
+/** Localized step purpose for UI lists — falls back to English `purpose`. */
+export function getStepPurpose(step: JourneyStep, lang: string): string {
+  return step.purpose_i18n?.[lang] || step.purpose_i18n?.en || step.purpose;
 }
 
 export interface Journey {
@@ -66,6 +84,17 @@ export const JOURNEYS: Journey[] = [
         id: 'arr-1',
         title: 'Validate your visa (VLS-TS)',
         purpose: 'Most long-stay visas must be validated online within 3 months of arrival, or they become invalid.',
+        title_fr: 'Valider votre visa (VLS-TS)',
+        purpose_fr:
+          'La plupart des visas de long séjour doivent être validés en ligne dans les 3 mois suivant l’arrivée, sinon ils deviennent invalides.',
+        title_i18n: {
+          en: 'Validate your visa (VLS-TS)',
+          ka: 'ვიზის ვალიდაცია (VLS-TS)',
+        },
+        purpose_i18n: {
+          en: 'Most long-stay visas must be validated online within 3 months of arrival, or they become invalid.',
+          ka: 'უმეტესი გრძელვადიანი ვიზა ჩამოსვლიდან 3 თვის განმავლობაში უნდა დაადასტუროთ ონლაინ, თორემ ძალას კარგავს.',
+        },
         duration: '30 minutes',
         documents: ['Passport', 'Long-stay visa', 'French address', 'Bank card for the tax stamp'],
         whereToGo: 'Online — anef.administration-etrangers.interieur.gouv.fr',
@@ -89,6 +118,17 @@ export const JOURNEYS: Journey[] = [
         id: 'arr-2',
         title: 'Open a French bank account',
         purpose: 'You need an account (RIB) for rent, salary, CAF and almost every administrative step.',
+        title_fr: 'Ouvrir un compte bancaire français',
+        purpose_fr:
+          'Vous avez besoin d’un compte (RIB) pour le loyer, le salaire, la CAF et presque toutes les démarches administratives.',
+        title_i18n: {
+          en: 'Open a French bank account',
+          ka: 'გახსენით საფრანგეთის საბანკო ანგარიში',
+        },
+        purpose_i18n: {
+          en: 'You need an account (RIB) for rent, salary, CAF and almost every administrative step.',
+          ka: 'ანგარიში (RIB) გჭირდებათ ქირის, ხელფასის, CAF-ისა და თითქმის ყველა ადმინისტრაციული ნაბიჯისთვის.',
+        },
         duration: '1–2 weeks',
         documents: ['Passport / ID', 'Proof of address', 'Visa or residence permit'],
         whereToGo: 'A bank branch or an online bank',
@@ -110,6 +150,17 @@ export const JOURNEYS: Journey[] = [
         id: 'arr-3',
         title: 'Get proof of address (justificatif de domicile)',
         purpose: 'Almost every French procedure asks for a recent proof that you live somewhere.',
+        title_fr: 'Obtenir un justificatif de domicile',
+        purpose_fr:
+          'Presque toutes les démarches françaises demandent une preuve récente que vous habitez quelque part.',
+        title_i18n: {
+          en: 'Get proof of address (justificatif de domicile)',
+          ka: 'მიიღეთ საცხოვრებლის დამადასტურებელი (justificatif de domicile)',
+        },
+        purpose_i18n: {
+          en: 'Almost every French procedure asks for a recent proof that you live somewhere.',
+          ka: 'თითქმის ყველა ფრანგული პროცედურა მოითხოვს ბოლოდროინდელ დამადასტურებელს, რომ სადმე ცხოვრობთ.',
+        },
         duration: 'Same day',
         documents: ['Rental contract or hosting attestation', 'Utility bill (electricity, internet)'],
         whereToGo: 'Your landlord / utility provider',
@@ -130,6 +181,19 @@ export const JOURNEYS: Journey[] = [
         id: 'arr-4',
         title: 'Register for health insurance',
         purpose: 'Register with Assurance Maladie for reimbursed healthcare (PUMa online or CPAM in person).',
+        // NEEDS_REVIEW — exact registration path/timing can vary; wording kept general from source
+        title_fr: 'S’inscrire à l’Assurance Maladie',
+        // NEEDS_REVIEW
+        purpose_fr:
+          'Inscrivez-vous à l’Assurance Maladie pour les soins remboursés (PUMa en ligne ou CPAM en présentiel).',
+        title_i18n: {
+          en: 'Register for health insurance',
+          ka: 'დარეგისტრირდით ჯანმრთელობის დაზღვევაზე',
+        },
+        purpose_i18n: {
+          en: 'Register with Assurance Maladie for reimbursed healthcare (PUMa online or CPAM in person).',
+          ka: 'დარეგისტრირდით Assurance Maladie-ში ანაზღაურებადი სამედიცინო მომსახურებისთვის (PUMa ონლაინ ან CPAM პირადად).',
+        },
         duration: '1–4 months',
         documents: ['Passport', 'Visa / residence permit', 'Birth certificate (translated)', 'RIB', 'Proof of address'],
         whereToGo: 'ameli.fr → “Je n’ai pas de numéro de Sécurité sociale”, or your CPAM office',

@@ -1,0 +1,39 @@
+[
+  {
+    "id": "arr-1",
+    "title": "Validate your visa (VLS-TS)",
+    "source": "curated-static (OpenAI script returned 401 invalid key)",
+    "confidence": "high",
+    "needsReview": false,
+    "title_fr": "Valider votre visa (VLS-TS)",
+    "title_ka": "ვიზის ვალიდაცია (VLS-TS)"
+  },
+  {
+    "id": "arr-2",
+    "title": "Open a French bank account",
+    "source": "curated-static (OpenAI script returned 401 invalid key)",
+    "confidence": "high",
+    "needsReview": false,
+    "title_fr": "Ouvrir un compte bancaire français",
+    "title_ka": "გახსენით საფრანგეთის საბანკო ანგარიში"
+  },
+  {
+    "id": "arr-3",
+    "title": "Get proof of address (justificatif de domicile)",
+    "source": "curated-static (OpenAI script returned 401 invalid key)",
+    "confidence": "high",
+    "needsReview": false,
+    "title_fr": "Obtenir un justificatif de domicile",
+    "title_ka": "მიიღეთ საცხოვრებლის დამადასტურებელი (justificatif de domicile)"
+  },
+  {
+    "id": "arr-4",
+    "title": "Register for health insurance",
+    "source": "curated-static (OpenAI script returned 401 invalid key)",
+    "confidence": "medium",
+    "needsReview": true,
+    "notes": "Registration path/timing can vary; FR/KA wording kept general from English source.",
+    "title_fr": "S’inscrire à l’Assurance Maladie",
+    "title_ka": "დარეგისტრირდით ჯანმრთელობის დაზღვევაზე"
+  }
+]

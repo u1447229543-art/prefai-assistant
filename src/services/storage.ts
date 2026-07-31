@@ -88,8 +88,19 @@ export interface StoredUser {
   address: string;
   /** City in France. */
   city: string;
+  /** Immigration / life situation for Ask Anything (optional). */
+  status?: UserStatus;
   createdAt: string;
 }
+
+export type UserStatus =
+  | 'student'
+  | 'asylum_seeker'
+  | 'entrepreneur'
+  | 'employee'
+  | 'job_seeker'
+  | 'other'
+  | 'unknown';
 
 /** Profile fields that can be edited after registration. */
 export type EditableProfile = Pick<
@@ -103,6 +114,7 @@ export type EditableProfile = Pick<
   | 'address'
   | 'city'
   | 'email'
+  | 'status'
 >;
 
 export type DocumentCategory =

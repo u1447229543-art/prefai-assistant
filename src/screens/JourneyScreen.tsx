@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
 import { Screen, Body, Card, ProgressBar } from '../components/ui';
 import { useApp } from '../context/AppContext';
-import { JOURNEYS, JourneyId, JourneyStep, getJourney } from '../constants/journeys';
+import { JOURNEYS, JourneyId, JourneyStep, getJourney, getStepTitle, getStepPurpose } from '../constants/journeys';
 import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 import type { TranslationKey } from '../i18n/translations';
@@ -16,7 +16,7 @@ type TFn = (key: TranslationKey) => string;
 
 export const JourneyScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { journey, journeyPercent, journeySyncing, refreshJourney, selectJourney, toggleJourneyStep, resetJourney, t } = useApp();
+  const { journey, journeyPercent, journeySyncing, refreshJourney, selectJourney, toggleJourneyStep, resetJourney, t, language } = useApp();
 
   useFocusEffect(
     useCallback(() => {
@@ -84,6 +84,7 @@ export const JourneyScreen: React.FC = () => {
             accent={data.accent}
             done={journey.completedStepIds.includes(step.id)}
             current={step.id === currentStepId}
+            language={language}
             onToggle={() => toggleJourneyStep(step.id)}
             onOpen={() =>
               navigation.navigate('JourneyStep', {
@@ -134,10 +135,11 @@ const StepCard: React.FC<{
   accent: string;
   done: boolean;
   current: boolean;
+  language: string;
   onToggle: () => void;
   onOpen: () => void;
   t: TFn;
-}> = ({ step, index, accent, done, current, onToggle, onOpen, t }) => (
+}> = ({ step, index, accent, done, current, language, onToggle, onOpen, t }) => (
   <Card
     onPress={onOpen}
     style={[
@@ -167,12 +169,14 @@ const StepCard: React.FC<{
           <Text style={[styles.stepNumberText, { color: accent }]}>{index + 1}</Text>
         )}
       </View>
-      <Text style={[styles.stepTitle, done && styles.stepTitleDone]}>{step.title}</Text>
+      <Text style={[styles.stepTitle, done && styles.stepTitleDone]}>
+        {getStepTitle(step, language)}
+      </Text>
       <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
     </View>
 
     <Text style={styles.stepPurpose} numberOfLines={2}>
-      {step.purpose}
+      {getStepPurpose(step, language)}
     </Text>
 
     <View style={styles.metaRow}>

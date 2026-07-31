@@ -370,6 +370,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           idNumber: data.idNumber,
           dateOfBirth: data.dateOfBirth,
           address: data.address,
+          status: data.status,
         });
         await applyUser(apiUser);
       } catch (e) {

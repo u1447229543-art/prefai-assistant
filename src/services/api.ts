@@ -40,10 +40,20 @@ export interface ApiUser {
   idNumber: string;
   dateOfBirth: string;
   address: string;
+  status?: UserStatus;
   subscriptionPlan: 'free' | 'basic' | 'pro';
   documentsUsedThisMonth: number;
   createdAt: string;
 }
+
+export type UserStatus =
+  | 'student'
+  | 'asylum_seeker'
+  | 'entrepreneur'
+  | 'employee'
+  | 'job_seeker'
+  | 'other'
+  | 'unknown';
 
 export interface ApiJourney {
   journeyType: string;
@@ -140,6 +150,7 @@ export function toStoredUser(u: ApiUser): storage.StoredUser {
     phone: u.phoneNumber || '',
     address: u.address || '',
     city: u.city || '',
+    status: (u.status as storage.UserStatus) || 'unknown',
     createdAt: u.createdAt || new Date().toISOString(),
   };
 }
@@ -210,6 +221,7 @@ export interface ProfileUpdate {
   idNumber?: string;
   dateOfBirth?: string;
   address?: string;
+  status?: UserStatus;
 }
 
 export async function updateProfile(data: ProfileUpdate): Promise<{ user: ApiUser }> {
@@ -365,6 +377,31 @@ export async function aiGenerateLetter(params: {
   return request('/api/ai/pdf', {
     method: 'POST',
     body: JSON.stringify(params),
+  });
+}
+
+export interface ApiChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  createdAt: string;
+}
+
+export async function aiGetChatHistory(): Promise<{ messages: ApiChatMessage[] }> {
+  return request('/api/ai/chat', { method: 'GET' });
+}
+
+export async function aiClearChatHistory(): Promise<{ success: boolean }> {
+  return request('/api/ai/chat', { method: 'DELETE' });
+}
+
+export async function aiAskAnything(
+  message: string,
+  language: string
+): Promise<{ reply: string; messages: ApiChatMessage[] }> {
+  return request('/api/ai/chat', {
+    method: 'POST',
+    body: JSON.stringify({ message, language }),
   });
 }
 
