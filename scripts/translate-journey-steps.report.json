@@ -1,39 +1,383 @@
-[
-  {
-    "id": "arr-1",
-    "title": "Validate your visa (VLS-TS)",
-    "source": "curated-static (OpenAI script returned 401 invalid key)",
-    "confidence": "high",
-    "needsReview": false,
-    "title_fr": "Valider votre visa (VLS-TS)",
-    "title_ka": "ვიზის ვალიდაცია (VLS-TS)"
-  },
-  {
-    "id": "arr-2",
-    "title": "Open a French bank account",
-    "source": "curated-static (OpenAI script returned 401 invalid key)",
-    "confidence": "high",
-    "needsReview": false,
-    "title_fr": "Ouvrir un compte bancaire français",
-    "title_ka": "გახსენით საფრანგეთის საბანკო ანგარიში"
-  },
-  {
-    "id": "arr-3",
-    "title": "Get proof of address (justificatif de domicile)",
-    "source": "curated-static (OpenAI script returned 401 invalid key)",
-    "confidence": "high",
-    "needsReview": false,
-    "title_fr": "Obtenir un justificatif de domicile",
-    "title_ka": "მიიღეთ საცხოვრებლის დამადასტურებელი (justificatif de domicile)"
-  },
-  {
-    "id": "arr-4",
-    "title": "Register for health insurance",
-    "source": "curated-static (OpenAI script returned 401 invalid key)",
-    "confidence": "medium",
-    "needsReview": true,
-    "notes": "Registration path/timing can vary; FR/KA wording kept general from English source.",
-    "title_fr": "S’inscrire à l’Assurance Maladie",
-    "title_ka": "დარეგისტრირდით ჯანმრთელობის დაზღვევაზე"
-  }
-]
+{
+  "mode": "durations-only",
+  "ok": 40,
+  "skipped": 0,
+  "failed": 0,
+  "langs": [
+    "en",
+    "ka"
+  ],
+  "journeys": [
+    "arrived",
+    "residence",
+    "student",
+    "caf",
+    "health",
+    "work",
+    "asylum",
+    "nationality",
+    "other"
+  ],
+  "steps": [
+    {
+      "journeyId": "arrived",
+      "id": "arr-1",
+      "duration": "30 minutes",
+      "duration_ka": "30 წუთი",
+      "duration_fr": "30 minutes",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "arrived",
+      "id": "arr-2",
+      "duration": "1–2 weeks",
+      "duration_ka": "1–2 კვირა",
+      "duration_fr": "1–2 semaines",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "arrived",
+      "id": "arr-3",
+      "duration": "Same day",
+      "duration_ka": "იმავე დღეს",
+      "duration_fr": "Le jour même",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "arrived",
+      "id": "arr-4",
+      "duration": "1–4 months",
+      "duration_ka": "1–4 თვე",
+      "duration_fr": "1–4 mois",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "residence",
+      "id": "res-1",
+      "duration": "20 minutes",
+      "duration_ka": "20 წუთი",
+      "duration_fr": "20 minutes",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "residence",
+      "id": "res-2",
+      "duration": "1–2 weeks",
+      "duration_ka": "1–2 კვირა",
+      "duration_fr": "1–2 semaines",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "residence",
+      "id": "res-3",
+      "duration": "1 hour",
+      "duration_ka": "1 საათი",
+      "duration_fr": "1 heure",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "residence",
+      "id": "res-4",
+      "duration": "2–4 weeks (récépissé); up to 55 days total processing",
+      "duration_ka": "2–4 კვირა (récépissé); 55 დღემდე სრული დამუშავება",
+      "duration_fr": "2–4 semaines (récépissé); jusqu'à 55 jours de traitement",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "residence",
+      "id": "res-5",
+      "duration": "Up to 55 days (processing target); card pickup when notified",
+      "duration_ka": "55 დღემდე (დამუშავების მიზანი); ბარათის აღება შეტყობინებისას",
+      "duration_fr": "Jusqu'à 55 jours (objectif de traitement); retrait de la carte sur notification",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "student",
+      "id": "stu-1",
+      "duration": "30 minutes",
+      "duration_ka": "30 წუთი",
+      "duration_fr": "30 minutes",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "student",
+      "id": "stu-2",
+      "duration": "1 week",
+      "duration_ka": "1 კვირა",
+      "duration_fr": "1 semaine",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "student",
+      "id": "stu-3",
+      "duration": "2–4 weeks",
+      "duration_ka": "2–4 კვირა",
+      "duration_fr": "2–4 semaines",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "student",
+      "id": "stu-4",
+      "duration": "1 month",
+      "duration_ka": "1 თვე",
+      "duration_fr": "1 mois",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "caf",
+      "id": "caf-1",
+      "duration": "20 minutes",
+      "duration_ka": "20 წუთი",
+      "duration_fr": "20 minutes",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "caf",
+      "id": "caf-2",
+      "duration": "2–6 weeks",
+      "duration_ka": "2–6 კვირა",
+      "duration_fr": "2–6 semaines",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "caf",
+      "id": "caf-3",
+      "duration": "1 hour",
+      "duration_ka": "1 საათი",
+      "duration_fr": "1 heure",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "caf",
+      "id": "caf-4",
+      "duration": "Ongoing",
+      "duration_ka": "მიმდინარე",
+      "duration_fr": "En cours",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "health",
+      "id": "hea-1",
+      "duration": "1 hour",
+      "duration_ka": "1 საათი",
+      "duration_fr": "1 heure",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "health",
+      "id": "hea-2",
+      "duration": "NIA in 1–4 weeks; attestation on ameli.fr in 1–2 months",
+      "duration_ka": "NIA 1–4 კვირაში; დადასტურება ameli.fr-ზე 1–2 თვეში",
+      "duration_fr": "NIA en 1–4 semaines ; attestation sur ameli.fr en 1–2 mois",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "health",
+      "id": "hea-3",
+      "duration": "20 minutes",
+      "duration_ka": "20 წუთი",
+      "duration_fr": "20 minutes",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "health",
+      "id": "hea-4",
+      "duration": "2–4 months for the physical card",
+      "duration_ka": "2–4 თვე ფიზიკური ბარათისთვის",
+      "duration_fr": "2–4 mois pour la carte physique",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "health",
+      "id": "hea-5",
+      "duration": "Same day",
+      "duration_ka": "იმავე დღეს",
+      "duration_fr": "Même jour",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "work",
+      "id": "wrk-1",
+      "duration": "30 minutes",
+      "duration_ka": "30 წუთი",
+      "duration_fr": "30 minutes",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "work",
+      "id": "wrk-2",
+      "duration": "1 week",
+      "duration_ka": "1 კვირა",
+      "duration_fr": "1 semaine",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "work",
+      "id": "wrk-3",
+      "duration": "2–3 days",
+      "duration_ka": "2–3 დღე",
+      "duration_fr": "2–3 jours",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "work",
+      "id": "wrk-4",
+      "duration": "1–4 weeks",
+      "duration_ka": "1–4 კვირა",
+      "duration_fr": "1–4 semaines",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "asylum",
+      "id": "asy-1",
+      "duration": "1–3 weeks",
+      "duration_ka": "1–3 კვირა",
+      "duration_fr": "1–3 semaines",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "asylum",
+      "id": "asy-2",
+      "duration": "1 day",
+      "duration_ka": "1 დღე",
+      "duration_fr": "1 jour",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "asylum",
+      "id": "asy-3",
+      "duration": "Same day",
+      "duration_ka": "იმავე დღეს",
+      "duration_fr": "Le jour même",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "asylum",
+      "id": "asy-4",
+      "duration": "1–3 weeks",
+      "duration_ka": "1–3 კვირა",
+      "duration_fr": "1–3 semaines",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "asylum",
+      "id": "asy-5",
+      "duration": "1–12 months",
+      "duration_ka": "1–12 თვე",
+      "duration_fr": "1–12 mois",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "nationality",
+      "id": "nat-1",
+      "duration": "1 hour",
+      "duration_ka": "1 საათი",
+      "duration_fr": "1 heure",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "nationality",
+      "id": "nat-2",
+      "duration": "1–2 months",
+      "duration_ka": "1–2 თვე",
+      "duration_fr": "1–2 mois",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "nationality",
+      "id": "nat-3",
+      "duration": "2–4 weeks",
+      "duration_ka": "2–4 კვირა",
+      "duration_fr": "2–4 semaines",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "nationality",
+      "id": "nat-4",
+      "duration": "1 hour",
+      "duration_ka": "1 საათი",
+      "duration_fr": "1 heure",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "nationality",
+      "id": "nat-5",
+      "duration": "6–18 months",
+      "duration_ka": "6–18 თვე",
+      "duration_fr": "6–18 mois",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "other",
+      "id": "oth-1",
+      "duration": "30 minutes",
+      "duration_ka": "30 წუთი",
+      "duration_fr": "30 minutes",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "other",
+      "id": "oth-2",
+      "duration": "1–3 days",
+      "duration_ka": "1–3 დღე",
+      "duration_fr": "1–3 jours",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "other",
+      "id": "oth-3",
+      "duration": "1 day",
+      "duration_ka": "1 დღე",
+      "duration_fr": "1 jour",
+      "confidence": "high",
+      "needsReview": false
+    },
+    {
+      "journeyId": "other",
+      "id": "oth-4",
+      "duration": "Varies",
+      "duration_ka": "მრავალფეროვანი",
+      "duration_fr": "Variable",
+      "confidence": "high",
+      "needsReview": false
+    }
+  ]
+}

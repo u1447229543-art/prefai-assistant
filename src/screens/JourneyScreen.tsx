@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
 import { Screen, Body, Card, ProgressBar } from '../components/ui';
 import { useApp } from '../context/AppContext';
-import { JOURNEYS, JourneyId, JourneyStep, getJourney, getStepTitle, getStepPurpose } from '../constants/journeys';
+import { JOURNEYS, JourneyId, JourneyStep, getJourney, getStepTitle, getStepPurpose, getStepDuration } from '../constants/journeys';
 import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 import type { TranslationKey } from '../i18n/translations';
@@ -180,7 +180,7 @@ const StepCard: React.FC<{
     </Text>
 
     <View style={styles.metaRow}>
-      <MetaItem icon="time-outline" label={step.duration} />
+      <MetaItem icon="time-outline" label={getStepDuration(step, language)} />
       <MetaItem icon="business-outline" label={step.organization} />
     </View>
 

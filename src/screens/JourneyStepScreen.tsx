@@ -15,7 +15,7 @@ import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton } from '../components/ui';
 import { ChatBubble } from '../components/ChatBubble';
 import { useApp } from '../context/AppContext';
-import { getJourney, getJourneyStep } from '../constants/journeys';
+import { getJourney, getJourneyStep, getStepDuration } from '../constants/journeys';
 import { askAboutStep, ChatMessage, isStepAiConfigured } from '../services/openai';
 import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
@@ -302,7 +302,7 @@ export const JourneyStepScreen: React.FC = () => {
             </View>
             <View style={styles.badge}>
               <Ionicons name="time-outline" size={13} color={accent} />
-              <Text style={styles.badgeText}>{step.duration}</Text>
+              <Text style={styles.badgeText}>{getStepDuration(step, language)}</Text>
             </View>
           </View>
 

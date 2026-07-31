@@ -7,7 +7,7 @@ import { Colors, FontSize, Gradients, Radius, Spacing, glow } from '../constants
 import { Screen, Body, SectionTitle, Card, ProgressBar } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import * as storage from '../services/storage';
-import { getJourney } from '../constants/journeys';
+import { getJourney, getStepDuration } from '../constants/journeys';
 import { daysUntil, urgencyColor } from '../utils/deadlines';
 import { greetingKey, getTaskTitle } from '../i18n/helpers';
 import type { TranslationKey } from '../i18n/translations';
@@ -21,7 +21,7 @@ const AI_TOOL_KEYS: { titleKey: TranslationKey; icon: keyof typeof Ionicons.glyp
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { user, journey, journeyPercent, journeySyncing, refreshJourney, syncError, tasks, toggleTask, t } = useApp();
+  const { user, journey, journeyPercent, journeySyncing, refreshJourney, syncError, tasks, toggleTask, t, language } = useApp();
   const [nextDeadline, setNextDeadline] = useState<storage.StoredDeadline | null>(null);
 
   const greeting = useMemo(() => t(greetingKey()), [t]);
@@ -125,7 +125,7 @@ export const HomeScreen: React.FC = () => {
             <Text style={styles.stepTitle}>{currentStep.title}</Text>
             <View style={styles.stepMeta}>
               <Ionicons name="time-outline" size={14} color={Colors.blue} />
-              <Text style={styles.stepMetaText}>{t('estimated')} {currentStep.duration}</Text>
+              <Text style={styles.stepMetaText}>{t('estimated')} {getStepDuration(currentStep, language)}</Text>
               <Ionicons name="business-outline" size={14} color={Colors.blue} style={{ marginLeft: Spacing.md }} />
               <Text style={styles.stepMetaText}>{currentStep.organization}</Text>
             </View>
