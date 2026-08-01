@@ -503,7 +503,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     async (id: JourneyId): Promise<boolean> => {
       if (isFree) {
         const unlocked = usage.unlockedJourneyIds ?? [];
-        if (!unlocked.includes(id) && unlocked.length >= FREE_JOURNEY_LIMIT) {
+        // Unlimited journey selection during 7-day trial (same bypass as docs/AI).
+        if (!isInTrial && !unlocked.includes(id) && unlocked.length >= FREE_JOURNEY_LIMIT) {
           return false;
         }
         if (!unlocked.includes(id)) {
@@ -541,7 +542,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setJourneySyncing(false);
       }
     },
-    [applyJourney, isFree, usage]
+    [applyJourney, isFree, isInTrial, usage]
   );
 
   const toggleJourneyStep = useCallback(
