@@ -236,6 +236,7 @@ export type TranslationKey =
   | 'categories'
   // chat
   | 'chatTitle'
+  | 'chatSubtitle'
   | 'chatPlaceholder'
   | 'chatWelcome'
   // pdf
@@ -508,7 +509,8 @@ const enCore: Dict = {
   vaultSubtitle: 'Your documents, securely stored on this device',
   addDocument: 'Add Document',
   categories: 'Categories',
-  chatTitle: 'AI Assistant',
+  chatTitle: 'AI Administrative Chat',
+  chatSubtitle: 'Ask Anything',
   chatPlaceholder: 'Ask anything about French admin…',
   chatWelcome: 'Hi! I can help with CAF, CPAM, Préfecture, taxes and more. What do you need?',
   pdfTitle: 'PDF Generator',
@@ -775,7 +777,8 @@ const frCore: Dict = {
   vaultSubtitle: 'Vos documents, stockés en sécurité sur cet appareil',
   addDocument: 'Ajouter un document',
   categories: 'Catégories',
-  chatTitle: 'Assistant IA',
+  chatTitle: 'Chat administratif IA',
+  chatSubtitle: 'Demander n’importe quoi',
   chatPlaceholder: 'Posez une question sur l\'administration française…',
   chatWelcome:
     'Bonjour ! Je peux vous aider avec la CAF, la CPAM, la Préfecture, les impôts et plus. Que voulez-vous ?',
@@ -1051,7 +1054,8 @@ const ruCore: Dict = {
   vaultSubtitle: 'Ваши документы, надёжно хранящиеся на этом устройстве',
   addDocument: 'Добавить документ',
   categories: 'Категории',
-  chatTitle: 'ИИ-помощник',
+  chatTitle: 'ИИ-чат по административным вопросам',
+  chatSubtitle: 'Спросите что угодно',
   chatPlaceholder: 'Спросите что угодно о французской бюрократии…',
   chatWelcome:
     'Здравствуйте! Я могу помочь с CAF, CPAM, префектурой, налогами и многим другим. Чем могу помочь?',

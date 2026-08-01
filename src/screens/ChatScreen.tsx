@@ -155,6 +155,7 @@ export const ChatScreen: React.FC = () => {
     <Screen edges={['top', 'left', 'right']}>
       <Header
         title={t('chatTitle')}
+        subtitle={t('chatSubtitle')}
         onBack={() => navigation.goBack()}
         right={
           messages.length > 0 ? (
