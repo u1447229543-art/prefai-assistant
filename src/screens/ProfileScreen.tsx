@@ -20,7 +20,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { useApp } from '../context/AppContext';
 import { useSubscription } from '../hooks/useSubscription';
 import * as storage from '../services/storage';
-import { getJourney } from '../constants/journeys';
+import { getJourney, getJourneyTitle } from '../constants/journeys';
 import { NATIONALITIES, Nationality, getNationalityFlag } from '../constants/nationalities';
 
 export const ProfileScreen: React.FC = () => {
@@ -153,7 +153,7 @@ export const ProfileScreen: React.FC = () => {
             </View>
             <View style={{ flex: 1, marginLeft: Spacing.sm }}>
               <Text style={styles.journeyKicker}>{t('yourJourney')}</Text>
-              <Text style={styles.journeyTitle}>{journeyData?.title ?? t('noJourneySelected')}</Text>
+              <Text style={styles.journeyTitle}>{journeyData ? getJourneyTitle(journeyData, language) : t('noJourneySelected')}</Text>
             </View>
             {journeyData ? <Text style={styles.journeyPct}>{journeyPercent}%</Text> : null}
           </View>

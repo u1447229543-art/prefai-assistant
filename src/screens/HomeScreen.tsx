@@ -7,7 +7,7 @@ import { Colors, FontSize, Gradients, Radius, Spacing, glow } from '../constants
 import { Screen, Body, SectionTitle, Card, ProgressBar } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import * as storage from '../services/storage';
-import { getJourney, getStepDuration } from '../constants/journeys';
+import { getJourney, getJourneyTitle, getStepDuration, getStepTitle } from '../constants/journeys';
 import { daysUntil, urgencyColor } from '../utils/deadlines';
 import { greetingKey, getTaskTitle } from '../i18n/helpers';
 import type { TranslationKey } from '../i18n/translations';
@@ -101,7 +101,7 @@ export const HomeScreen: React.FC = () => {
                   <Text style={styles.journeyLabel}>{t('continueYourJourney')}</Text>
                   <Text style={styles.journeyPct}>{journeyPercent}%</Text>
                 </View>
-                <Text style={styles.journeyName}>{data.title}</Text>
+                <Text style={styles.journeyName}>{getJourneyTitle(data, language)}</Text>
                 <View style={styles.journeyBar}>
                   <View style={[styles.journeyBarFill, { width: `${journeyPercent}%` }]} />
                 </View>
@@ -122,7 +122,7 @@ export const HomeScreen: React.FC = () => {
         {currentStep ? (
           <Card onPress={() => go('Journey')} style={styles.stepCard}>
             <Text style={styles.cardKicker}>{t('currentStepLabel')}</Text>
-            <Text style={styles.stepTitle}>{currentStep.title}</Text>
+            <Text style={styles.stepTitle}>{getStepTitle(currentStep, language)}</Text>
             <View style={styles.stepMeta}>
               <Ionicons name="time-outline" size={14} color={Colors.blue} />
               <Text style={styles.stepMetaText}>{t('estimated')} {getStepDuration(currentStep, language)}</Text>
@@ -133,7 +133,7 @@ export const HomeScreen: React.FC = () => {
         ) : data ? (
           <Card style={styles.stepCard}>
             <Text style={styles.cardKicker}>{t('journeyCompleteLabel')}</Text>
-            <Text style={styles.stepTitle}>{t('journeyCompleteEveryStep')} {data.title}.</Text>
+            <Text style={styles.stepTitle}>{t('journeyCompleteEveryStep')} {getJourneyTitle(data, language)}.</Text>
           </Card>
         ) : null}
 

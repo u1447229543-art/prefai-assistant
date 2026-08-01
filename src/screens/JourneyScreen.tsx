@@ -1,18 +1,26 @@
 import React, { useCallback } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
 import { Screen, Body, Card, ProgressBar } from '../components/ui';
 import { useApp } from '../context/AppContext';
-import { JOURNEYS, JourneyId, JourneyStep, getJourney, getStepTitle, getStepPurpose, getStepDuration } from '../constants/journeys';
+import { JOURNEYS, JourneyId, JourneyStep, getJourney, getJourneyTitle, getJourneySubtitle, getStepTitle, getStepPurpose, getStepDuration } from '../constants/journeys';
 import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 import type { TranslationKey } from '../i18n/translations';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type TFn = (key: TranslationKey) => string;
+
+function showJourneyError(title: string, message: string): void {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    window.alert(`${title}\n\n${message}`);
+    return;
+  }
+  Alert.alert(title, message);
+}
 
 export const JourneyScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
@@ -26,16 +34,21 @@ export const JourneyScreen: React.FC = () => {
 
   const onPickJourney = useCallback(
     async (id: JourneyId) => {
-      const ok = await selectJourney(id);
-      if (!ok) {
-        promptUpgrade(t, 'upgradeJourneyLimitMsg', () => navigation.navigate('Subscription'));
+      try {
+        const ok = await selectJourney(id);
+        if (!ok) {
+          promptUpgrade(t, 'upgradeJourneyLimitMsg', () => navigation.navigate('Subscription'));
+        }
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        showJourneyError(t('error'), msg);
       }
     },
     [selectJourney, t, navigation]
   );
 
   if (!journey.journeyId) {
-    return <SituationPicker onPick={onPickJourney} t={t} />;
+    return <SituationPicker onPick={onPickJourney} t={t} language={language} />;
   }
 
   const data = getJourney(journey.journeyId);
@@ -51,8 +64,8 @@ export const JourneyScreen: React.FC = () => {
             <Ionicons name={data.icon} size={22} color={data.accent} />
           </View>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
-            <Text style={styles.roadTitle}>{data.title}</Text>
-            <Text style={styles.roadSub}>{data.subtitle}</Text>
+            <Text style={styles.roadTitle}>{getJourneyTitle(data, language)}</Text>
+            <Text style={styles.roadSub}>{getJourneySubtitle(data, language)}</Text>
           </View>
           <Pressable onPress={resetJourney} hitSlop={8} style={styles.changeBtn}>
             <Ionicons name="swap-horizontal" size={16} color={Colors.blue} />
@@ -102,7 +115,11 @@ export const JourneyScreen: React.FC = () => {
 
 // ---- Situation picker -----------------------------------------------------
 
-const SituationPicker: React.FC<{ onPick: (id: JourneyId) => void | Promise<void>; t: TFn }> = ({ onPick, t }) => (
+const SituationPicker: React.FC<{
+  onPick: (id: JourneyId) => void | Promise<void>;
+  t: TFn;
+  language: string;
+}> = ({ onPick, t, language }) => (
   <Screen>
     <Body>
       <Text style={styles.pickerTitle}>{t('whatAreYouTrying')}</Text>
@@ -118,7 +135,7 @@ const SituationPicker: React.FC<{ onPick: (id: JourneyId) => void | Promise<void
             <View style={[styles.optionIcon, { borderColor: j.accent }, glow(j.accent, 6)]}>
               <Ionicons name={j.icon} size={22} color={j.accent} />
             </View>
-            <Text style={styles.optionTitle}>{j.title}</Text>
+            <Text style={styles.optionTitle}>{getJourneyTitle(j, language)}</Text>
           </Pressable>
         ))}
       </View>

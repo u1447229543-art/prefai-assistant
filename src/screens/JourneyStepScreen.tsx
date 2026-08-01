@@ -15,7 +15,7 @@ import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton } from '../components/ui';
 import { ChatBubble } from '../components/ChatBubble';
 import { useApp } from '../context/AppContext';
-import { getJourney, getJourneyStep, getStepDuration } from '../constants/journeys';
+import { getJourney, getJourneyStep, getJourneyTitle, getStepDuration, getStepTitle } from '../constants/journeys';
 import { askAboutStep, ChatMessage, isStepAiConfigured } from '../services/openai';
 import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
@@ -174,8 +174,8 @@ export const JourneyStepScreen: React.FC = () => {
   const stepContext = useMemo(() => {
     if (!step || !journeyData) return '';
     return [
-      `Journey: ${journeyData.title}`,
-      `Step ${index + 1} of ${journeyData.steps.length}: ${step.title}`,
+      `Journey: ${getJourneyTitle(journeyData, language)}`,
+      `Step ${index + 1} of ${journeyData.steps.length}: ${getStepTitle(step, language)}`,
       `Organization: ${step.organization}`,
       `Purpose: ${step.purpose}`,
       `Where to go: ${step.whereToGo}`,
@@ -183,7 +183,7 @@ export const JourneyStepScreen: React.FC = () => {
       `Required documents: ${step.documents.join(', ')}`,
       `Instructions: ${step.instructions.join(' ')}`,
     ].join('\n');
-  }, [step, journeyData, index]);
+  }, [step, journeyData, index, language]);
 
   if (!journeyId || !stepId || !step || !journeyData) {
     return (
@@ -293,7 +293,7 @@ export const JourneyStepScreen: React.FC = () => {
               </View>
             ) : null}
           </View>
-          <Text style={styles.heroTitle}>{step.title}</Text>
+          <Text style={styles.heroTitle}>{getStepTitle(step, language)}</Text>
 
           <View style={styles.badgeRow}>
             <View style={styles.badge}>

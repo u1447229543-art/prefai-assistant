@@ -129,6 +129,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tasks, setTasks] = useState<storage.StoredTask[]>(DEFAULT_TASKS);
 
   const logoutRef = useRef<(() => Promise<void>) | null>(null);
+  /** Bumped on successful local journey writes so in-flight GET refresh cannot clobber them. */
+  const journeyMutationEpochRef = useRef(0);
 
   const applyUser = useCallback(async (apiUser: api.ApiUser) => {
     const u = api.toStoredUser(apiUser);
@@ -222,12 +224,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [applyUser]);
 
   const refreshJourney = useCallback(async () => {
+    const epochAtStart = journeyMutationEpochRef.current;
     setJourneySyncing(true);
     try {
       const { journey: j } = await api.getJourney();
+      // A selectJourney (or offline write) completed while this GET was in flight — don't clobber it.
+      if (epochAtStart !== journeyMutationEpochRef.current) {
+        return;
+      }
       await applyJourney(j);
       setSyncError(null);
     } catch (e) {
+      if (epochAtStart !== journeyMutationEpochRef.current) {
+        return;
+      }
       if (api.isNetworkError(e)) {
         const cached = await storage.loadJourney();
         setJourney(cached);
@@ -509,6 +519,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setJourneySyncing(true);
       try {
         const { journey: j } = await api.setJourney(id);
+        journeyMutationEpochRef.current += 1;
         await applyJourney(j);
         return true;
       } catch (e) {
@@ -519,6 +530,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             startedAt: new Date().toISOString(),
             progress: 0,
           };
+          journeyMutationEpochRef.current += 1;
           setJourney(next);
           await storage.saveJourney(next);
           setSyncError('Journey saved locally — will sync when back online.');
