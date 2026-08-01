@@ -3,6 +3,7 @@ import {
   API_URL,
   ApiError,
   aiExplainDocument,
+  aiExplainDocumentFile,
   aiExplainForm,
   aiGenerateLetter,
   aiGenerateReply,
@@ -108,6 +109,22 @@ export async function explainDocument(
       deadlines: ['2026-07-15'],
       nextSteps: ['Reply to the letter', 'Gather your documents'],
       organization: 'CAF',
+    })
+  );
+}
+
+export async function explainDocumentFile(
+  file: { uri: string; name: string; mimeType: string },
+  language: LanguageCode
+): Promise<DocumentExplanation> {
+  return withBackend(
+    () => aiExplainDocumentFile(file, language),
+    () => ({
+      summary: '[Demo mode] Image explain needs API + login.',
+      keyPoints: [],
+      deadlines: [],
+      nextSteps: [],
+      organization: 'Administration',
     })
   );
 }

@@ -99,9 +99,26 @@ export function formatBytes(bytes?: number): string {
 
 /**
  * Attempts to read text content from a picked document.
- * Works for text-based files; for PDFs/images we can't OCR on-device, so we
- * return the file name as context for the AI (the user can also paste text).
+ * Works for text-based files; images use the vision explain API instead.
+ * PDF/Word auto-read is not supported yet (Phase 2+).
  */
+export function isExplainImage(doc: PickedDocument): boolean {
+  const mime = (doc.mimeType || '').toLowerCase();
+  if (mime === 'image/jpeg' || mime === 'image/jpg' || mime === 'image/png' || mime === 'image/webp') {
+    return true;
+  }
+  return /\.(jpe?g|png|webp)$/i.test(doc.name);
+}
+
+/** PDF/Word etc. — Phase 1: not supported for auto-read yet. */
+export function isUnsupportedExplainFile(doc: PickedDocument): boolean {
+  if (isExplainImage(doc)) return false;
+  const mime = (doc.mimeType || '').toLowerCase();
+  if (mime.startsWith('text/')) return false;
+  if (/\.(txt|md|csv|json|html?)$/i.test(doc.name)) return false;
+  return true;
+}
+
 export async function readDocumentText(doc: PickedDocument): Promise<string> {
   const isTextual =
     doc.mimeType?.startsWith('text/') || /\.(txt|md|csv|json|html?)$/i.test(doc.name);
@@ -116,11 +133,8 @@ export async function readDocumentText(doc: PickedDocument): Promise<string> {
     }
   }
 
-  return (
-    `[Document: ${doc.name}${doc.mimeType ? ` (${doc.mimeType})` : ''}]\n` +
-    `The user uploaded a non-text document (likely a scan or PDF). ` +
-    `Based on the file name and typical French administrative documents, provide guidance. ` +
-    `If you need the exact content, ask the user to paste the text.`
+  throw new Error(
+    'PDF and scanned files are not auto-read yet. Photograph the page (JPG/PNG) or paste the text.'
   );
 }
 

@@ -97,9 +97,20 @@ export const CATEGORY_TO_BACKEND: Record<storage.DocumentCategory, string> = {
 
 async function request<T>(path: string, options: RequestInit = {}, withAuth = true): Promise<T> {
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> | undefined),
   };
+  const body = options.body;
+  const isForm =
+    (typeof FormData !== 'undefined' && body instanceof FormData) ||
+    (!!body &&
+      typeof body !== 'string' &&
+      typeof (body as { append?: unknown }).append === 'function');
+  if (!isForm && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+  if (isForm) {
+    delete headers['Content-Type'];
+  }
 
   if (withAuth) {
     const token = await storage.getToken();
@@ -337,6 +348,26 @@ export async function aiExplainDocument(
     method: 'POST',
     body: JSON.stringify({ documentText, language }),
   });
+}
+
+/** Photo / image explain — multipart (vision on server). */
+export async function aiExplainDocumentFile(
+  file: { uri: string; name: string; mimeType: string },
+  language: string
+): Promise<DocumentExplanation> {
+  const form = new FormData();
+  form.append('language', language);
+  if (typeof window !== 'undefined' && (file.uri.startsWith('blob:') || file.uri.startsWith('data:'))) {
+    const blob = await fetch(file.uri).then((r) => r.blob());
+    form.append('file', blob, file.name);
+  } else {
+    form.append('file', {
+      uri: file.uri,
+      name: file.name,
+      type: file.mimeType,
+    } as unknown as Blob);
+  }
+  return request('/api/ai/explain', { method: 'POST', body: form });
 }
 
 export async function aiTranslate(

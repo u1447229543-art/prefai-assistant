@@ -7,8 +7,8 @@ import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton, ScrollableText } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { useSubscription } from '../hooks/useSubscription';
-import { pickDocument, readDocumentText, toStoredDocument, PickedDocument } from '../services/documents';
-import { explainDocument, DocumentExplanation } from '../services/openai';
+import { pickDocument, readDocumentText, toStoredDocument, PickedDocument, isExplainImage, isUnsupportedExplainFile } from '../services/documents';
+import { explainDocument, explainDocumentFile, DocumentExplanation } from '../services/openai';
 import { CATEGORY_TO_BACKEND } from '../services/api';
 import * as storage from '../services/storage';
 import { promptUpgrade, fillTemplate } from '../utils/quotaPrompt';
@@ -43,6 +43,7 @@ export const DocumentExplainScreen: React.FC = () => {
       const doc = await pickDocument();
       if (doc) {
         setPicked(doc);
+        setPastedText('');
         setResult(null);
       }
     } catch {
@@ -80,8 +81,26 @@ export const DocumentExplainScreen: React.FC = () => {
     setResult(null);
     setError(null);
     try {
-      const text = pastedText.trim().length > 0 ? pastedText.trim() : await readDocumentText(picked!);
-      const explanation = await explainDocument(text, language);
+      let explanation: DocumentExplanation;
+      if (picked && isExplainImage(picked)) {
+        explanation = await explainDocumentFile(
+          {
+            uri: picked.uri,
+            name: picked.name,
+            mimeType: picked.mimeType || 'image/jpeg',
+          },
+          language
+        );
+      } else if (pastedText.trim().length > 0) {
+        explanation = await explainDocument(pastedText.trim(), language);
+      } else if (picked && isUnsupportedExplainFile(picked)) {
+        throw new Error(
+          'PDF auto-read is coming soon. Photograph the document or paste its text for a detailed explanation.'
+        );
+      } else {
+        const text = await readDocumentText(picked!);
+        explanation = await explainDocument(text, language);
+      }
       setResult(explanation);
 
       if (picked) {
