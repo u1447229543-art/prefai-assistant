@@ -420,18 +420,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const isInTrial = useMemo(() => {
     if (!isFree) return false;
-    const started = usage.trialStartedAt;
+    // Prefer account registration date; fall back to local trialStartedAt.
+    const started = user?.createdAt || usage.trialStartedAt;
     if (!started) return true;
     const elapsed = Date.now() - new Date(started).getTime();
     return elapsed < FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000;
-  }, [isFree, usage.trialStartedAt]);
+  }, [isFree, user?.createdAt, usage.trialStartedAt]);
 
   const trialDaysLeft = useMemo(() => {
-    if (!isFree || !usage.trialStartedAt) return FREE_TRIAL_DAYS;
-    const elapsed = Date.now() - new Date(usage.trialStartedAt).getTime();
+    if (!isFree) return 0;
+    const started = user?.createdAt || usage.trialStartedAt;
+    if (!started) return FREE_TRIAL_DAYS;
+    const elapsed = Date.now() - new Date(started).getTime();
     const left = Math.ceil(FREE_TRIAL_DAYS - elapsed / (24 * 60 * 60 * 1000));
     return Math.max(0, left);
-  }, [isFree, usage.trialStartedAt]);
+  }, [isFree, user?.createdAt, usage.trialStartedAt]);
 
   const todayKey = () => new Date().toISOString().slice(0, 10);
 
@@ -443,9 +446,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const canAddDocument = useMemo(() => {
     if (plan.documentLimit === null) return true;
-    if (isFree) return documents.length < FREE_DOCUMENT_LIMIT;
+    if (isFree) {
+      if (isInTrial) return true; // unlimited docs during 7-day trial
+      return documents.length < FREE_DOCUMENT_LIMIT;
+    }
     return usage.documentsProcessed < plan.documentLimit;
-  }, [plan.documentLimit, isFree, documents.length, usage.documentsProcessed]);
+  }, [plan.documentLimit, isFree, isInTrial, documents.length, usage.documentsProcessed]);
 
   const canProcessDocument = canAddDocument;
 
@@ -470,6 +476,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const registerDocumentUse = useCallback(async (): Promise<boolean> => {
     if (plan.documentLimit === null) return true;
     if (isFree) {
+      if (isInTrial) return true;
       return documents.length < FREE_DOCUMENT_LIMIT;
     }
     if (usage.documentsProcessed >= plan.documentLimit) return false;
@@ -480,7 +487,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setUsage(next);
     await storage.saveUsage(next);
     return true;
-  }, [plan.documentLimit, isFree, documents.length, usage]);
+  }, [plan.documentLimit, isFree, isInTrial, documents.length, usage]);
 
   const selectJourney = useCallback(
     async (id: JourneyId): Promise<boolean> => {
@@ -561,7 +568,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const uploadDocument = useCallback(
     async (doc: storage.StoredDocument, backendCategory: string): Promise<storage.StoredDocument> => {
-      if (isFree && documents.length >= FREE_DOCUMENT_LIMIT) {
+      if (isFree && !isInTrial && documents.length >= FREE_DOCUMENT_LIMIT) {
         throw new api.ApiError('DOCUMENT_LIMIT', 403);
       }
       const { document } = await api.addDocument({
@@ -583,18 +590,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await refreshUsage();
       return saved;
     },
-    [refreshUsage, isFree, documents.length]
+    [refreshUsage, isFree, isInTrial, documents.length]
   );
 
   const addCachedDocument = useCallback(
     async (doc: storage.StoredDocument) => {
-      if (isFree && documents.length >= FREE_DOCUMENT_LIMIT) {
+      if (isFree && !isInTrial && documents.length >= FREE_DOCUMENT_LIMIT) {
         throw new api.ApiError('DOCUMENT_LIMIT', 403);
       }
       const next = await storage.addToVault(doc);
       setDocuments(next);
     },
-    [isFree, documents.length]
+    [isFree, isInTrial, documents.length]
   );
 
   const removeDocument = useCallback(async (id: string) => {

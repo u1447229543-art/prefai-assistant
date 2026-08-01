@@ -25,9 +25,11 @@ export function useSubscription() {
   const remaining =
     plan.documentLimit === null
       ? Infinity
-      : planId === 'free'
-        ? Math.max(0, FREE_DOCUMENT_LIMIT - documents.length)
-        : Math.max(0, plan.documentLimit - usage.documentsProcessed);
+      : planId === 'free' && isInTrial
+        ? Infinity
+        : planId === 'free'
+          ? Math.max(0, FREE_DOCUMENT_LIMIT - documents.length)
+          : Math.max(0, plan.documentLimit - usage.documentsProcessed);
 
   return {
     plan,
@@ -43,7 +45,7 @@ export function useSubscription() {
     trialDaysLeft,
     aiRemainingToday,
     remaining,
-    isUnlimited: plan.documentLimit === null,
+    isUnlimited: plan.documentLimit === null || (planId === 'free' && isInTrial),
     aiDailyLimit: FREE_AI_DAILY_LIMIT,
   };
 }
