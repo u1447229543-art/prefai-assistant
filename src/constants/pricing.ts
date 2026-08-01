@@ -35,12 +35,12 @@ export const PLANS: Plan[] = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 9,
-    priceLabel: '€9',
+    price: 4.99,
+    priceLabel: '€4.99',
     tagline: 'For everyday admin tasks',
     documentLimit: 50,
     highlighted: true,
-    stripePriceId: 'price_1TuVERD753169kynCHFrqS6s',
+    stripePriceId: 'price_1TzeFdD753169kynzHXvXePj',
     features: [
       '50 documents / month',
       'Everything in Free',
@@ -53,12 +53,12 @@ export const PLANS: Plan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 19,
-    priceLabel: '€19',
+    price: 9.99,
+    priceLabel: '€9.99',
     tagline: 'Unlimited power for complex cases',
     documentLimit: null,
     highlighted: false,
-    stripePriceId: 'price_1TuVFED753169kynJ7KC63JM',
+    stripePriceId: 'price_1TzeFeD753169kyng0Yij4fA',
     features: [
       'Unlimited documents',
       'Everything in Basic',
