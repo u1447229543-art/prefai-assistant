@@ -299,6 +299,21 @@ export type TranslationKey =
   | 'haveAccount'
   | 'welcomeBack'
   | 'createAccount'
+  | 'forgotPassword'
+  | 'forgotPasswordTitle'
+  | 'forgotPasswordSubtitle'
+  | 'forgotPasswordSent'
+  | 'sendResetCode'
+  | 'enterResetCode'
+  | 'resetPasswordTitle'
+  | 'resetPasswordSubtitle'
+  | 'resetCode'
+  | 'newPassword'
+  | 'confirmPassword'
+  | 'passwordsDoNotMatch'
+  | 'resetPasswordSuccess'
+  | 'errResetFailed'
+  | 'resetPassword'
   // misc
   | 'documentsThisMonth'
   | 'disclaimer';
@@ -568,6 +583,22 @@ const enCore: Dict = {
   haveAccount: 'Already have an account? Log in',
   welcomeBack: 'Welcome back',
   createAccount: 'Create your account',
+  forgotPassword: 'Forgot password?',
+  forgotPasswordTitle: 'Reset your password',
+  forgotPasswordSubtitle: 'Enter your email and we will send you a 6-digit reset code.',
+  forgotPasswordSent:
+    'If an account exists for that email, we sent a reset code. Check your inbox and enter the code on the next screen.',
+  sendResetCode: 'Send reset code',
+  enterResetCode: 'Enter reset code',
+  resetPasswordTitle: 'Choose a new password',
+  resetPasswordSubtitle: 'Enter the 6-digit code from your email and your new password.',
+  resetCode: 'Reset code',
+  newPassword: 'New password',
+  confirmPassword: 'Confirm password',
+  passwordsDoNotMatch: 'Passwords do not match.',
+  resetPasswordSuccess: 'Password updated. You can log in now.',
+  errResetFailed: 'Could not reset password. Check the code and try again.',
+  resetPassword: 'Reset password',
   documentsThisMonth: 'documents this month',
   disclaimer:
     'PrefAI helps you understand French administration. It does not replace official government services.',
@@ -837,6 +868,22 @@ const frCore: Dict = {
   haveAccount: 'Déjà un compte ? Connectez-vous',
   welcomeBack: 'Bon retour',
   createAccount: 'Créez votre compte',
+  forgotPassword: 'Mot de passe oublié ?',
+  forgotPasswordTitle: 'Réinitialiser le mot de passe',
+  forgotPasswordSubtitle: 'Entrez votre e-mail et nous vous enverrons un code à 6 chiffres.',
+  forgotPasswordSent:
+    'Si un compte existe pour cet e-mail, nous avons envoyé un code. Vérifiez votre boîte mail puis saisissez le code à l’écran suivant.',
+  sendResetCode: 'Envoyer le code',
+  enterResetCode: 'Saisir le code',
+  resetPasswordTitle: 'Nouveau mot de passe',
+  resetPasswordSubtitle: 'Entrez le code à 6 chiffres reçu par e-mail et votre nouveau mot de passe.',
+  resetCode: 'Code de réinitialisation',
+  newPassword: 'Nouveau mot de passe',
+  confirmPassword: 'Confirmer le mot de passe',
+  passwordsDoNotMatch: 'Les mots de passe ne correspondent pas.',
+  resetPasswordSuccess: 'Mot de passe mis à jour. Vous pouvez vous connecter.',
+  errResetFailed: 'Impossible de réinitialiser. Vérifiez le code et réessayez.',
+  resetPassword: 'Réinitialiser',
   documentsThisMonth: 'documents ce mois-ci',
   disclaimer:
     "PrefAI vous aide à comprendre l'administration française. Il ne remplace pas les services officiels.",
@@ -1114,6 +1161,22 @@ const ruCore: Dict = {
   haveAccount: 'Уже есть аккаунт? Войдите',
   welcomeBack: 'С возвращением',
   createAccount: 'Создайте аккаунт',
+  forgotPassword: 'Забыли пароль?',
+  forgotPasswordTitle: 'Сброс пароля',
+  forgotPasswordSubtitle: 'Введите e-mail — мы отправим 6-значный код.',
+  forgotPasswordSent:
+    'Если аккаунт существует, мы отправили код. Проверьте почту и введите код на следующем экране.',
+  sendResetCode: 'Отправить код',
+  enterResetCode: 'Ввести код',
+  resetPasswordTitle: 'Новый пароль',
+  resetPasswordSubtitle: 'Введите 6-значный код из письма и новый пароль.',
+  resetCode: 'Код сброса',
+  newPassword: 'Новый пароль',
+  confirmPassword: 'Подтвердите пароль',
+  passwordsDoNotMatch: 'Пароли не совпадают.',
+  resetPasswordSuccess: 'Пароль обновлён. Теперь можно войти.',
+  errResetFailed: 'Не удалось сбросить пароль. Проверьте код.',
+  resetPassword: 'Сбросить пароль',
   documentsThisMonth: 'документов в этом месяце',
   disclaimer:
     'PrefAI помогает разобраться во французской бюрократии. Он не заменяет официальные государственные услуги.',

@@ -6,6 +6,8 @@ export type RootStackParamList = {
   Splash: undefined;
   Onboarding: undefined;
   Auth: undefined;
+  ForgotPassword: undefined;
+  ResetPassword: undefined;
   Main: NavigatorScreenParams<MainTabParamList>;
   EditProfile: undefined;
   JourneyStep: { journeyId: JourneyId; stepId: string };

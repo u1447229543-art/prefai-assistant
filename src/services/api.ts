@@ -222,6 +222,18 @@ export async function me(): Promise<{ user: ApiUser }> {
   return request('/api/auth/me', { method: 'GET' });
 }
 
+export async function forgotPassword(email: string): Promise<{ message: string }> {
+  return request('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }, false);
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  return request(
+    '/api/auth/reset-password',
+    { method: 'POST', body: JSON.stringify({ token, newPassword }) },
+    false
+  );
+}
+
 // ---- User -----------------------------------------------------------------
 
 export async function getProfile(): Promise<{ user: ApiUser }> {
@@ -350,7 +362,7 @@ export async function aiExplainDocument(
   });
 }
 
-/** Photo / image explain — multipart (vision on server). */
+/** Photo / PDF / Word explain — multipart (server extracts text or uses vision). */
 export async function aiExplainDocumentFile(
   file: { uri: string; name: string; mimeType: string },
   language: string

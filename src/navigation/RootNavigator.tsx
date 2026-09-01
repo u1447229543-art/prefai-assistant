@@ -6,6 +6,8 @@ import { useApp } from '../context/AppContext';
 import { SplashScreen } from '../screens/SplashScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { AuthScreen } from '../screens/AuthScreen';
+import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
+import { ResetPasswordScreen } from '../screens/ResetPasswordScreen';
 import { TabNavigator } from './TabNavigator';
 import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { JourneyStepScreen } from '../screens/JourneyStepScreen';
@@ -57,7 +59,11 @@ export const RootNavigator: React.FC = () => {
         {!onboarded ? (
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         ) : !isAuthenticated ? (
-          <Stack.Screen name="Auth" component={AuthScreen} />
+          <>
+            <Stack.Screen name="Auth" component={AuthScreen} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+          </>
         ) : (
           <>
             <Stack.Screen name="Main" component={TabNavigator} />

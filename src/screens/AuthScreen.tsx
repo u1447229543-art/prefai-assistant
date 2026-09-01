@@ -8,6 +8,8 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Gradients, Radius, Spacing, glow } from '../constants/colors';
@@ -16,6 +18,9 @@ import { NationalityPicker } from '../components/NationalityPicker';
 import { DateOfBirthPicker, buildDateOfBirth } from '../components/DateOfBirthPicker';
 import { useApp } from '../context/AppContext';
 import { ApiError } from '../services/api';
+import type { RootStackParamList } from '../navigation/types';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const EMPTY_FORM = {
   firstName: '',
@@ -29,6 +34,7 @@ const EMPTY_FORM = {
 };
 
 export const AuthScreen: React.FC = () => {
+  const navigation = useNavigation<Nav>();
   const { login, register, t, authLoading } = useApp();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [form, setForm] = useState(EMPTY_FORM);
@@ -213,6 +219,12 @@ export const AuthScreen: React.FC = () => {
                   secureTextEntry
                   autoCapitalize="none"
                 />
+                <Pressable
+                  onPress={() => navigation.navigate('ForgotPassword')}
+                  style={styles.forgotLink}
+                >
+                  <Text style={styles.forgotText}>{t('forgotPassword')}</Text>
+                </Pressable>
               </>
             )}
 
@@ -321,6 +333,8 @@ const styles = StyleSheet.create({
   error: { color: Colors.red, fontSize: FontSize.sm, flex: 1, lineHeight: 20 },
   switch: { alignItems: 'center', marginTop: Spacing.lg },
   switchText: { color: Colors.blue, fontSize: FontSize.sm, fontWeight: '600' },
+  forgotLink: { alignSelf: 'flex-end', marginTop: -Spacing.sm, marginBottom: Spacing.sm },
+  forgotText: { color: Colors.blue, fontSize: FontSize.sm, fontWeight: '600' },
   disclaimer: {
     color: Colors.textMuted,
     fontSize: FontSize.xs,
