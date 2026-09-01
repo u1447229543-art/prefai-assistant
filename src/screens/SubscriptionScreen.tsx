@@ -37,7 +37,7 @@ export const SubscriptionScreen: React.FC = () => {
   };
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right', 'bottom']}>
       <Header title={t('subscriptionTitle')} onBack={() => navigation.goBack()} />
       <Body>
         <Text style={styles.heading}>{t('choosePlan')}</Text>

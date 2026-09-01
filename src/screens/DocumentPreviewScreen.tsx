@@ -31,7 +31,7 @@ export const DocumentPreviewScreen: React.FC = () => {
 
   if (!document) {
     return (
-      <Screen>
+      <Screen edges={['top', 'left', 'right', 'bottom']}>
         <Header title={t('previewMissingDocument')} onBack={() => navigation.goBack()} />
         <Body>
           <View style={styles.errorBox}>
@@ -92,7 +92,7 @@ export const DocumentPreviewScreen: React.FC = () => {
   };
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right', 'bottom']}>
       <Header
         title={document.name}
         onBack={() => navigation.goBack()}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, glow } from '../constants/colors';
 import { MAX_CONTENT_WIDTH } from '../constants/responsive';
@@ -33,6 +34,9 @@ const TAB_LABELS: Record<keyof MainTabParamList, TranslationKey> = {
 
 export const TabNavigator: React.FC = () => {
   const { t } = useApp();
+  const insets = useSafeAreaInsets();
+  const tabBarBottomPad = insets.bottom + 8;
+  const tabBarBaseHeight = Platform.OS === 'ios' ? 60 : 56;
 
   return (
     <Tab.Navigator
@@ -41,7 +45,13 @@ export const TabNavigator: React.FC = () => {
         tabBarShowLabel: true,
         tabBarActiveTintColor: Colors.blue,
         tabBarInactiveTintColor: Colors.textMuted,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            height: tabBarBaseHeight + tabBarBottomPad,
+            paddingBottom: tabBarBottomPad,
+          },
+        ],
         tabBarLabelStyle: styles.label,
         tabBarItemStyle: { paddingVertical: 6 },
         tabBarLabel: t(TAB_LABELS[route.name]),
@@ -70,8 +80,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.card,
     borderTopColor: Colors.border,
     borderTopWidth: 1,
-    height: Platform.OS === 'ios' ? 88 : 64,
-    paddingBottom: Platform.OS === 'ios' ? 28 : 8,
     paddingTop: 6,
     // Keep the tab bar phone-width and centered on web/large screens.
     ...(Platform.OS === 'web'

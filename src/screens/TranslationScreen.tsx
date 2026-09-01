@@ -59,7 +59,7 @@ export const TranslationScreen: React.FC = () => {
   };
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right', 'bottom']}>
       <Header title={t('translateTitle')} onBack={() => navigation.goBack()} />
       <Body>
         <View style={styles.langRow}>

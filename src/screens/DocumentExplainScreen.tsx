@@ -7,7 +7,7 @@ import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton, ScrollableText } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { useSubscription } from '../hooks/useSubscription';
-import { pickDocument, readDocumentText, toStoredDocument, PickedDocument, isExplainImage, isUnsupportedExplainFile } from '../services/documents';
+import { pickDocument, readDocumentText, toStoredDocument, PickedDocument, isExplainUploadFile } from '../services/documents';
 import { explainDocument, explainDocumentFile, DocumentExplanation } from '../services/openai';
 import { CATEGORY_TO_BACKEND } from '../services/api';
 import * as storage from '../services/storage';
@@ -82,24 +82,23 @@ export const DocumentExplainScreen: React.FC = () => {
     setError(null);
     try {
       let explanation: DocumentExplanation;
-      if (picked && isExplainImage(picked)) {
+      // Prefer file upload (image / PDF / Word) over paste when both are present.
+      if (picked && isExplainUploadFile(picked)) {
         explanation = await explainDocumentFile(
           {
             uri: picked.uri,
             name: picked.name,
-            mimeType: picked.mimeType || 'image/jpeg',
+            mimeType: picked.mimeType || guessUploadMime(picked.name),
           },
           language
         );
       } else if (pastedText.trim().length > 0) {
         explanation = await explainDocument(pastedText.trim(), language);
-      } else if (picked && isUnsupportedExplainFile(picked)) {
-        throw new Error(
-          'PDF auto-read is coming soon. Photograph the document or paste its text for a detailed explanation.'
-        );
-      } else {
-        const text = await readDocumentText(picked!);
+      } else if (picked) {
+        const text = await readDocumentText(picked);
         explanation = await explainDocument(text, language);
+      } else {
+        throw new Error(t('explainUpload'));
       }
       setResult(explanation);
 
@@ -143,7 +142,7 @@ export const DocumentExplainScreen: React.FC = () => {
   };
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right', 'bottom']}>
       <Header title={t('explainTitle')} onBack={() => navigation.goBack()} />
       <Body>
         <Card onPress={onPick} style={styles.dropzone}>
@@ -277,6 +276,17 @@ const Bullet: React.FC<{ text: string; color: string; index?: number; icon?: key
     <Text style={styles.bulletText}>{text}</Text>
   </View>
 );
+
+function guessUploadMime(fileName: string): string {
+  if (/\.pdf$/i.test(fileName)) return 'application/pdf';
+  if (/\.docx$/i.test(fileName)) {
+    return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  }
+  if (/\.doc$/i.test(fileName)) return 'application/msword';
+  if (/\.png$/i.test(fileName)) return 'image/png';
+  if (/\.webp$/i.test(fileName)) return 'image/webp';
+  return 'image/jpeg';
+}
 
 function guessCategory(org: string): storage.DocumentCategory {
   const o = org.toLowerCase();

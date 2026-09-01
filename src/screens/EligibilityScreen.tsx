@@ -66,7 +66,7 @@ export const EligibilityScreen: React.FC = () => {
   const progress = showResults ? 100 : Math.round((index / total) * 100);
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right', 'bottom']}>
       <Header
         title={t('eligibilityTitle')}
         subtitle={showResults ? t('yourResults') : `${t('questionOf')} ${index + 1} ${t('of')} ${total}`}

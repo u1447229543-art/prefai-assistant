@@ -129,7 +129,7 @@ export const DeadlineTrackerScreen: React.FC = () => {
   const hasItems = items.length > 0;
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right', 'bottom']}>
       <Header
         title={t('deadlinesTitle')}
         onBack={() => navigation.goBack()}

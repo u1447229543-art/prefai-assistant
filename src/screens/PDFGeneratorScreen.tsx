@@ -78,7 +78,7 @@ export const PDFGeneratorScreen: React.FC = () => {
   };
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right', 'bottom']}>
       <Header title={t('pdfTitle')} onBack={() => navigation.goBack()} />
       <Body>
         <Text style={styles.label}>{t('pdfRecipient')}</Text>

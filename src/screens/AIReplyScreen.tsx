@@ -92,7 +92,7 @@ export const AIReplyScreen: React.FC = () => {
   };
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right', 'bottom']}>
       <Header title={t('replyTitle')} onBack={() => navigation.goBack()} />
       <Body>
         <Text style={styles.label}>{t('selectOrg')}</Text>
