@@ -9,12 +9,21 @@ export interface PickedDocument {
   size?: number;
 }
 
-/** Accepted document types: PDF, JPG/JPEG and PNG. */
-const ACCEPTED_MIME = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-const WEB_ACCEPT = '.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png';
+/** Accepted document types: PDF, Word, JPG/JPEG and PNG. */
+const ACCEPTED_MIME = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/msword',
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+];
+const WEB_ACCEPT =
+  '.pdf,.docx,.doc,.jpg,.jpeg,.png,.webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,image/webp';
 
 /**
- * Opens the system document picker for PDF / JPG / PNG. Returns null if the
+ * Opens the system document picker for PDF / Word / JPG / PNG. Returns null if the
  * user cancels.
  *
  * On web we use a native <input type="file"> because it is the most reliable
@@ -99,8 +108,7 @@ export function formatBytes(bytes?: number): string {
 
 /**
  * Attempts to read text content from a picked document.
- * Works for text-based files; images use the vision explain API instead.
- * PDF/Word auto-read is not supported yet (Phase 2+).
+ * Works for text-based files; images / PDF / Word use the explain upload API.
  */
 export function isExplainImage(doc: PickedDocument): boolean {
   const mime = (doc.mimeType || '').toLowerCase();
@@ -110,9 +118,28 @@ export function isExplainImage(doc: PickedDocument): boolean {
   return /\.(jpe?g|png|webp)$/i.test(doc.name);
 }
 
-/** PDF/Word etc. — Phase 1: not supported for auto-read yet. */
+export function isExplainPdf(doc: PickedDocument): boolean {
+  const mime = (doc.mimeType || '').toLowerCase();
+  return mime === 'application/pdf' || /\.pdf$/i.test(doc.name);
+}
+
+export function isExplainDocx(doc: PickedDocument): boolean {
+  const mime = (doc.mimeType || '').toLowerCase();
+  return (
+    mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+    mime === 'application/msword' ||
+    /\.docx?$/i.test(doc.name)
+  );
+}
+
+/** Files uploaded to backend /api/ai/explain as multipart (image, PDF, Word). */
+export function isExplainUploadFile(doc: PickedDocument): boolean {
+  return isExplainImage(doc) || isExplainPdf(doc) || isExplainDocx(doc);
+}
+
+/** @deprecated Prefer isExplainUploadFile — kept for any leftover callers. */
 export function isUnsupportedExplainFile(doc: PickedDocument): boolean {
-  if (isExplainImage(doc)) return false;
+  if (isExplainUploadFile(doc)) return false;
   const mime = (doc.mimeType || '').toLowerCase();
   if (mime.startsWith('text/')) return false;
   if (/\.(txt|md|csv|json|html?)$/i.test(doc.name)) return false;
@@ -134,7 +161,7 @@ export async function readDocumentText(doc: PickedDocument): Promise<string> {
   }
 
   throw new Error(
-    'PDF and scanned files are not auto-read yet. Photograph the page (JPG/PNG) or paste the text.'
+    'Could not read this file as plain text. Upload a PDF, Word document, or photo instead.'
   );
 }
 
