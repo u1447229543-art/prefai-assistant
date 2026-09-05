@@ -41,7 +41,7 @@ export const SubscriptionScreen: React.FC = () => {
       <Header title={t('subscriptionTitle')} onBack={() => navigation.goBack()} />
       <Body>
         <Text style={styles.heading}>{t('choosePlan')}</Text>
-        <Text style={styles.sub}>Cancel anytime. Secure payments powered by Stripe.</Text>
+        <Text style={styles.sub}>{t('cancelAnytimeStripe')}</Text>
 
         {PLANS.map((plan) => (
           <PricingCard

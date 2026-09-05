@@ -2,8 +2,10 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontSize, Gradients, Radius, Spacing, glow } from '../constants/colors';
+import { useApp } from '../context/AppContext';
 
 export const SplashScreen: React.FC = () => {
+  const { t } = useApp();
   const fade = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.85)).current;
 
@@ -36,7 +38,7 @@ export const SplashScreen: React.FC = () => {
         <Text style={styles.title}>
           Pref<Text style={{ color: Colors.blue }}>AI</Text>
         </Text>
-        <Text style={styles.subtitle}>Assistant</Text>
+        <Text style={styles.subtitle}>{t('splashAssistant')}</Text>
 
         <View style={styles.flagBar}>
           <View style={[styles.flagSegment, { backgroundColor: Colors.blue }]} />
@@ -44,7 +46,7 @@ export const SplashScreen: React.FC = () => {
           <View style={[styles.flagSegment, { backgroundColor: Colors.red }]} />
         </View>
 
-        <Text style={styles.tagline}>Your French bureaucracy assistant</Text>
+        <Text style={styles.tagline}>{t('tagline')}</Text>
       </Animated.View>
     </View>
   );

@@ -61,7 +61,7 @@ export const PDFGeneratorScreen: React.FC = () => {
     if (!letter) return;
     setExporting(true);
     try {
-      const html = buildHtml(letter, recipient);
+      const html = buildHtml(letter, recipient, t('pdfBrand'), t('pdfGeneratedFooter'));
       const { uri } = await Print.printToFileAsync({ html });
       if (Platform.OS === 'web') {
         await Print.printAsync({ html });
@@ -130,12 +130,14 @@ export const PDFGeneratorScreen: React.FC = () => {
   );
 };
 
-function buildHtml(letter: string, recipient: string): string {
+function buildHtml(letter: string, recipient: string, brand: string, footer: string): string {
   const body = letter
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/\n/g, '<br/>');
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   return `<!DOCTYPE html><html><head><meta charset="utf-8"/>
   <style>
     body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #111; padding: 48px; line-height: 1.6; font-size: 13px; }
@@ -147,11 +149,11 @@ function buildHtml(letter: string, recipient: string): string {
   </style></head>
   <body>
     <div class="header">
-      <div class="brand">PrefAI Assistant</div>
-      <div class="to">${recipient ? 'À : ' + recipient : ''}</div>
+      <div class="brand">${esc(brand)}</div>
+      <div class="to">${recipient ? 'À : ' + esc(recipient) : ''}</div>
     </div>
     <div class="content">${body}</div>
-    <div class="footer">Généré avec PrefAI Assistant — cet outil ne remplace pas les services administratifs officiels.</div>
+    <div class="footer">${esc(footer)}</div>
   </body></html>`;
 }
 

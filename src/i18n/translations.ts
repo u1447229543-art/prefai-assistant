@@ -323,6 +323,20 @@ export type TranslationKey =
   | 'resetPassword'
   // misc
   | 'documentsThisMonth'
+  | 'noDeadlinesOnDay'
+  | 'newDeadline'
+  | 'tickOffChecklist'
+  | 'findNearMe'
+  | 'enterCityInFrance'
+  | 'getDirections'
+  | 'osmResultsCredit'
+  | 'openInGoogleMaps'
+  | 'tapQuestionOrType'
+  | 'splashAssistant'
+  | 'cancelAnytimeStripe'
+  | 'officialWebsite'
+  | 'pdfBrand'
+  | 'pdfGeneratedFooter'
   | 'disclaimer';
 
 type Dict = Partial<Record<TranslationKey, string>>;
@@ -371,7 +385,7 @@ const enCore: Dict = {
   journeyCompleteEveryStep: "You've completed every step of",
   estimated: 'Estimated',
   todaysTasks: "Today's Tasks",
-  checkYourEligibility: 'Check your eligibility',
+  checkYourEligibility: 'What Am I Eligible For?',
   checkEligibilityDesc: 'See which French benefits you may qualify for',
   quickAiTools: 'Quick AI Tools',
   allTools: 'All tools',
@@ -613,6 +627,21 @@ const enCore: Dict = {
   resetPasswordSuccess: 'Password updated. You can log in now.',
   errResetFailed: 'Could not reset password. Check the code and try again.',
   resetPassword: 'Reset password',
+  noDeadlinesOnDay: 'No deadlines on this day.',
+  newDeadline: 'New deadline',
+  tickOffChecklist: 'Tick off what you already have ready.',
+  findNearMe: 'Find near me',
+  enterCityInFrance: 'Enter your city in France',
+  getDirections: 'Get directions',
+  osmResultsCredit: 'Results from OpenStreetMap',
+  openInGoogleMaps: 'Open in Google Maps',
+  tapQuestionOrType: 'Tap a question or type your own:',
+  splashAssistant: 'Assistant',
+  cancelAnytimeStripe: 'Cancel anytime. Secure payments powered by Stripe.',
+  officialWebsite: 'Official website',
+  pdfBrand: 'PrefAI Assistant',
+  pdfGeneratedFooter:
+    'Generated with PrefAI Assistant — this tool does not replace official administrative services.',
   documentsThisMonth: 'documents this month',
   disclaimer:
     'PrefAI helps you understand French administration. It does not replace official government services.',
@@ -662,7 +691,7 @@ const frCore: Dict = {
   journeyCompleteEveryStep: 'Vous avez terminé toutes les étapes de',
   estimated: 'Estimé',
   todaysTasks: "Tâches d'aujourd'hui",
-  checkYourEligibility: 'Vérifier votre éligibilité',
+  checkYourEligibility: 'À quoi ai-je droit ?',
   checkEligibilityDesc: 'Découvrez les aides françaises auxquelles vous pourriez avoir droit',
   quickAiTools: 'Outils IA rapides',
   allTools: 'Tous les outils',
@@ -905,6 +934,21 @@ const frCore: Dict = {
   resetPasswordSuccess: 'Mot de passe mis à jour. Vous pouvez vous connecter.',
   errResetFailed: 'Impossible de réinitialiser. Vérifiez le code et réessayez.',
   resetPassword: 'Réinitialiser',
+  noDeadlinesOnDay: 'Aucun délai ce jour-là.',
+  newDeadline: 'Nouveau délai',
+  tickOffChecklist: 'Cochez ce que vous avez déjà préparé.',
+  findNearMe: 'Trouver près de moi',
+  enterCityInFrance: 'Entrez votre ville en France',
+  getDirections: 'Itinéraire',
+  osmResultsCredit: 'Résultats OpenStreetMap',
+  openInGoogleMaps: 'Ouvrir dans Google Maps',
+  tapQuestionOrType: 'Touchez une question ou saisissez la vôtre :',
+  splashAssistant: 'Assistant',
+  cancelAnytimeStripe: 'Résiliable à tout moment. Paiements sécurisés via Stripe.',
+  officialWebsite: 'Site officiel',
+  pdfBrand: 'PrefAI Assistant',
+  pdfGeneratedFooter:
+    'Généré avec PrefAI Assistant — cet outil ne remplace pas les services administratifs officiels.',
   documentsThisMonth: 'documents ce mois-ci',
   disclaimer:
     "PrefAI vous aide à comprendre l'administration française. Il ne remplace pas les services officiels.",
@@ -962,7 +1006,7 @@ const ruCore: Dict = {
   journeyCompleteEveryStep: 'Вы завершили все шаги:',
   estimated: 'Примерно',
   todaysTasks: 'Задачи на сегодня',
-  checkYourEligibility: 'Проверить право на помощь',
+  checkYourEligibility: 'На что я могу претендовать?',
   checkEligibilityDesc: 'Узнайте, на какие французские пособия вы можете претендовать',
   quickAiTools: 'Быстрые ИИ-инструменты',
   allTools: 'Все инструменты',
@@ -1099,7 +1143,7 @@ const ruCore: Dict = {
   featPdf: 'PDF-письма',
   featPdfDesc: 'Создание официальных писем',
   featGuides: 'Справочники',
-  featGuidesDesc: 'CAF, CPAM, префектура и др.',
+  featGuidesDesc: 'CAF, CPAM, Préfecture и др.',
   explainTitle: 'Объяснение документа',
   explainUpload: 'Загрузите документ для объяснения',
   explainAnalyzing: 'Анализируем ваш документ…',
@@ -1133,7 +1177,7 @@ const ruCore: Dict = {
   chatSubtitle: 'Спросите что угодно',
   chatPlaceholder: 'Спросите что угодно о французской бюрократии…',
   chatWelcome:
-    'Здравствуйте! Я могу помочь с CAF, CPAM, префектурой, налогами и многим другим. Чем могу помочь?',
+    'Здравствуйте! Я могу помочь с CAF, CPAM, Préfecture, налогами и многим другим. Чем могу помочь?',
   pdfTitle: 'Генератор PDF',
   pdfPurpose: 'Цель письма',
   pdfRecipient: 'Получатель (например, CAF de Paris)',
@@ -1205,6 +1249,21 @@ const ruCore: Dict = {
   resetPasswordSuccess: 'Пароль обновлён. Теперь можно войти.',
   errResetFailed: 'Не удалось сбросить пароль. Проверьте код.',
   resetPassword: 'Сбросить пароль',
+  noDeadlinesOnDay: 'На этот день сроков нет.',
+  newDeadline: 'Новый срок',
+  tickOffChecklist: 'Отметьте то, что уже готово.',
+  findNearMe: 'Найти рядом',
+  enterCityInFrance: 'Введите ваш город во Франции',
+  getDirections: 'Маршрут',
+  osmResultsCredit: 'Результаты OpenStreetMap',
+  openInGoogleMaps: 'Открыть в Google Maps',
+  tapQuestionOrType: 'Нажмите вопрос или введите свой:',
+  splashAssistant: 'Assistant',
+  cancelAnytimeStripe: 'Отмена в любой момент. Безопасные платежи через Stripe.',
+  officialWebsite: 'Официальный сайт',
+  pdfBrand: 'PrefAI Assistant',
+  pdfGeneratedFooter:
+    'Создано с PrefAI Assistant — этот инструмент не заменяет официальные административные услуги.',
   documentsThisMonth: 'документов в этом месяце',
   disclaimer:
     'PrefAI помогает разобраться во французской бюрократии. Он не заменяет официальные государственные услуги.',

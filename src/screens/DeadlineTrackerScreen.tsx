@@ -168,7 +168,7 @@ export const DeadlineTrackerScreen: React.FC = () => {
               {selectedDate}
             </SectionTitle>
             {selectedItems.length === 0 ? (
-              <Text style={styles.muted}>No deadlines on this day.</Text>
+              <Text style={styles.muted}>{t('noDeadlinesOnDay')}</Text>
             ) : (
               selectedItems.map((d) => (
                 <DeadlineCard
@@ -214,7 +214,7 @@ export const DeadlineTrackerScreen: React.FC = () => {
 
             {done.length > 0 ? (
               <>
-                <SectionTitle>Completed</SectionTitle>
+                <SectionTitle>{t('completedLabel')}</SectionTitle>
                 {done.map((d) => (
                   <DeadlineCard
                     key={d.id}
@@ -233,7 +233,7 @@ export const DeadlineTrackerScreen: React.FC = () => {
         <Pressable style={styles.backdrop} onPress={() => setAdding(false)} />
         <View style={styles.sheet}>
           <View style={styles.handle} />
-          <Text style={styles.sheetTitle}>New deadline</Text>
+          <Text style={styles.sheetTitle}>{t('newDeadline')}</Text>
           <TextInput
             style={styles.input}
             placeholder="Title (e.g. Send CAF documents)"

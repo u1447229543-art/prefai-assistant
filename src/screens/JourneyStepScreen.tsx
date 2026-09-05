@@ -310,7 +310,7 @@ export const JourneyStepScreen: React.FC = () => {
             <Pressable onPress={() => openUrl(step.officialUrl)} style={styles.linkRow} hitSlop={6}>
               <Ionicons name="globe-outline" size={15} color={Colors.blue} />
               <Text style={styles.linkText} numberOfLines={1}>
-                Official website
+                {t('officialWebsite')}
               </Text>
               <Ionicons name="open-outline" size={14} color={Colors.blue} />
             </Pressable>
@@ -339,7 +339,7 @@ export const JourneyStepScreen: React.FC = () => {
         {/* 4. WHAT TO BRING (checklist) -------------------------------- */}
         <SectionLabel icon="checkbox-outline" text={t('whatToBring')} color={accent} />
         <Card style={styles.block}>
-          <Text style={styles.checklistHint}>Tick off what you already have ready.</Text>
+          <Text style={styles.checklistHint}>{t('tickOffChecklist')}</Text>
           {step.documents.map((doc) => {
             const isChecked = !!checked[doc];
             return (
@@ -369,11 +369,11 @@ export const JourneyStepScreen: React.FC = () => {
               {!locOpen ? (
                 <Pressable style={styles.findBtn} onPress={() => setLocOpen(true)}>
                   <Ionicons name="location" size={18} color="#04121A" />
-                  <Text style={styles.findBtnText}>Find near me</Text>
+                  <Text style={styles.findBtnText}>{t('findNearMe')}</Text>
                 </Pressable>
               ) : (
                 <>
-                  <Text style={styles.findHint}>Enter your city in France</Text>
+                  <Text style={styles.findHint}>{t('enterCityInFrance')}</Text>
                   <View style={styles.cityRow}>
                     <TextInput
                       value={city}
@@ -416,12 +416,12 @@ export const JourneyStepScreen: React.FC = () => {
                               onPress={() => openDirections(r.display_name)}
                             >
                               <Ionicons name="map-outline" size={15} color={Colors.blue} />
-                              <Text style={styles.dirBtnText}>Get directions</Text>
+                              <Text style={styles.dirBtnText}>{t('getDirections')}</Text>
                             </Pressable>
                           </View>
                         );
                       })}
-                      <Text style={styles.osmCredit}>Results from OpenStreetMap</Text>
+                      <Text style={styles.osmCredit}>{t('osmResultsCredit')}</Text>
                     </>
                   ) : searchedCity && !locLoading ? (
                     <>
@@ -445,7 +445,7 @@ export const JourneyStepScreen: React.FC = () => {
                             onPress={() => openDirections(fallbackPlace.address)}
                           >
                             <Ionicons name="map-outline" size={15} color={Colors.blue} />
-                            <Text style={styles.dirBtnText}>Get directions</Text>
+                            <Text style={styles.dirBtnText}>{t('getDirections')}</Text>
                           </Pressable>
                         </View>
                       ) : null}
@@ -465,7 +465,7 @@ export const JourneyStepScreen: React.FC = () => {
                           onPress={() => openDirections(`${loc.term} ${searchedCity} France`)}
                         >
                           <Ionicons name="open-outline" size={15} color={Colors.blue} />
-                          <Text style={styles.dirBtnText}>Open in Google Maps</Text>
+                          <Text style={styles.dirBtnText}>{t('openInGoogleMaps')}</Text>
                         </Pressable>
                       </View>
                     </>
@@ -514,7 +514,7 @@ export const JourneyStepScreen: React.FC = () => {
                 <>
                   {messages.length === 0 ? (
                     <View>
-                      <Text style={styles.aiIntro}>Tap a question or type your own:</Text>
+                      <Text style={styles.aiIntro}>{t('tapQuestionOrType')}</Text>
                       {suggestions.map((q) => (
                         <Pressable
                           key={q}
