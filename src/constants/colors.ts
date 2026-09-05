@@ -42,6 +42,8 @@ export const Gradients = {
   blue: ['#00D4FF', '#0077FF'] as const,
   red: ['#FF2D55', '#FF6B00'] as const,
   blueRed: ['#00D4FF', '#FF2D55'] as const,
+  /** Distinct from journey CTAs — used for AI guidance actions. */
+  purple: ['#A78BFA', '#7B61FF'] as const,
   card: ['#16161F', '#101018'] as const,
 };
 

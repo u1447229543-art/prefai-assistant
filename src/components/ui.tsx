@@ -98,7 +98,7 @@ export const SectionTitle: React.FC<{ children: React.ReactNode; right?: React.R
   </View>
 );
 
-type ButtonVariant = 'blue' | 'red' | 'blueRed' | 'ghost';
+type ButtonVariant = 'blue' | 'red' | 'blueRed' | 'purple' | 'ghost';
 
 /** Primary neon gradient button. */
 export const NeonButton: React.FC<{
@@ -117,7 +117,9 @@ export const NeonButton: React.FC<{
       ? Gradients.red
       : variant === 'blueRed'
         ? Gradients.blueRed
-        : Gradients.blue;
+        : variant === 'purple'
+          ? Gradients.purple
+          : Gradients.blue;
 
   const inner = (
     <View style={styles.btnInner}>

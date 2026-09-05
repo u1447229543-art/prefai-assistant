@@ -240,6 +240,7 @@ const ResultsView: React.FC<{
           <NeonButton
             title={t('eligibilityFollowUpSubmit')}
             icon="sparkles-outline"
+            variant="purple"
             onPress={() => void submitFollowUp()}
             loading={loading}
             disabled={loading || !note.trim()}
