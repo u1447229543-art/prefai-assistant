@@ -1,4 +1,4 @@
-/** BN — 259 keys */
+﻿/** BN — 259 keys */
 export const bn = {
   tagline: 'আপনার ফরাসি প্রশাসন সহায়ক',
   continue: 'চালিয়ে যান',
@@ -60,7 +60,7 @@ export const bn = {
   completedTapUndo: 'সম্পন্ন ✓ — পূর্বাবস্থায় ট্যাপ',
   aiToolsTitle: 'AI সরঞ্জাম',
   aiToolsSubtitle: 'ফরাসি কাগজপত্রের জন্য স্মার্ট সাহায্য',
-  eligibilityChecker: 'যোগ্যতা যাচাই',
+  eligibilityChecker: 'আমি কীসের জন্য যোগ্য হতে পারি?',
   eligibilityCheckerDesc: '১০টি দ্রুত প্রশ্নে যোগ্যতা যাচাই করুন।',
   catAll: 'সব',
   catPassport: 'পাসপোর্ট',
@@ -96,7 +96,7 @@ export const bn = {
   whatHappensNext: 'পরবর্তীতে কী হবে',
   stepNotFound: 'এই ধাপ পাওয়া যায়নি।',
   completedLabel: 'সম্পন্ন',
-  eligibilityTitle: 'যোগ্যতা যাচাই',
+  eligibilityTitle: 'আমি কীসের জন্য যোগ্য হতে পারি?',
   yourResults: 'আপনার ফলাফল',
   questionOf: 'প্রশ্ন',
   startThisJourney: 'এই যাত্রা শুরু',

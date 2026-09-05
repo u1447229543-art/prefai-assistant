@@ -1,4 +1,4 @@
-/** PT — 259 keys */
+﻿/** PT — 259 keys */
 export const pt = {
   tagline: 'Seu assistente de burocracia francesa',
   continue: 'Continuar',
@@ -60,7 +60,7 @@ export const pt = {
   completedTapUndo: 'Concluído ✓ — toque para desfazer',
   aiToolsTitle: 'Ferramentas IA',
   aiToolsSubtitle: 'Ajuda inteligente para papelada francesa',
-  eligibilityChecker: 'Verificador de elegibilidade',
+  eligibilityChecker: 'A que tenho direito?',
   eligibilityCheckerDesc: 'Verifique sua elegibilidade em 10 perguntas rápidas.',
   catAll: 'Todos',
   catPassport: 'Passaporte',
@@ -96,7 +96,7 @@ export const pt = {
   whatHappensNext: 'O que acontece depois',
   stepNotFound: 'Esta etapa não foi encontrada.',
   completedLabel: 'Concluído',
-  eligibilityTitle: 'Verificador de elegibilidade',
+  eligibilityTitle: 'A que tenho direito?',
   yourResults: 'Seus resultados',
   questionOf: 'Pergunta',
   startThisJourney: 'Iniciar esta jornada',

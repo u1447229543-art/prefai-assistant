@@ -132,6 +132,13 @@ export type TranslationKey =
   | 'startOver'
   | 'resultsHeading'
   | 'eligibilityNoMatch'
+  | 'eligibilityFollowUpPrompt'
+  | 'eligibilityFollowUpPlaceholder'
+  | 'eligibilityFollowUpSubmit'
+  | 'eligibilityFollowUpSkip'
+  | 'eligibilityFollowUpGuidance'
+  | 'eligibilityFollowUpEmpty'
+  | 'eligibilityFollowUpError'
   | EligibilityTranslationKey
   | UiTranslationKey
   // onboarding
@@ -426,6 +433,13 @@ const enCore: Dict = {
   resultsHeading: 'Based on your answers, you may qualify for:',
   eligibilityNoMatch:
     "We couldn't confidently match a benefit from your answers. This doesn't mean you're not eligible — please verify directly with the relevant French authority.",
+  eligibilityFollowUpPrompt: 'Anything else about your situation I should know?',
+  eligibilityFollowUpPlaceholder: 'Optional — e.g. family situation, pending applications, special circumstances…',
+  eligibilityFollowUpSubmit: 'Get AI guidance',
+  eligibilityFollowUpSkip: 'Skip',
+  eligibilityFollowUpGuidance: 'AI guidance',
+  eligibilityFollowUpEmpty: 'Add a short note first, or tap Skip.',
+  eligibilityFollowUpError: 'Could not get AI guidance. Please try again.',
   onboardingSlide1Title: 'Understand any French letter',
   onboardingSlide1Body:
     'Upload a document from CAF, CPAM, Préfecture or Impôts and get a clear explanation in your language.',
@@ -666,7 +680,7 @@ const frCore: Dict = {
   completedTapUndo: 'Terminé ✓ — appuyez pour annuler',
   aiToolsTitle: 'Outils IA',
   aiToolsSubtitle: 'Aide intelligente pour vos démarches',
-  eligibilityChecker: 'Vérificateur d\'éligibilité',
+  eligibilityChecker: 'À quoi ai-je droit ?',
   eligibilityCheckerDesc: 'Vérifiez votre éligibilité aux aides en 10 questions.',
   catAll: 'Tous',
   catPassport: 'Passeport',
@@ -702,7 +716,7 @@ const frCore: Dict = {
   whatHappensNext: 'Et ensuite',
   stepNotFound: 'Cette étape est introuvable.',
   completedLabel: 'Terminé',
-  eligibilityTitle: 'Vérificateur d\'éligibilité',
+  eligibilityTitle: 'À quoi ai-je droit ?',
   yourResults: 'Vos résultats',
   questionOf: 'Question',
   startThisJourney: 'Commencer ce parcours',
@@ -710,6 +724,13 @@ const frCore: Dict = {
   resultsHeading: 'D\'après vos réponses, vous pourriez avoir droit à :',
   eligibilityNoMatch:
     'Nous n\'avons pas pu identifier une aide avec certitude. Cela ne signifie pas que vous n\'êtes pas éligible — vérifiez directement auprès de l\'organisme compétent.',
+  eligibilityFollowUpPrompt: 'Autre chose à savoir sur votre situation ?',
+  eligibilityFollowUpPlaceholder: 'Facultatif — ex. situation familiale, dossiers en cours, circonstances particulières…',
+  eligibilityFollowUpSubmit: 'Obtenir un conseil IA',
+  eligibilityFollowUpSkip: 'Passer',
+  eligibilityFollowUpGuidance: 'Conseil IA',
+  eligibilityFollowUpEmpty: 'Ajoutez une courte note, ou appuyez sur Passer.',
+  eligibilityFollowUpError: 'Impossible d\'obtenir le conseil IA. Réessayez.',
   onboardingSlide1Title: 'Comprenez toute lettre française',
   onboardingSlide1Body:
     'Importez un document de la CAF, CPAM, Préfecture ou Impôts et obtenez une explication claire dans votre langue.',
@@ -959,7 +980,7 @@ const ruCore: Dict = {
   completedTapUndo: 'Выполнено ✓ — нажмите, чтобы отменить',
   aiToolsTitle: 'ИИ-инструменты',
   aiToolsSubtitle: 'Умная помощь с французскими документами',
-  eligibilityChecker: 'Проверка права на помощь',
+  eligibilityChecker: 'На что я могу претендовать?',
   eligibilityCheckerDesc: 'Проверьте право на французские пособия за 10 вопросов.',
   catAll: 'Все',
   catPassport: 'Паспорт',
@@ -995,7 +1016,7 @@ const ruCore: Dict = {
   whatHappensNext: 'Что будет дальше',
   stepNotFound: 'Этот шаг не найден.',
   completedLabel: 'Выполнено',
-  eligibilityTitle: 'Проверка права на помощь',
+  eligibilityTitle: 'На что я могу претендовать?',
   yourResults: 'Ваши результаты',
   questionOf: 'Вопрос',
   startThisJourney: 'Начать этот путь',
@@ -1003,6 +1024,13 @@ const ruCore: Dict = {
   resultsHeading: 'По вашим ответам вы можете претендовать на:',
   eligibilityNoMatch:
     'Мы не смогли точно определить пособие по вашим ответам. Это не означает, что вы не имеете права — уточните напрямую в соответствующем французском органе.',
+  eligibilityFollowUpPrompt: 'Что ещё важно знать о вашей ситуации?',
+  eligibilityFollowUpPlaceholder: 'Необязательно — например семья, ожидающие заявки, особые обстоятельства…',
+  eligibilityFollowUpSubmit: 'Получить совет ИИ',
+  eligibilityFollowUpSkip: 'Пропустить',
+  eligibilityFollowUpGuidance: 'Совет ИИ',
+  eligibilityFollowUpEmpty: 'Сначала добавьте короткую заметку или нажмите «Пропустить».',
+  eligibilityFollowUpError: 'Не удалось получить совет ИИ. Попробуйте снова.',
   onboardingSlide1Title: 'Понимайте любое французское письмо',
   onboardingSlide1Body:
     'Загрузите документ от CAF, CPAM, Préfecture или Impôts и получите понятное объяснение на вашем языке.',

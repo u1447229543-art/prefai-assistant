@@ -416,6 +416,18 @@ export async function aiExplainForm(
   });
 }
 
+export async function aiEligibilityFollowUp(params: {
+  note: string;
+  language: string;
+  answersLabeled: { question: string; answer: string }[];
+  results: { id: string; name: string }[];
+}): Promise<{ guidance: string }> {
+  return request('/api/ai/eligibility-followup', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+}
+
 export async function aiGenerateLetter(params: {
   purpose: string;
   recipient: string;
