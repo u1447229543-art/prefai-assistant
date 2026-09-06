@@ -18,7 +18,7 @@ export interface Plan {
 /**
  * Monetization model (current):
  * - All app features are free and unlimited (AI, docs, journeys, tools).
- * - The only paywall is Money & Benefits Finder: first 2 matches free;
+ * - The only paywall is Support & Benefits Finder: first 2 matches free;
  *   remaining matches unlock with Basic (€4.99/mo) or Pro.
  */
 export const PLANS: Plan[] = [
@@ -33,7 +33,7 @@ export const PLANS: Plan[] = [
     stripePriceId: null,
     features: [
       'Unlimited AI, documents, journeys & tools',
-      'Money & Benefits Finder — first 2 matches free',
+      'Support & Benefits Finder — first 2 matches free',
       'Upgrade to Basic to see every matched benefit',
     ],
   },
@@ -42,13 +42,13 @@ export const PLANS: Plan[] = [
     name: 'Basic',
     price: 4.99,
     priceLabel: '€4.99',
-    tagline: 'Unlock full Money & Benefits Finder results',
+    tagline: 'Unlock full Support & Benefits Finder results',
     documentLimit: null,
     highlighted: true,
     stripePriceId: 'price_1TzeFdD753169kynzHXvXePj',
     features: [
       'See every matched benefit without blur',
-      'Full Money & Benefits Finder unlock',
+      'Full Support & Benefits Finder unlock',
       'All other PrefAI features stay free',
     ],
   },
@@ -74,7 +74,7 @@ export const PLANS: Plan[] = [
 
 export const getPlan = (id: PlanId): Plan => PLANS.find((p) => p.id === id) ?? PLANS[0];
 
-/** How many Money & Benefits Finder matches are visible without a paid plan. */
+/** How many Support & Benefits Finder matches are visible without a paid plan. */
 export const FREE_ELIGIBILITY_VISIBLE = 2;
 
 /** @deprecated No longer enforced — all documents are unlimited. */

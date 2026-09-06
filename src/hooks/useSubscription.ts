@@ -3,7 +3,7 @@ import { getPlan, hasEligibilityUnlock } from '../constants/pricing';
 
 /**
  * Subscription hook. Feature usage is unlimited; Basic/Pro unlock full
- * Money & Benefits Finder results.
+ * Support & Benefits Finder results.
  */
 export function useSubscription() {
   const {

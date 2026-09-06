@@ -33,10 +33,10 @@ export const UI_I18N = {
     pdfShareTitle: 'PrefAI letter',
     formPlaceholder: 'e.g. Demande APL CAF, CERFA 13360…',
     upgradeAiDailyMsg:
-      'All AI tools are free. Basic (€4.99/mo) unlocks full Money & Benefits Finder results.',
-    upgradeDocLimitMsg: 'Documents are unlimited. Basic unlocks full Money & Benefits Finder results.',
+      'All AI tools are free. Basic (€4.99/mo) unlocks full Support & Benefits Finder results.',
+    upgradeDocLimitMsg: 'Documents are unlimited. Basic unlocks full Support & Benefits Finder results.',
     upgradeJourneyLimitMsg:
-      'All journeys are free. Basic (€4.99/mo) unlocks full Money & Benefits Finder results.',
+      'All journeys are free. Basic (€4.99/mo) unlocks full Support & Benefits Finder results.',
     trialDaysLeft: 'No trial needed — all core features are free',
     aiRequestsRemaining: 'AI requests are unlimited',
     documentsRemaining: 'Documents are unlimited',
@@ -82,10 +82,10 @@ export const UI_I18N = {
     pdfShareTitle: 'Lettre PrefAI',
     formPlaceholder: 'ex. Demande APL CAF, CERFA 13360…',
     upgradeAiDailyMsg:
-      'Tous les outils IA sont gratuits. Basic (4,99 €/mois) débloque tous les résultats d’Aides & Argent.',
-    upgradeDocLimitMsg: 'Les documents sont illimités. Basic débloque tous les résultats d’Aides & Argent.',
+      'Tous les outils IA sont gratuits. Basic (4,99 €/mois) débloque tous les résultats d’Aides & Soutien.',
+    upgradeDocLimitMsg: 'Les documents sont illimités. Basic débloque tous les résultats d’Aides & Soutien.',
     upgradeJourneyLimitMsg:
-      'Tous les parcours sont gratuits. Basic (4,99 €/mois) débloque tous les résultats d’Aides & Argent.',
+      'Tous les parcours sont gratuits. Basic (4,99 €/mois) débloque tous les résultats d’Aides & Soutien.',
     trialDaysLeft: 'Pas d’essai requis — toutes les fonctions principales sont gratuites',
     aiRequestsRemaining: 'Les requêtes IA sont illimitées',
     documentsRemaining: 'Les documents sont illimités',
@@ -131,10 +131,10 @@ export const UI_I18N = {
     pdfShareTitle: 'Carta PrefAI',
     formPlaceholder: 'p. ej. Demande APL CAF, CERFA 13360…',
     upgradeAiDailyMsg:
-      'Todas las herramientas de IA son gratis. Basic (4,99 €/mes) desbloquea todos los resultados de Ayudas y dinero.',
-    upgradeDocLimitMsg: 'Los documentos son ilimitados. Basic desbloquea todos los resultados de Ayudas y dinero.',
+      'Todas las herramientas de IA son gratis. Basic (4,99 €/mes) desbloquea todos los resultados de Ayudas y apoyo.',
+    upgradeDocLimitMsg: 'Los documentos son ilimitados. Basic desbloquea todos los resultados de Ayudas y apoyo.',
     upgradeJourneyLimitMsg:
-      'Todos los recorridos son gratis. Basic (4,99 €/mes) desbloquea todos los resultados de Ayudas y dinero.',
+      'Todos los recorridos son gratis. Basic (4,99 €/mes) desbloquea todos los resultados de Ayudas y apoyo.',
     trialDaysLeft: 'No hace falta prueba — todas las funciones principales son gratis',
     aiRequestsRemaining: 'Las solicitudes de IA son ilimitadas',
     documentsRemaining: 'Los documentos son ilimitados',
@@ -173,10 +173,10 @@ export const UI_I18N = {
     pdfShareTitle: 'Письмо PrefAI',
     formPlaceholder: 'напр. Demande APL CAF, CERFA 13360…',
     upgradeAiDailyMsg:
-      'Все инструменты ИИ бесплатны. Basic (€4.99/мес) открывает все результаты «Деньги и пособия».',
-    upgradeDocLimitMsg: 'Документы без ограничений. Basic открывает все результаты «Деньги и пособия».',
+      'Все инструменты ИИ бесплатны. Basic (€4.99/мес) открывает все результаты «Поддержка и пособия».',
+    upgradeDocLimitMsg: 'Документы без ограничений. Basic открывает все результаты «Поддержка и пособия».',
     upgradeJourneyLimitMsg:
-      'Все маршруты бесплатны. Basic (€4.99/мес) открывает все результаты «Деньги и пособия».',
+      'Все маршруты бесплатны. Basic (€4.99/мес) открывает все результаты «Поддержка и пособия».',
     trialDaysLeft: 'Пробный период не нужен — все основные функции бесплатны',
     aiRequestsRemaining: 'Запросы к ИИ без ограничений',
     documentsRemaining: 'Документы без ограничений',
@@ -215,10 +215,10 @@ export const UI_I18N = {
     pdfShareTitle: 'رسالة PrefAI',
     formPlaceholder: 'مثل Demande APL CAF, CERFA 13360…',
     upgradeAiDailyMsg:
-      'جميع أدوات الذكاء الاصطناعي مجانية. Basic (4.99€/شهر) يفتح كل نتائج الأموال والمساعدات.',
-    upgradeDocLimitMsg: 'المستندات غير محدودة. Basic يفتح كل نتائج الأموال والمساعدات.',
+      'جميع أدوات الذكاء الاصطناعي مجانية. Basic (4.99€/شهر) يفتح كل نتائج الدعم والمساعدات.',
+    upgradeDocLimitMsg: 'المستندات غير محدودة. Basic يفتح كل نتائج الدعم والمساعدات.',
     upgradeJourneyLimitMsg:
-      'جميع المسارات مجانية. Basic (4.99€/شهر) يفتح كل نتائج الأموال والمساعدات.',
+      'جميع المسارات مجانية. Basic (4.99€/شهر) يفتح كل نتائج الدعم والمساعدات.',
     trialDaysLeft: 'لا حاجة لفترة تجريبية — كل الميزات الأساسية مجانية',
     aiRequestsRemaining: 'طلبات الذكاء الاصطناعي غير محدودة',
     documentsRemaining: 'المستندات غير محدودة',
@@ -257,10 +257,10 @@ export const UI_I18N = {
     pdfShareTitle: 'PrefAI წერილი',
     formPlaceholder: 'მაგ. Demande APL CAF, CERFA 13360…',
     upgradeAiDailyMsg:
-      'ყველა AI ინსტრუმენტი უფასოა. Basic (€4.99/თვე) ხსნის „ფული და შეღავათები“-ს ყველა შედეგს.',
-    upgradeDocLimitMsg: 'დოკუმენტები ულიმიტოა. Basic ხსნის „ფული და შეღავათები“-ს ყველა შედეგს.',
+      'ყველა AI ინსტრუმენტი უფასოა. Basic (€4.99/თვე) ხსნის „მხარდაჭერა და შეღავათები“-ს ყველა შედეგს.',
+    upgradeDocLimitMsg: 'დოკუმენტები ულიმიტოა. Basic ხსნის „მხარდაჭერა და შეღავათები“-ს ყველა შედეგს.',
     upgradeJourneyLimitMsg:
-      'ყველა გზა უფასოა. Basic (€4.99/თვე) ხსნის „ფული და შეღავათები“-ს ყველა შედეგს.',
+      'ყველა გზა უფასოა. Basic (€4.99/თვე) ხსნის „მხარდაჭერა და შეღავათები“-ს ყველა შედეგს.',
     trialDaysLeft: 'საცდელი პერიოდი არ არის საჭირო — ძირითადი ფუნქციები უფასოა',
     aiRequestsRemaining: 'AI მოთხოვნები ულიმიტოა',
     documentsRemaining: 'დოკუმენტები ულიმიტოა',
@@ -300,9 +300,9 @@ export const UI_I18N = {
     pdfPurposePlaceholder: '例如 质疑决定、申请文件、解释延迟…',
     pdfShareTitle: 'PrefAI 信函',
     formPlaceholder: '例如 Demande APL CAF, CERFA 13360…',
-    upgradeAiDailyMsg: '所有 AI 工具均免费。Basic（€4.99/月）可解锁「金钱与福利查找」的全部结果。',
-    upgradeDocLimitMsg: '文件数量不限。Basic 可解锁「金钱与福利查找」的全部结果。',
-    upgradeJourneyLimitMsg: '所有流程均免费。Basic（€4.99/月）可解锁「金钱与福利查找」的全部结果。',
+    upgradeAiDailyMsg: '所有 AI 工具均免费。Basic（€4.99/月）可解锁「支持与福利查找」的全部结果。',
+    upgradeDocLimitMsg: '文件数量不限。Basic 可解锁「支持与福利查找」的全部结果。',
+    upgradeJourneyLimitMsg: '所有流程均免费。Basic（€4.99/月）可解锁「支持与福利查找」的全部结果。',
     trialDaysLeft: '无需试用 — 所有核心功能均免费',
     aiRequestsRemaining: 'AI 请求不限次数',
     documentsRemaining: '文件数量不限',
@@ -341,10 +341,10 @@ export const UI_I18N = {
     pdfShareTitle: 'PrefAI पत्र',
     formPlaceholder: 'जैसे Demande APL CAF, CERFA 13360…',
     upgradeAiDailyMsg:
-      'सभी AI टूल मुफ़्त हैं। Basic (€4.99/माह) «धन और लाभ खोजकर्ता» के सभी परिणाम अनलॉक करता है।',
-    upgradeDocLimitMsg: 'दस्तावेज़ असीमित हैं। Basic «धन और लाभ खोजकर्ता» के सभी परिणाम अनलॉक करता है।',
+      'सभी AI टूल मुफ़्त हैं। Basic (€4.99/माह) «सहायता और लाभ खोजकर्ता» के सभी परिणाम अनलॉक करता है।',
+    upgradeDocLimitMsg: 'दस्तावेज़ असीमित हैं। Basic «सहायता और लाभ खोजकर्ता» के सभी परिणाम अनलॉक करता है।',
     upgradeJourneyLimitMsg:
-      'सभी यात्राएँ मुफ़्त हैं। Basic (€4.99/माह) «धन और लाभ खोजकर्ता» के सभी परिणाम अनलॉक करता है।',
+      'सभी यात्राएँ मुफ़्त हैं। Basic (€4.99/माह) «सहायता और लाभ खोजकर्ता» के सभी परिणाम अनलॉक करता है।',
     trialDaysLeft: 'ट्रायल की ज़रूरत नहीं — सभी मुख्य सुविधाएँ मुफ़्त हैं',
     aiRequestsRemaining: 'AI अनुरोध असीमित हैं',
     documentsRemaining: 'दस्तावेज़ असीमित हैं',
@@ -383,10 +383,10 @@ export const UI_I18N = {
     pdfShareTitle: 'PrefAI চিঠি',
     formPlaceholder: 'যেমন Demande APL CAF, CERFA 13360…',
     upgradeAiDailyMsg:
-      'সব AI টুল বিনামূল্যে। Basic (€4.99/মাস) «অর্থ ও সুবিধা খুঁজুন»-এর সব ফলাফল আনলক করে।',
-    upgradeDocLimitMsg: 'নথি সীমাহীন। Basic «অর্থ ও সুবিধা খুঁজুন»-এর সব ফলাফল আনলক করে।',
+      'সব AI টুল বিনামূল্যে। Basic (€4.99/মাস) «সহায়তা ও সুবিধা খুঁজুন»-এর সব ফলাফল আনলক করে।',
+    upgradeDocLimitMsg: 'নথি সীমাহীন। Basic «সহায়তা ও সুবিধা খুঁজুন»-এর সব ফলাফল আনলক করে।',
     upgradeJourneyLimitMsg:
-      'সব যাত্রা বিনামূল্যে। Basic (€4.99/মাস) «অর্থ ও সুবিধা খুঁজুন»-এর সব ফলাফল আনলক করে।',
+      'সব যাত্রা বিনামূল্যে। Basic (€4.99/মাস) «সহায়তা ও সুবিধা খুঁজুন»-এর সব ফলাফল আনলক করে।',
     trialDaysLeft: 'ট্রায়াল লাগে না — সব মূল ফিচার বিনামূল্যে',
     aiRequestsRemaining: 'AI অনুরোধ সীমাহীন',
     documentsRemaining: 'নথি সীমাহীন',
@@ -425,10 +425,10 @@ export const UI_I18N = {
     pdfShareTitle: 'Carta PrefAI',
     formPlaceholder: 'ex. Demande APL CAF, CERFA 13360…',
     upgradeAiDailyMsg:
-      'Todas as ferramentas de IA são grátis. O Basic (€4.99/mês) desbloqueia todos os resultados de Ajudas e dinheiro.',
-    upgradeDocLimitMsg: 'Os documentos são ilimitados. O Basic desbloqueia todos os resultados de Ajudas e dinheiro.',
+      'Todas as ferramentas de IA são grátis. O Basic (€4.99/mês) desbloqueia todos os resultados de Apoio e benefícios.',
+    upgradeDocLimitMsg: 'Os documentos são ilimitados. O Basic desbloqueia todos os resultados de Apoio e benefícios.',
     upgradeJourneyLimitMsg:
-      'Todas as jornadas são grátis. O Basic (€4.99/mês) desbloqueia todos os resultados de Ajudas e dinheiro.',
+      'Todas as jornadas são grátis. O Basic (€4.99/mês) desbloqueia todos os resultados de Apoio e benefícios.',
     trialDaysLeft: 'Não é preciso período de teste — todas as funções principais são grátis',
     aiRequestsRemaining: 'Os pedidos de IA são ilimitados',
     documentsRemaining: 'Os documentos são ilimitados',
