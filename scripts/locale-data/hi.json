@@ -130,7 +130,7 @@
   "editProfile": "प्रोफ़ाइल संपादित करें",
   "saveProfile": "प्रोफ़ाइल सहेजें",
   "limitReached": "सीमा पूरी",
-  "limitReachedMsg": "आपने इस महीने सभी दस्तावेज़ उपयोग कर लिए। जारी रखने के लिए अपग्रेड करें।",
+  "limitReachedMsg": "सभी मुख्य सुविधाएँ मुफ़्त और असीमित हैं। Basic «धन और लाभ खोजकर्ता» के सभी परिणाम अनलॉक करता है।",
   "formal": "औपचारिक",
   "polite": "विनम्र",
   "firm": "दृढ़",
@@ -289,5 +289,11 @@
   "pdfGeneratedFooter": "PrefAI Assistant से बनाया गया — यह टूल आधिकारिक प्रशासनिक सेवाओं का विकल्प नहीं है।",
   "eligibilityUnlockTitle": "और मिलान लॉक हैं",
   "eligibilityUnlockMsg": "सभी मिले लाभ देखने के लिए Basic (€4.99/माह) लें।",
-  "eligibilityUnlockCta": "Basic से अनलॉक करें"
+  "eligibilityUnlockCta": "Basic से अनलॉक करें",
+  "upgradeAiDailyMsg": "सभी AI टूल मुफ़्त हैं। Basic (€4.99/माह) «धन और लाभ खोजकर्ता» के सभी परिणाम अनलॉक करता है।",
+  "upgradeDocLimitMsg": "दस्तावेज़ असीमित हैं। Basic «धन और लाभ खोजकर्ता» के सभी परिणाम अनलॉक करता है।",
+  "upgradeJourneyLimitMsg": "सभी यात्राएँ मुफ़्त हैं। Basic (€4.99/माह) «धन और लाभ खोजकर्ता» के सभी परिणाम अनलॉक करता है।",
+  "trialDaysLeft": "ट्रायल की ज़रूरत नहीं — सभी मुख्य सुविधाएँ मुफ़्त हैं",
+  "aiRequestsRemaining": "AI अनुरोध असीमित हैं",
+  "documentsRemaining": "दस्तावेज़ असीमित हैं"
 }

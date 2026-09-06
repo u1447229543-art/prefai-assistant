@@ -131,7 +131,7 @@ export const ar = {
   editProfile: 'تعديل الملف',
   saveProfile: 'حفظ الملف',
   limitReached: 'تم بلوغ الحد',
-  limitReachedMsg: 'استخدمت كل مستنداتك هذا الشهر. قم بترقية خطتك للمتابعة.',
+  limitReachedMsg: 'كل الميزات الأساسية مجانية وغير محدودة. Basic يفتح كل نتائج الأموال والمساعدات.',
   formal: 'رسمي',
   polite: 'مهذب',
   firm: 'حازم',

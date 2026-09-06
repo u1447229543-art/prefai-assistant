@@ -131,7 +131,7 @@ export const zh = {
   editProfile: '编辑个人资料',
   saveProfile: '保存个人资料',
   limitReached: '已达上限',
-  limitReachedMsg: '您本月已用完所有文件。升级计划以继续。',
+  limitReachedMsg: '所有核心功能均免费且不限量。Basic 可解锁「金钱与福利查找」的全部结果。',
   formal: '正式',
   polite: '礼貌',
   firm: '坚定',

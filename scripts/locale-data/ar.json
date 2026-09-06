@@ -130,7 +130,7 @@
   "editProfile": "تعديل الملف",
   "saveProfile": "حفظ الملف",
   "limitReached": "تم بلوغ الحد",
-  "limitReachedMsg": "استخدمت كل مستنداتك هذا الشهر. قم بترقية خطتك للمتابعة.",
+  "limitReachedMsg": "كل الميزات الأساسية مجانية وغير محدودة. Basic يفتح كل نتائج الأموال والمساعدات.",
   "formal": "رسمي",
   "polite": "مهذب",
   "firm": "حازم",
@@ -289,5 +289,11 @@
   "pdfGeneratedFooter": "تم الإنشاء بواسطة PrefAI Assistant — هذه الأداة لا تحل محل الخدمات الإدارية الرسمية.",
   "eligibilityUnlockTitle": "المزيد من النتائج مقفلة",
   "eligibilityUnlockMsg": "اشترك في Basic (4.99€/شهر) لعرض كل المساعدات المطابقة.",
-  "eligibilityUnlockCta": "افتح مع Basic"
+  "eligibilityUnlockCta": "افتح مع Basic",
+  "upgradeAiDailyMsg": "جميع أدوات الذكاء الاصطناعي مجانية. Basic (4.99€/شهر) يفتح كل نتائج الأموال والمساعدات.",
+  "upgradeDocLimitMsg": "المستندات غير محدودة. Basic يفتح كل نتائج الأموال والمساعدات.",
+  "upgradeJourneyLimitMsg": "جميع المسارات مجانية. Basic (4.99€/شهر) يفتح كل نتائج الأموال والمساعدات.",
+  "trialDaysLeft": "لا حاجة لفترة تجريبية — كل الميزات الأساسية مجانية",
+  "aiRequestsRemaining": "طلبات الذكاء الاصطناعي غير محدودة",
+  "documentsRemaining": "المستندات غير محدودة"
 }

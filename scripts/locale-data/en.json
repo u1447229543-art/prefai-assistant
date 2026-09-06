@@ -127,7 +127,7 @@
   "editProfile": "Edit Profile",
   "saveProfile": "Save profile",
   "limitReached": "Limit reached",
-  "limitReachedMsg": "You have used all your documents this month. Upgrade your plan to continue.",
+  "limitReachedMsg": "All core features are free and unlimited. Basic unlocks full Money & Benefits Finder results.",
   "formal": "Formal",
   "polite": "Polite",
   "firm": "Firm",
@@ -289,5 +289,11 @@
   "pdfGeneratedFooter": "Generated with PrefAI Assistant — this tool does not replace official administrative services.",
   "eligibilityUnlockTitle": "More matches locked",
   "eligibilityUnlockMsg": "Subscribe to Basic (€4.99/mo) to see every matched benefit.",
-  "eligibilityUnlockCta": "Unlock with Basic"
+  "eligibilityUnlockCta": "Unlock with Basic",
+  "upgradeAiDailyMsg": "All AI tools are free. Basic (€4.99/mo) unlocks full Money & Benefits Finder results.",
+  "upgradeDocLimitMsg": "Documents are unlimited. Basic unlocks full Money & Benefits Finder results.",
+  "upgradeJourneyLimitMsg": "All journeys are free. Basic (€4.99/mo) unlocks full Money & Benefits Finder results.",
+  "trialDaysLeft": "No trial needed — all core features are free",
+  "aiRequestsRemaining": "AI requests are unlimited",
+  "documentsRemaining": "Documents are unlimited"
 }

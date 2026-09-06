@@ -131,7 +131,7 @@ export const bn = {
   editProfile: 'প্রোফাইল সম্পাদনা',
   saveProfile: 'প্রোফাইল সংরক্ষণ',
   limitReached: 'সীমা পূর্ণ',
-  limitReachedMsg: 'এই মাসে সব নথি ব্যবহার করেছেন। চালিয়ে যেতে আপগ্রেড করুন।',
+  limitReachedMsg: 'সব মূল ফিচার বিনামূল্যে ও সীমাহীন। Basic «অর্থ ও সুবিধা খুঁজুন»-এর সব ফলাফল আনলক করে।',
   formal: 'আনুষ্ঠানিক',
   polite: 'ভদ্র',
   firm: 'দৃঢ়',

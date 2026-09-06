@@ -131,7 +131,7 @@ export const pt = {
   editProfile: 'Editar perfil',
   saveProfile: 'Salvar perfil',
   limitReached: 'Limite atingido',
-  limitReachedMsg: 'Você usou todos os documentos deste mês. Faça upgrade para continuar.',
+  limitReachedMsg: 'Todas as funções principais são grátis e ilimitadas. O Basic desbloqueia todos os resultados de Ajudas e dinheiro.',
   formal: 'Formal',
   polite: 'Educado',
   firm: 'Firme',

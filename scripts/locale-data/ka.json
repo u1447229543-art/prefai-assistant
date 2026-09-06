@@ -130,7 +130,7 @@
   "editProfile": "პროფილის რედაქტირება",
   "saveProfile": "პროფილის შენახვა",
   "limitReached": "ლიმიტი ამოიწურა",
-  "limitReachedMsg": "ამ თვეში ყველა დოკუმენტი გამოიყენეთ. გააუმჯობესეთ გეგმა.",
+  "limitReachedMsg": "ყველა ძირითადი ფუნქცია უფასო და ულიმიტოა. Basic ხსნის „ფული და შეღავათები“-ს ყველა შედეგს.",
   "formal": "ოფიციალური",
   "polite": "თავაზიანი",
   "firm": "მკაცრი",
@@ -289,5 +289,11 @@
   "pdfGeneratedFooter": "შექმნილია PrefAI Assistant-ით — ეს ხელსაწყო არ ცვლის ოფიციალურ ადმინისტრაციულ სერვისებს.",
   "eligibilityUnlockTitle": "დანარჩენი შედეგები დაბლოკილია",
   "eligibilityUnlockMsg": "გამოიწერეთ Basic (€4.99/თვე), რომ ნახოთ ყველა ნაპოვნი შეღავათი.",
-  "eligibilityUnlockCta": "გახსენით Basic-ით"
+  "eligibilityUnlockCta": "გახსენით Basic-ით",
+  "upgradeAiDailyMsg": "ყველა AI ინსტრუმენტი უფასოა. Basic (€4.99/თვე) ხსნის „ფული და შეღავათები“-ს ყველა შედეგს.",
+  "upgradeDocLimitMsg": "დოკუმენტები ულიმიტოა. Basic ხსნის „ფული და შეღავათები“-ს ყველა შედეგს.",
+  "upgradeJourneyLimitMsg": "ყველა გზა უფასოა. Basic (€4.99/თვე) ხსნის „ფული და შეღავათები“-ს ყველა შედეგს.",
+  "trialDaysLeft": "საცდელი პერიოდი არ არის საჭირო — ძირითადი ფუნქციები უფასოა",
+  "aiRequestsRemaining": "AI მოთხოვნები ულიმიტოა",
+  "documentsRemaining": "დოკუმენტები ულიმიტოა"
 }

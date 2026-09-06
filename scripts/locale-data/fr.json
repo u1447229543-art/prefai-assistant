@@ -127,7 +127,7 @@
   "editProfile": "Modifier le profil",
   "saveProfile": "Enregistrer le profil",
   "limitReached": "Limite atteinte",
-  "limitReachedMsg": "Vous avez utilisé tous vos documents ce mois-ci. Passez à un plan supérieur.",
+  "limitReachedMsg": "Toutes les fonctions principales sont gratuites et illimitées. Basic débloque tous les résultats d’Aides & Argent.",
   "formal": "Formel",
   "polite": "Poli",
   "firm": "Ferme",
@@ -289,5 +289,11 @@
   "pdfGeneratedFooter": "Généré avec PrefAI Assistant — cet outil ne remplace pas les services administratifs officiels.",
   "eligibilityUnlockTitle": "Autres résultats verrouillés",
   "eligibilityUnlockMsg": "Passez à Basic (4,99 €/mois) pour voir toutes les aides trouvées.",
-  "eligibilityUnlockCta": "Débloquer avec Basic"
+  "eligibilityUnlockCta": "Débloquer avec Basic",
+  "upgradeAiDailyMsg": "Tous les outils IA sont gratuits. Basic (4,99 €/mois) débloque tous les résultats d’Aides & Argent.",
+  "upgradeDocLimitMsg": "Les documents sont illimités. Basic débloque tous les résultats d’Aides & Argent.",
+  "upgradeJourneyLimitMsg": "Tous les parcours sont gratuits. Basic (4,99 €/mois) débloque tous les résultats d’Aides & Argent.",
+  "trialDaysLeft": "Pas d’essai requis — toutes les fonctions principales sont gratuites",
+  "aiRequestsRemaining": "Les requêtes IA sont illimitées",
+  "documentsRemaining": "Les documents sont illimités"
 }

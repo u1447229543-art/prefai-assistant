@@ -130,7 +130,7 @@
   "editProfile": "Editar perfil",
   "saveProfile": "Guardar perfil",
   "limitReached": "Límite alcanzado",
-  "limitReachedMsg": "Has usado todos tus documentos este mes. Mejora tu plan para continuar.",
+  "limitReachedMsg": "Todas las funciones principales son gratis e ilimitadas. Basic desbloquea todos los resultados de Ayudas y dinero.",
   "formal": "Formal",
   "polite": "Cortés",
   "firm": "Firme",
@@ -289,5 +289,11 @@
   "pdfGeneratedFooter": "Generado con PrefAI Assistant — esta herramienta no sustituye los servicios administrativos oficiales.",
   "eligibilityUnlockTitle": "Más coincidencias bloqueadas",
   "eligibilityUnlockMsg": "Suscríbete a Basic (4,99 €/mes) para ver todas las ayudas encontradas.",
-  "eligibilityUnlockCta": "Desbloquear con Basic"
+  "eligibilityUnlockCta": "Desbloquear con Basic",
+  "upgradeAiDailyMsg": "Todas las herramientas de IA son gratis. Basic (4,99 €/mes) desbloquea todos los resultados de Ayudas y dinero.",
+  "upgradeDocLimitMsg": "Los documentos son ilimitados. Basic desbloquea todos los resultados de Ayudas y dinero.",
+  "upgradeJourneyLimitMsg": "Todos los recorridos son gratis. Basic (4,99 €/mes) desbloquea todos los resultados de Ayudas y dinero.",
+  "trialDaysLeft": "No hace falta prueba — todas las funciones principales son gratis",
+  "aiRequestsRemaining": "Las solicitudes de IA son ilimitadas",
+  "documentsRemaining": "Los documentos son ilimitados"
 }
