@@ -68,6 +68,14 @@ export const QUESTIONS: EligQuestion[] = [
     ],
   },
   {
+    id: 'paysRent',
+    questionKey: 'eligQPaysRent',
+    options: [
+      { id: 'yes', labelKey: 'eligOptYes' },
+      { id: 'no', labelKey: 'eligOptNo' },
+    ],
+  },
+  {
     id: 'work',
     questionKey: 'eligQWork',
     options: [
@@ -142,16 +150,26 @@ export interface BenefitResult {
  * Returns translation keys — resolve with t() in the UI.
  */
 export function evaluateEligibility(a: Answers): BenefitResult[] {
-  const renting = a.housing === 'renting' || a.housing === 'social';
+  const under18 = a.age === 'under18';
+  /** Pays rent/contribution, or already in private/social rental. */
+  const paysOwnRent =
+    a.paysRent === 'yes' || a.housing === 'renting' || a.housing === 'social';
+  /**
+   * Independent enough for adult income top-ups (not a pure dependent
+   * living with family/friends without contributing to housing costs).
+   */
+  const independentForIncomeAids =
+    paysOwnRent || a.housing === 'temporary' || a.housing === 'nofixed';
+
   const lowIncome = ['0', 'under500', '500to1000', '1000to1500'].includes(a.income);
   const veryLowIncome = ['0', 'under500', '500to1000'].includes(a.income);
   const inFrance3plus = a.duration !== 'lt3';
   const legalStatus = a.permit === 'valid' || a.permit === 'inprocess';
-  const validPermit = a.permit === 'valid';
   const working = ['fulltime', 'parttime', 'studentjob'].includes(a.work);
   const over25 = ['26to35', '36to50', 'over50'].includes(a.age);
   const isStudent = a.status === 'student' || a.enrolled === 'yes';
   const hasChildren = a.children !== '0' && a.children !== undefined;
+  const familyPath = a.status === 'family' || hasChildren;
 
   const results: BenefitResult[] = [];
 
@@ -166,18 +184,34 @@ export function evaluateEligibility(a: Answers): BenefitResult[] {
     });
   }
 
-  if (renting && lowIncome) {
+  // Family-aid path (uses unused family status + children). Does not require rent.
+  if (familyPath && legalStatus) {
     results.push({
       id: 'caf',
       nameKey: 'eligCafName',
       emoji: '🏠',
-      explanationKey: hasChildren ? 'eligCafExplainWithChildren' : 'eligCafExplainNoChildren',
+      explanationKey: hasChildren
+        ? 'eligCafExplainWithChildren'
+        : a.status === 'family'
+          ? 'eligCafExplainFamily'
+          : 'eligCafExplainNoChildren',
+      estimateKey: 'eligCafEstimate',
+      journeyId: 'caf',
+    });
+  } else if (paysOwnRent && lowIncome && legalStatus && !under18) {
+    // Housing-oriented CAF when not already on the family path
+    results.push({
+      id: 'caf',
+      nameKey: 'eligCafName',
+      emoji: '🏠',
+      explanationKey: 'eligCafExplainNoChildren',
       estimateKey: 'eligCafEstimate',
       journeyId: 'caf',
     });
   }
 
-  if (renting && lowIncome && legalStatus) {
+  // APL — gated on legalStatus + actually paying rent/contribution
+  if (paysOwnRent && lowIncome && legalStatus && !under18) {
     results.push({
       id: 'apl',
       nameKey: 'eligAplName',
@@ -188,18 +222,36 @@ export function evaluateEligibility(a: Answers): BenefitResult[] {
     });
   }
 
-  if (working && lowIncome) {
-    results.push({
-      id: 'prime',
-      nameKey: 'eligPrimeName',
-      emoji: '💼',
-      explanationKey: 'eligPrimeExplain',
-      estimateKey: 'eligPrimeEstimate',
-      journeyId: 'work',
-    });
+  // Prime d’activité — adults only; skip pure dependents not paying housing costs
+  if (working && lowIncome && independentForIncomeAids) {
+    if (under18) {
+      results.push({
+        id: 'minor-work',
+        nameKey: 'eligMinorWorkName',
+        emoji: '👤',
+        explanationKey: 'eligMinorWorkExplain',
+        journeyId: 'work',
+      });
+    } else {
+      results.push({
+        id: 'prime',
+        nameKey: 'eligPrimeName',
+        emoji: '💼',
+        explanationKey: 'eligPrimeExplain',
+        estimateKey: 'eligPrimeEstimate',
+        journeyId: 'work',
+      });
+    }
   }
 
-  if (over25 && veryLowIncome && validPermit && a.duration === 'gt12') {
+  // RSA — permit valid OR in process (récépissé); still guidance-only
+  if (
+    over25 &&
+    veryLowIncome &&
+    legalStatus &&
+    a.duration === 'gt12' &&
+    independentForIncomeAids
+  ) {
     results.push({
       id: 'rsa',
       nameKey: 'eligRsaName',
@@ -210,15 +262,26 @@ export function evaluateEligibility(a: Answers): BenefitResult[] {
     });
   }
 
+  // CSS — adult complementary cover; minors get guardian-oriented alternative
   if (veryLowIncome && inFrance3plus) {
-    results.push({
-      id: 'css',
-      nameKey: 'eligCssName',
-      emoji: '🩺',
-      explanationKey: 'eligCssExplain',
-      estimateKey: 'eligCssEstimate',
-      journeyId: 'health',
-    });
+    if (under18) {
+      results.push({
+        id: 'minor-health',
+        nameKey: 'eligMinorHealthName',
+        emoji: '🩺',
+        explanationKey: 'eligMinorHealthExplain',
+        journeyId: 'health',
+      });
+    } else {
+      results.push({
+        id: 'css',
+        nameKey: 'eligCssName',
+        emoji: '🩺',
+        explanationKey: 'eligCssExplain',
+        estimateKey: 'eligCssEstimate',
+        journeyId: 'health',
+      });
+    }
   }
 
   if (a.health !== 'yes' && inFrance3plus) {
@@ -231,18 +294,29 @@ export function evaluateEligibility(a: Answers): BenefitResult[] {
     });
   }
 
+  // CROUS — adults/students 18+; minors get school/guardian alternative
   if (isStudent) {
-    results.push({
-      id: 'crous',
-      nameKey: 'eligCrousName',
-      emoji: '🎓',
-      explanationKey: 'eligCrousExplain',
-      estimateKey: 'eligCrousEstimate',
-      journeyId: 'student',
-    });
+    if (under18) {
+      results.push({
+        id: 'minor-education',
+        nameKey: 'eligMinorEducationName',
+        emoji: '🎓',
+        explanationKey: 'eligMinorEducationExplain',
+        journeyId: 'student',
+      });
+    } else {
+      results.push({
+        id: 'crous',
+        nameKey: 'eligCrousName',
+        emoji: '🎓',
+        explanationKey: 'eligCrousExplain',
+        estimateKey: 'eligCrousEstimate',
+        journeyId: 'student',
+      });
+    }
   }
 
-  if (a.status === 'jobseeker' && legalStatus) {
+  if (a.status === 'jobseeker' && legalStatus && !under18) {
     results.push({
       id: 'francetravail',
       nameKey: 'eligFtName',
