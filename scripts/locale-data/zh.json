@@ -41,7 +41,7 @@
   "journeyCompleteEveryStep": "您已完成所有步骤：",
   "estimated": "预计",
   "todaysTasks": "今日任务",
-  "checkYourEligibility": "我可能有资格获得什么？",
+  "checkYourEligibility": "金钱与福利查找",
   "checkEligibilityDesc": "了解您可能符合哪些法国福利",
   "quickAiTools": "快捷 AI 工具",
   "allTools": "全部工具",
@@ -59,8 +59,8 @@
   "completedTapUndo": "已完成 ✓ — 点击撤销",
   "aiToolsTitle": "AI 工具",
   "aiToolsSubtitle": "法国文件的智能帮助",
-  "eligibilityChecker": "我可能有资格获得什么？",
-  "eligibilityCheckerDesc": "通过10个快速问题检查您的资格。",
+  "eligibilityChecker": "金钱与福利查找",
+  "eligibilityCheckerDesc": "查找您可能获得的法国金钱与福利 — 简短问卷。",
   "catAll": "全部",
   "catPassport": "护照",
   "catVisa": "签证",
@@ -95,7 +95,7 @@
   "whatHappensNext": "接下来会发生什么",
   "stepNotFound": "找不到此步骤。",
   "completedLabel": "已完成",
-  "eligibilityTitle": "我可能有资格获得什么？",
+  "eligibilityTitle": "金钱与福利查找",
   "yourResults": "您的结果",
   "questionOf": "问题",
   "startThisJourney": "开始此旅程",
@@ -286,5 +286,8 @@
   "cancelAnytimeStripe": "随时可取消。通过 Stripe 安全付款。",
   "officialWebsite": "官方网站",
   "pdfBrand": "PrefAI Assistant",
-  "pdfGeneratedFooter": "由 PrefAI Assistant 生成 — 本工具不替代官方行政服务。"
+  "pdfGeneratedFooter": "由 PrefAI Assistant 生成 — 本工具不替代官方行政服务。",
+  "eligibilityUnlockTitle": "更多匹配已锁定",
+  "eligibilityUnlockMsg": "订阅 Basic（€4.99/月）即可查看全部匹配福利。",
+  "eligibilityUnlockCta": "用 Basic 解锁"
 }

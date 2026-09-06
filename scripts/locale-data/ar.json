@@ -41,7 +41,7 @@
   "journeyCompleteEveryStep": "لقد أكملت كل خطوات",
   "estimated": "تقديري",
   "todaysTasks": "مهام اليوم",
-  "checkYourEligibility": "ما الذي قد أكون مؤهلاً له؟",
+  "checkYourEligibility": "الأموال والمساعدات",
   "checkEligibilityDesc": "اكتشف المساعدات الفرنسية التي قد تستحقها",
   "quickAiTools": "أدوات الذكاء الاصطناعي السريعة",
   "allTools": "كل الأدوات",
@@ -59,8 +59,8 @@
   "completedTapUndo": "مكتمل ✓ — اضغط للتراجع",
   "aiToolsTitle": "أدوات الذكاء الاصطناعي",
   "aiToolsSubtitle": "مساعدة ذكية للأوراق الفرنسية",
-  "eligibilityChecker": "ما الذي قد أكون مؤهلاً له؟",
-  "eligibilityCheckerDesc": "تحقق من أهليتك في 10 أسئلة سريعة.",
+  "eligibilityChecker": "الأموال والمساعدات",
+  "eligibilityCheckerDesc": "اعثر على المساعدات والمخصصات الفرنسية — اختبار قصير.",
   "catAll": "الكل",
   "catPassport": "جواز السفر",
   "catVisa": "تأشيرة",
@@ -95,7 +95,7 @@
   "whatHappensNext": "ماذا يحدث بعد ذلك",
   "stepNotFound": "تعذر العثور على هذه الخطوة.",
   "completedLabel": "مكتمل",
-  "eligibilityTitle": "ما الذي قد أكون مؤهلاً له؟",
+  "eligibilityTitle": "الأموال والمساعدات",
   "yourResults": "نتائجك",
   "questionOf": "سؤال",
   "startThisJourney": "ابدأ هذا المسار",
@@ -286,5 +286,8 @@
   "cancelAnytimeStripe": "يمكن الإلغاء في أي وقت. مدفوعات آمنة عبر Stripe.",
   "officialWebsite": "الموقع الرسمي",
   "pdfBrand": "PrefAI Assistant",
-  "pdfGeneratedFooter": "تم الإنشاء بواسطة PrefAI Assistant — هذه الأداة لا تحل محل الخدمات الإدارية الرسمية."
+  "pdfGeneratedFooter": "تم الإنشاء بواسطة PrefAI Assistant — هذه الأداة لا تحل محل الخدمات الإدارية الرسمية.",
+  "eligibilityUnlockTitle": "المزيد من النتائج مقفلة",
+  "eligibilityUnlockMsg": "اشترك في Basic (4.99€/شهر) لعرض كل المساعدات المطابقة.",
+  "eligibilityUnlockCta": "افتح مع Basic"
 }

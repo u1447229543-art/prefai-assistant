@@ -42,7 +42,7 @@
   "journeyCompleteEveryStep": "Vous avez terminé toutes les étapes de",
   "estimated": "Estimé",
   "todaysTasks": "Tâches d'aujourd'hui",
-  "checkYourEligibility": "À quoi ai-je droit ?",
+  "checkYourEligibility": "Aides & Argent",
   "checkEligibilityDesc": "Découvrez les aides françaises auxquelles vous pourriez avoir droit",
   "quickAiTools": "Outils IA rapides",
   "allTools": "Tous les outils",
@@ -60,8 +60,8 @@
   "completedTapUndo": "Terminé ✓ — appuyez pour annuler",
   "aiToolsTitle": "Outils IA",
   "aiToolsSubtitle": "Aide intelligente pour vos démarches",
-  "eligibilityChecker": "À quoi ai-je droit ?",
-  "eligibilityCheckerDesc": "Vérifiez votre éligibilité aux aides en 10 questions.",
+  "eligibilityChecker": "Aides & Argent",
+  "eligibilityCheckerDesc": "Trouvez les aides et prestations françaises — quiz court.",
   "catAll": "Tous",
   "catPassport": "Passeport",
   "catVisa": "Visa",
@@ -96,7 +96,7 @@
   "whatHappensNext": "Et ensuite",
   "stepNotFound": "Cette étape est introuvable.",
   "completedLabel": "Terminé",
-  "eligibilityTitle": "À quoi ai-je droit ?",
+  "eligibilityTitle": "Aides & Argent",
   "yourResults": "Vos résultats",
   "questionOf": "Question",
   "startThisJourney": "Commencer ce parcours",
@@ -286,5 +286,8 @@
   "resetPassword": "Réinitialiser",
   "officialWebsite": "Site officiel",
   "pdfBrand": "PrefAI Assistant",
-  "pdfGeneratedFooter": "Généré avec PrefAI Assistant — cet outil ne remplace pas les services administratifs officiels."
+  "pdfGeneratedFooter": "Généré avec PrefAI Assistant — cet outil ne remplace pas les services administratifs officiels.",
+  "eligibilityUnlockTitle": "Autres résultats verrouillés",
+  "eligibilityUnlockMsg": "Passez à Basic (4,99 €/mois) pour voir toutes les aides trouvées.",
+  "eligibilityUnlockCta": "Débloquer avec Basic"
 }

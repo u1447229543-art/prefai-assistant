@@ -10,14 +10,13 @@ import { useApp } from '../context/AppContext';
 import { LanguageCode, getLanguage } from '../constants/languages';
 import { translateText } from '../services/openai';
 import { copyOrShare } from '../services/clipboard';
-import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export const TranslationScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { language, t, consumeAiRequest } = useApp();
+  const { language, t } = useApp();
   const [source, setSource] = useState<LanguageCode>('fr');
   const [target, setTarget] = useState<LanguageCode>(language === 'fr' ? 'en' : language);
   const [text, setText] = useState('');
@@ -34,11 +33,6 @@ export const TranslationScreen: React.FC = () => {
 
   const run = async () => {
     if (!text.trim()) return;
-    const allowed = await consumeAiRequest();
-    if (!allowed) {
-      promptUpgrade(t, 'upgradeAiDailyMsg', () => navigation.navigate('Subscription'));
-      return;
-    }
     setLoading(true);
     setResult('');
     try {

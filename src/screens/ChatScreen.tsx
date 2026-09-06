@@ -18,7 +18,6 @@ import { ChatBubble } from '../components/ChatBubble';
 import { useApp } from '../context/AppContext';
 import * as storage from '../services/storage';
 import { aiAskAnything, aiClearChatHistory, aiGetChatHistory, ApiError } from '../services/api';
-import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -31,7 +30,7 @@ const SUGGESTIONS = [
 
 export const ChatScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { language, t, consumeAiRequest, user } = useApp();
+  const { language, t, user } = useApp();
   const [messages, setMessages] = useState<storage.StoredChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [pending, setPending] = useState(false);
@@ -81,12 +80,6 @@ export const ChatScreen: React.FC = () => {
   const send = async (text?: string) => {
     const content = (text ?? input).trim();
     if (!content || pending) return;
-
-    const allowed = await consumeAiRequest();
-    if (!allowed) {
-      promptUpgrade(t, 'upgradeAiDailyMsg', () => navigation.navigate('Subscription'));
-      return;
-    }
 
     const userMsg: storage.StoredChatMessage = {
       id: `local_${Date.now()}`,

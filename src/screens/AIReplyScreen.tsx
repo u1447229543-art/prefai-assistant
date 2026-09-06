@@ -8,7 +8,7 @@ import { Screen, Body, Header, Card, NeonButton } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { AdminOrg, AdminReply, aiGenerateReply, ApiError } from '../services/api';
 import { copyOrShare } from '../services/clipboard';
-import { promptUpgrade, fillTemplate } from '../utils/quotaPrompt';
+import { fillTemplate } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -31,7 +31,7 @@ const TONES: { id: 'formal' | 'polite' | 'firm'; labelKey: 'formal' | 'polite' |
 
 export const AIReplyScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { language, t, user, consumeAiRequest } = useApp();
+  const { language, t, user } = useApp();
   const [org, setOrg] = useState<AdminOrg>('CAF');
   const [tone, setTone] = useState<'formal' | 'polite' | 'firm'>('formal');
   const [situation, setSituation] = useState('');
@@ -42,11 +42,6 @@ export const AIReplyScreen: React.FC = () => {
 
   const run = async () => {
     if (!situation.trim()) return;
-    const allowed = await consumeAiRequest();
-    if (!allowed) {
-      promptUpgrade(t, 'upgradeAiDailyMsg', () => navigation.navigate('Subscription'));
-      return;
-    }
     setLoading(true);
     setResult(null);
     setError(null);

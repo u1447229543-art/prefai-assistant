@@ -42,7 +42,7 @@
   "journeyCompleteEveryStep": "You've completed every step of",
   "estimated": "Estimated",
   "todaysTasks": "Today's Tasks",
-  "checkYourEligibility": "What Am I Eligible For?",
+  "checkYourEligibility": "Money & Benefits Finder",
   "checkEligibilityDesc": "See which French benefits you may qualify for",
   "quickAiTools": "Quick AI Tools",
   "allTools": "All tools",
@@ -60,8 +60,8 @@
   "completedTapUndo": "Completed ✓ — tap to undo",
   "aiToolsTitle": "AI Tools",
   "aiToolsSubtitle": "Smart help for French paperwork",
-  "eligibilityChecker": "What Am I Eligible For?",
-  "eligibilityCheckerDesc": "Check your eligibility for French benefits in 10 quick questions.",
+  "eligibilityChecker": "Money & Benefits Finder",
+  "eligibilityCheckerDesc": "Find French money and benefits you may access — short quiz.",
   "catAll": "All",
   "catPassport": "Passport",
   "catVisa": "Visa",
@@ -96,7 +96,7 @@
   "whatHappensNext": "What happens next",
   "stepNotFound": "This step could not be found.",
   "completedLabel": "Completed",
-  "eligibilityTitle": "What Am I Eligible For?",
+  "eligibilityTitle": "Money & Benefits Finder",
   "yourResults": "Your results",
   "questionOf": "Question",
   "startThisJourney": "Start this journey",
@@ -286,5 +286,8 @@
   "resetPassword": "Reset password",
   "officialWebsite": "Official website",
   "pdfBrand": "PrefAI Assistant",
-  "pdfGeneratedFooter": "Generated with PrefAI Assistant — this tool does not replace official administrative services."
+  "pdfGeneratedFooter": "Generated with PrefAI Assistant — this tool does not replace official administrative services.",
+  "eligibilityUnlockTitle": "More matches locked",
+  "eligibilityUnlockMsg": "Subscribe to Basic (€4.99/mo) to see every matched benefit.",
+  "eligibilityUnlockCta": "Unlock with Basic"
 }

@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { I18nManager } from 'react-native';
 import { DEFAULT_LANGUAGE, LanguageCode, getLanguage } from '../constants/languages';
-import { PlanId, getPlan, FREE_DOCUMENT_LIMIT, FREE_TRIAL_DAYS, FREE_AI_DAILY_LIMIT, FREE_JOURNEY_LIMIT } from '../constants/pricing';
+import { PlanId, getPlan } from '../constants/pricing';
 import { JourneyId, getJourney } from '../constants/journeys';
 import * as storage from '../services/storage';
 import * as api from '../services/api';
@@ -426,97 +426,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const plan = getPlan(planId);
-  const isFree = planId === 'free';
 
-  const isInTrial = useMemo(() => {
-    if (!isFree) return false;
-    // Prefer account registration date; fall back to local trialStartedAt.
-    const started = user?.createdAt || usage.trialStartedAt;
-    if (!started) return true;
-    const elapsed = Date.now() - new Date(started).getTime();
-    return elapsed < FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000;
-  }, [isFree, user?.createdAt, usage.trialStartedAt]);
+  // Trial / daily AI / document caps removed — everything except eligibility
+  // result unlock is free and unlimited.
+  const isInTrial = false;
+  const trialDaysLeft = 0;
+  const aiRemainingToday = Infinity;
+  const canAddDocument = true;
+  const canProcessDocument = true;
 
-  const trialDaysLeft = useMemo(() => {
-    if (!isFree) return 0;
-    const started = user?.createdAt || usage.trialStartedAt;
-    if (!started) return FREE_TRIAL_DAYS;
-    const elapsed = Date.now() - new Date(started).getTime();
-    const left = Math.ceil(FREE_TRIAL_DAYS - elapsed / (24 * 60 * 60 * 1000));
-    return Math.max(0, left);
-  }, [isFree, user?.createdAt, usage.trialStartedAt]);
+  const consumeAiRequest = useCallback(async (): Promise<boolean> => true, []);
 
-  const todayKey = () => new Date().toISOString().slice(0, 10);
-
-  const aiRemainingToday = useMemo(() => {
-    if (!isFree || isInTrial) return Infinity;
-    const count = usage.aiDate === todayKey() ? usage.aiCount ?? 0 : 0;
-    return Math.max(0, FREE_AI_DAILY_LIMIT - count);
-  }, [isFree, isInTrial, usage.aiDate, usage.aiCount]);
-
-  const canAddDocument = useMemo(() => {
-    if (plan.documentLimit === null) return true;
-    if (isFree) {
-      if (isInTrial) return true; // unlimited docs during 7-day trial
-      return documents.length < FREE_DOCUMENT_LIMIT;
-    }
-    return usage.documentsProcessed < plan.documentLimit;
-  }, [plan.documentLimit, isFree, isInTrial, documents.length, usage.documentsProcessed]);
-
-  const canProcessDocument = canAddDocument;
-
-  const consumeAiRequest = useCallback(async (): Promise<boolean> => {
-    if (!isFree) return true;
-    if (isInTrial) return true;
-
-    const today = todayKey();
-    const current = usage.aiDate === today ? usage.aiCount ?? 0 : 0;
-    if (current >= FREE_AI_DAILY_LIMIT) return false;
-
-    const next: storage.UsageRecord = {
-      ...usage,
-      aiDate: today,
-      aiCount: current + 1,
-    };
-    setUsage(next);
-    await storage.saveUsage(next);
-    return true;
-  }, [isFree, isInTrial, usage]);
-
-  const registerDocumentUse = useCallback(async (): Promise<boolean> => {
-    if (plan.documentLimit === null) return true;
-    if (isFree) {
-      if (isInTrial) return true;
-      return documents.length < FREE_DOCUMENT_LIMIT;
-    }
-    if (usage.documentsProcessed >= plan.documentLimit) return false;
-    const next: storage.UsageRecord = {
-      ...usage,
-      documentsProcessed: usage.documentsProcessed + 1,
-    };
-    setUsage(next);
-    await storage.saveUsage(next);
-    return true;
-  }, [plan.documentLimit, isFree, isInTrial, documents.length, usage]);
+  const registerDocumentUse = useCallback(async (): Promise<boolean> => true, []);
 
   const selectJourney = useCallback(
     async (id: JourneyId): Promise<boolean> => {
-      if (isFree) {
-        const unlocked = usage.unlockedJourneyIds ?? [];
-        // Unlimited journey selection during 7-day trial (same bypass as docs/AI).
-        if (!isInTrial && !unlocked.includes(id) && unlocked.length >= FREE_JOURNEY_LIMIT) {
-          return false;
-        }
-        if (!unlocked.includes(id)) {
-          const nextUsage: storage.UsageRecord = {
-            ...usage,
-            unlockedJourneyIds: [...unlocked, id],
-          };
-          setUsage(nextUsage);
-          await storage.saveUsage(nextUsage);
-        }
-      }
-
       setJourneySyncing(true);
       try {
         const { journey: j } = await api.setJourney(id);
@@ -542,7 +466,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setJourneySyncing(false);
       }
     },
-    [applyJourney, isFree, isInTrial, usage]
+    [applyJourney]
   );
 
   const toggleJourneyStep = useCallback(
@@ -581,9 +505,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const uploadDocument = useCallback(
     async (doc: storage.StoredDocument, backendCategory: string): Promise<storage.StoredDocument> => {
-      if (isFree && !isInTrial && documents.length >= FREE_DOCUMENT_LIMIT) {
-        throw new api.ApiError('DOCUMENT_LIMIT', 403);
-      }
       const { document } = await api.addDocument({
         fileName: doc.name,
         fileSize: doc.size,
@@ -603,18 +524,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await refreshUsage();
       return saved;
     },
-    [refreshUsage, isFree, isInTrial, documents.length]
+    [refreshUsage]
   );
 
   const addCachedDocument = useCallback(
     async (doc: storage.StoredDocument) => {
-      if (isFree && !isInTrial && documents.length >= FREE_DOCUMENT_LIMIT) {
-        throw new api.ApiError('DOCUMENT_LIMIT', 403);
-      }
       const next = await storage.addToVault(doc);
       setDocuments(next);
     },
-    [isFree, isInTrial, documents.length]
+    []
   );
 
   const removeDocument = useCallback(async (id: string) => {

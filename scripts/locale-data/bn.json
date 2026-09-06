@@ -41,7 +41,7 @@
   "journeyCompleteEveryStep": "আপনি সব ধাপ সম্পন্ন করেছেন:",
   "estimated": "আনুমানিক",
   "todaysTasks": "আজকের কাজ",
-  "checkYourEligibility": "আমি কীসের জন্য যোগ্য হতে পারি?",
+  "checkYourEligibility": "অর্থ ও সুবিধা খুঁজুন",
   "checkEligibilityDesc": "কোন ফরাসি সুবিধার জন্য যোগ্য হতে পারেন দেখুন",
   "quickAiTools": "দ্রুত AI সরঞ্জাম",
   "allTools": "সব সরঞ্জাম",
@@ -59,8 +59,8 @@
   "completedTapUndo": "সম্পন্ন ✓ — পূর্বাবস্থায় ট্যাপ",
   "aiToolsTitle": "AI সরঞ্জাম",
   "aiToolsSubtitle": "ফরাসি কাগজপত্রের জন্য স্মার্ট সাহায্য",
-  "eligibilityChecker": "আমি কীসের জন্য যোগ্য হতে পারি?",
-  "eligibilityCheckerDesc": "১০টি দ্রুত প্রশ্নে যোগ্যতা যাচাই করুন।",
+  "eligibilityChecker": "অর্থ ও সুবিধা খুঁজুন",
+  "eligibilityCheckerDesc": "ফরাসি অর্থ ও সুবিধা খুঁজুন — সংক্ষিপ্ত কুইজ।",
   "catAll": "সব",
   "catPassport": "পাসপোর্ট",
   "catVisa": "ভিসা",
@@ -95,7 +95,7 @@
   "whatHappensNext": "পরবর্তীতে কী হবে",
   "stepNotFound": "এই ধাপ পাওয়া যায়নি।",
   "completedLabel": "সম্পন্ন",
-  "eligibilityTitle": "আমি কীসের জন্য যোগ্য হতে পারি?",
+  "eligibilityTitle": "অর্থ ও সুবিধা খুঁজুন",
   "yourResults": "আপনার ফলাফল",
   "questionOf": "প্রশ্ন",
   "startThisJourney": "এই যাত্রা শুরু",
@@ -286,5 +286,8 @@
   "cancelAnytimeStripe": "যেকোনো সময় বাতিল করুন। Stripe দিয়ে নিরাপদ পেমেন্ট।",
   "officialWebsite": "অফিসিয়াল ওয়েবসাইট",
   "pdfBrand": "PrefAI Assistant",
-  "pdfGeneratedFooter": "PrefAI Assistant দিয়ে তৈরি — এই টুল অফিসিয়াল প্রশাসনিক সেবার বিকল্প নয়।"
+  "pdfGeneratedFooter": "PrefAI Assistant দিয়ে তৈরি — এই টুল অফিসিয়াল প্রশাসনিক সেবার বিকল্প নয়।",
+  "eligibilityUnlockTitle": "আরও মিল লক করা",
+  "eligibilityUnlockMsg": "সব মিলে যাওয়া সুবিধা দেখতে Basic (€4.99/মাস) নিন।",
+  "eligibilityUnlockCta": "Basic দিয়ে আনলক"
 }

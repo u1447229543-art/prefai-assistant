@@ -17,7 +17,6 @@ import { ChatBubble } from '../components/ChatBubble';
 import { useApp } from '../context/AppContext';
 import { getJourney, getJourneyStep, getJourneyTitle, getStepDuration, getStepTitle } from '../constants/journeys';
 import { askAboutStep, ChatMessage, isStepAiConfigured } from '../services/openai';
-import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -142,7 +141,7 @@ export const JourneyStepScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const route = useRoute<StepRoute>();
   const params = route.params;
-  const { journey, toggleJourneyStep, language, t, consumeAiRequest } = useApp();
+  const { journey, toggleJourneyStep, language, t } = useApp();
 
   const journeyId = params?.journeyId;
   const stepId = params?.stepId;
@@ -244,11 +243,6 @@ export const JourneyStepScreen: React.FC = () => {
   const send = async () => {
     const text = input.trim();
     if (!text || thinking) return;
-    const allowed = await consumeAiRequest();
-    if (!allowed) {
-      promptUpgrade(t, 'upgradeAiDailyMsg', () => navigation.navigate('Subscription'));
-      return;
-    }
     const next: ChatMessage[] = [...messages, { role: 'user', content: text }];
     setMessages(next);
     setInput('');

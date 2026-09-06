@@ -14,9 +14,9 @@ import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton, ProgressBar, ScrollableText } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { JourneyId } from '../constants/journeys';
-import { QUESTIONS, Answers, evaluateEligibility } from '../constants/eligibility';
+import { QUESTIONS, Answers, evaluateEligibility, BenefitResult } from '../constants/eligibility';
+import { FREE_ELIGIBILITY_VISIBLE, hasEligibilityUnlock } from '../constants/pricing';
 import { aiEligibilityFollowUp, ApiError } from '../services/api';
-import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 import type { TranslationKey } from '../i18n/translations';
 
@@ -25,7 +25,7 @@ type TFn = (key: TranslationKey) => string;
 
 export const EligibilityScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { selectJourney, t, language, consumeAiRequest } = useApp();
+  const { selectJourney, t, language, planId } = useApp();
 
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
@@ -91,11 +91,11 @@ export const EligibilityScreen: React.FC = () => {
           <ResultsView
             answers={answers}
             results={results}
+            unlocked={hasEligibilityUnlock(planId)}
             onStartJourney={startJourney}
             onRestart={restart}
             t={t}
             language={language}
-            consumeAiRequest={consumeAiRequest}
             onUpgrade={() => navigation.navigate('Subscription')}
           />
         ) : (
@@ -118,7 +118,7 @@ export const EligibilityScreen: React.FC = () => {
                       {t(opt.labelKey)}
                     </Text>
                     <Ionicons
-                      name={selected ? 'checkmark-circle' : 'chevron-forward'}
+                      name={selected ? 'radio-button-on' : 'radio-button-off'}
                       size={20}
                       color={selected ? Colors.blue : Colors.textMuted}
                     />
@@ -133,16 +133,62 @@ export const EligibilityScreen: React.FC = () => {
   );
 };
 
+const BenefitCard: React.FC<{
+  b: BenefitResult;
+  locked: boolean;
+  t: TFn;
+  onStartJourney: (id: JourneyId) => void;
+  onUpgrade: () => void;
+}> = ({ b, locked, t, onStartJourney, onUpgrade }) => (
+  <Card style={styles.benefitCard}>
+    <View style={locked ? styles.lockedContent : undefined}>
+      <View style={styles.benefitHead}>
+        <Text style={styles.benefitEmoji}>{b.emoji}</Text>
+        <Text style={styles.benefitName}>{t(b.nameKey)}</Text>
+      </View>
+      <Text style={styles.benefitExplain}>{t(b.explanationKey)}</Text>
+      {b.estimateKey ? (
+        <View style={styles.estimateRow}>
+          <Ionicons name="cash-outline" size={14} color={Colors.success} />
+          <Text style={styles.estimateText}>{t(b.estimateKey)}</Text>
+        </View>
+      ) : null}
+      {!locked ? (
+        <NeonButton
+          title={t('startThisJourney')}
+          icon="navigate-outline"
+          onPress={() => onStartJourney(b.journeyId)}
+          style={{ marginTop: Spacing.sm }}
+        />
+      ) : null}
+    </View>
+    {locked ? (
+      <View style={styles.lockOverlay}>
+        <Ionicons name="lock-closed" size={22} color={Colors.white} />
+        <Text style={styles.lockTitle}>{t('eligibilityUnlockTitle')}</Text>
+        <Text style={styles.lockMsg}>{t('eligibilityUnlockMsg')}</Text>
+        <NeonButton
+          title={t('eligibilityUnlockCta')}
+          icon="rocket-outline"
+          variant="blue"
+          onPress={onUpgrade}
+          style={{ marginTop: Spacing.sm, alignSelf: 'stretch' }}
+        />
+      </View>
+    ) : null}
+  </Card>
+);
+
 const ResultsView: React.FC<{
   answers: Answers;
-  results: ReturnType<typeof evaluateEligibility>;
+  results: BenefitResult[];
+  unlocked: boolean;
   onStartJourney: (id: JourneyId) => void;
   onRestart: () => void;
   t: TFn;
   language: string;
-  consumeAiRequest: () => Promise<boolean>;
   onUpgrade: () => void;
-}> = ({ answers, results, onStartJourney, onRestart, t, language, consumeAiRequest, onUpgrade }) => {
+}> = ({ answers, results, unlocked, onStartJourney, onRestart, t, language, onUpgrade }) => {
   const [note, setNote] = useState('');
   const [showFollowUp, setShowFollowUp] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -157,12 +203,6 @@ const ResultsView: React.FC<{
     }
 
     setFollowUpError(null);
-    const allowed = await consumeAiRequest();
-    if (!allowed) {
-      promptUpgrade(t, 'upgradeAiDailyMsg', onUpgrade);
-      return;
-    }
-
     setLoading(true);
     try {
       const answersLabeled = QUESTIONS.map((q) => {
@@ -188,6 +228,8 @@ const ResultsView: React.FC<{
     }
   };
 
+  const shouldLockExtras = !unlocked && results.length > FREE_ELIGIBILITY_VISIBLE;
+
   return (
     <View>
       <Text style={styles.resultsHeading}>{t('resultsHeading')}</Text>
@@ -198,27 +240,19 @@ const ResultsView: React.FC<{
           <Text style={styles.emptyText}>{t('eligibilityNoMatch')}</Text>
         </Card>
       ) : (
-        results.map((b) => (
-          <Card key={b.id} style={styles.benefitCard}>
-            <View style={styles.benefitHead}>
-              <Text style={styles.benefitEmoji}>{b.emoji}</Text>
-              <Text style={styles.benefitName}>{t(b.nameKey)}</Text>
-            </View>
-            <Text style={styles.benefitExplain}>{t(b.explanationKey)}</Text>
-            {b.estimateKey ? (
-              <View style={styles.estimateRow}>
-                <Ionicons name="cash-outline" size={14} color={Colors.success} />
-                <Text style={styles.estimateText}>{t(b.estimateKey)}</Text>
-              </View>
-            ) : null}
-            <NeonButton
-              title={t('startThisJourney')}
-              icon="navigate-outline"
-              onPress={() => onStartJourney(b.journeyId)}
-              style={{ marginTop: Spacing.sm }}
+        results.map((b, i) => {
+          const locked = shouldLockExtras && i >= FREE_ELIGIBILITY_VISIBLE;
+          return (
+            <BenefitCard
+              key={b.id}
+              b={b}
+              locked={locked}
+              t={t}
+              onStartJourney={onStartJourney}
+              onUpgrade={onUpgrade}
             />
-          </Card>
-        ))
+          );
+        })
       )}
 
       {showFollowUp && !guidance ? (
@@ -308,67 +342,82 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     paddingVertical: 18,
     paddingHorizontal: Spacing.md,
-    minHeight: 58,
   },
-  optionSelected: { borderColor: Colors.blue, ...glow(Colors.blue, 8) },
-  optionText: { color: Colors.textPrimary, fontSize: FontSize.md, fontWeight: '600', flex: 1 },
-  optionTextSelected: { color: Colors.white, fontWeight: '700' },
+  optionSelected: {
+    borderColor: Colors.blue,
+    backgroundColor: 'rgba(0,166,204,0.12)',
+    ...glow(Colors.blue, 8),
+  },
+  optionText: { color: Colors.textSecondary, fontSize: FontSize.md, fontWeight: '600', flex: 1, paddingRight: Spacing.sm },
+  optionTextSelected: { color: Colors.white },
 
   resultsHeading: {
     color: Colors.white,
     fontSize: FontSize.lg,
     fontWeight: '800',
-    marginTop: Spacing.sm,
     marginBottom: Spacing.md,
   },
-  emptyCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 as unknown as number },
-  emptyText: { color: Colors.textSecondary, fontSize: FontSize.sm, lineHeight: 20, flex: 1 },
-  benefitCard: { marginBottom: Spacing.sm },
-  benefitHead: { flexDirection: 'row', alignItems: 'center', gap: 8 as unknown as number },
+  emptyCard: { alignItems: 'center', gap: Spacing.sm as unknown as number, paddingVertical: Spacing.lg },
+  emptyText: { color: Colors.textSecondary, textAlign: 'center', lineHeight: 20 },
+  benefitCard: { marginBottom: Spacing.md, overflow: 'hidden' },
+  lockedContent: { opacity: 0.28 },
+  benefitHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm as unknown as number },
   benefitEmoji: { fontSize: 22 },
   benefitName: { color: Colors.white, fontSize: FontSize.md, fontWeight: '800', flex: 1 },
-  benefitExplain: { color: Colors.textSecondary, fontSize: FontSize.sm, lineHeight: 20, marginTop: 8 },
+  benefitExplain: { color: Colors.textSecondary, fontSize: FontSize.sm, lineHeight: 20, marginTop: Spacing.sm },
   estimateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6 as unknown as number,
+    gap: 6,
     marginTop: Spacing.sm,
   },
   estimateText: { color: Colors.success, fontSize: FontSize.sm, fontWeight: '700' },
-
-  followUpCard: { marginTop: Spacing.md, marginBottom: Spacing.sm },
-  followUpPrompt: {
+  lockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(4, 18, 26, 0.72)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.md,
+  },
+  lockTitle: {
     color: Colors.white,
     fontSize: FontSize.md,
-    fontWeight: '700',
-    marginBottom: Spacing.sm,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginTop: Spacing.sm,
   },
-  followUpInput: {
-    minHeight: 88,
-    textAlignVertical: 'top',
-    color: Colors.white,
+  lockMsg: {
+    color: Colors.textSecondary,
     fontSize: FontSize.sm,
-    lineHeight: 20,
-    backgroundColor: Colors.cardElevated,
+    textAlign: 'center',
+    lineHeight: 18,
+    marginTop: 4,
+  },
+
+  followUpCard: { marginTop: Spacing.md },
+  followUpPrompt: { color: Colors.white, fontSize: FontSize.md, fontWeight: '700', marginBottom: Spacing.sm },
+  followUpInput: {
+    backgroundColor: Colors.background,
     borderRadius: Radius.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    padding: Spacing.sm,
+    color: Colors.white,
+    padding: Spacing.md,
+    minHeight: 88,
+    textAlignVertical: 'top',
   },
-  followUpError: { color: Colors.red, fontSize: FontSize.xs, marginTop: Spacing.sm },
-  skipBtn: { alignItems: 'center', paddingVertical: Spacing.sm, marginTop: 4 },
-  skipText: { color: Colors.textSecondary, fontSize: FontSize.sm, fontWeight: '600' },
-  guidanceCard: { marginTop: Spacing.md, marginBottom: Spacing.sm },
+  followUpError: { color: Colors.red, fontSize: FontSize.sm, marginTop: Spacing.sm },
+  skipBtn: { alignItems: 'center', paddingVertical: Spacing.md },
+  skipText: { color: Colors.textMuted, fontSize: FontSize.sm, fontWeight: '600' },
+  guidanceCard: { marginTop: Spacing.md },
   guidanceText: { color: Colors.textSecondary, fontSize: FontSize.sm, lineHeight: 20, marginTop: Spacing.sm },
 
   disclaimer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 8 as unknown as number,
+    gap: Spacing.sm as unknown as number,
     marginTop: Spacing.lg,
-    paddingTop: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    marginBottom: Spacing.md,
   },
-  disclaimerText: { color: Colors.textMuted, fontSize: FontSize.xs, lineHeight: 17, flex: 1 },
+  disclaimerText: { color: Colors.textMuted, fontSize: FontSize.xs, lineHeight: 16, flex: 1 },
 });

@@ -42,7 +42,7 @@
   "journeyCompleteEveryStep": "Вы завершили все шаги:",
   "estimated": "Примерно",
   "todaysTasks": "Задачи на сегодня",
-  "checkYourEligibility": "На что я могу претендовать?",
+  "checkYourEligibility": "Деньги и пособия",
   "checkEligibilityDesc": "Узнайте, на какие французские пособия вы можете претендовать",
   "quickAiTools": "Быстрые ИИ-инструменты",
   "allTools": "Все инструменты",
@@ -60,8 +60,8 @@
   "completedTapUndo": "Выполнено ✓ — нажмите, чтобы отменить",
   "aiToolsTitle": "ИИ-инструменты",
   "aiToolsSubtitle": "Умная помощь с французскими документами",
-  "eligibilityChecker": "На что я могу претендовать?",
-  "eligibilityCheckerDesc": "Проверьте право на французские пособия за 10 вопросов.",
+  "eligibilityChecker": "Деньги и пособия",
+  "eligibilityCheckerDesc": "Найдите французские пособия и выплаты — короткий опрос.",
   "catAll": "Все",
   "catPassport": "Паспорт",
   "catVisa": "Виза",
@@ -96,7 +96,7 @@
   "whatHappensNext": "Что будет дальше",
   "stepNotFound": "Этот шаг не найден.",
   "completedLabel": "Выполнено",
-  "eligibilityTitle": "На что я могу претендовать?",
+  "eligibilityTitle": "Деньги и пособия",
   "yourResults": "Ваши результаты",
   "questionOf": "Вопрос",
   "startThisJourney": "Начать этот путь",
@@ -286,5 +286,8 @@
   "resetPassword": "Сбросить пароль",
   "officialWebsite": "Официальный сайт",
   "pdfBrand": "PrefAI Assistant",
-  "pdfGeneratedFooter": "Создано с PrefAI Assistant — этот инструмент не заменяет официальные административные услуги."
+  "pdfGeneratedFooter": "Создано с PrefAI Assistant — этот инструмент не заменяет официальные административные услуги.",
+  "eligibilityUnlockTitle": "Остальные совпадения закрыты",
+  "eligibilityUnlockMsg": "Подпишитесь на Basic (€4.99/мес), чтобы увидеть все найденные пособия.",
+  "eligibilityUnlockCta": "Открыть с Basic"
 }

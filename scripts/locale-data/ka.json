@@ -41,7 +41,7 @@
   "journeyCompleteEveryStep": "თქვენ დაასრულეთ ყველა ნაბიჯი:",
   "estimated": "სავარაუდოდ",
   "todaysTasks": "დღევანდელი ამოცანები",
-  "checkYourEligibility": "რაზე შემიძლია უფლება მქონდეს?",
+  "checkYourEligibility": "ფული და შეღავათები",
   "checkEligibilityDesc": "გაიგეთ, რომელ ფრანგულ შეღავათაზე შეიძლება უფლება გქონდეთ",
   "quickAiTools": "სწრაფი AI ხელსაწყოები",
   "allTools": "ყველა ხელსაწყო",
@@ -59,8 +59,8 @@
   "completedTapUndo": "დასრულებული ✓ — დააჭირეთ გასაუქმებლად",
   "aiToolsTitle": "AI ხელსაწყოები",
   "aiToolsSubtitle": "ჭკვიანი დახმარება ფრანგული საბუთებისთვის",
-  "eligibilityChecker": "რაზე შემიძლია უფლება მქონდეს?",
-  "eligibilityCheckerDesc": "10 სწრაფი კითხვით შეამოწმეთ უფლება ფრანგულ შეღავათებზე.",
+  "eligibilityChecker": "ფული და შეღავათები",
+  "eligibilityCheckerDesc": "იპოვეთ ფრანგული შეღავათები და გადასახადები — მოკლე ქვიზი.",
   "catAll": "ყველა",
   "catPassport": "პასპორტი",
   "catVisa": "ვიზა",
@@ -95,7 +95,7 @@
   "whatHappensNext": "რა მოხდება შემდეგ",
   "stepNotFound": "ეს ნაბიჯი ვერ მოიძებნა.",
   "completedLabel": "დასრულებული",
-  "eligibilityTitle": "რაზე შემიძლია უფლება მქონდეს?",
+  "eligibilityTitle": "ფული და შეღავათები",
   "yourResults": "თქვენი შედეგები",
   "questionOf": "კითხვა",
   "startThisJourney": "ამ გზის დაწყება",
@@ -286,5 +286,8 @@
   "cancelAnytimeStripe": "გაუქმება ნებისმიერ დროს. უსაფრთხო გადახდები Stripe-ით.",
   "officialWebsite": "ოფიციალური საიტი",
   "pdfBrand": "PrefAI Assistant",
-  "pdfGeneratedFooter": "შექმნილია PrefAI Assistant-ით — ეს ხელსაწყო არ ცვლის ოფიციალურ ადმინისტრაციულ სერვისებს."
+  "pdfGeneratedFooter": "შექმნილია PrefAI Assistant-ით — ეს ხელსაწყო არ ცვლის ოფიციალურ ადმინისტრაციულ სერვისებს.",
+  "eligibilityUnlockTitle": "დანარჩენი შედეგები დაბლოკილია",
+  "eligibilityUnlockMsg": "გამოიწერეთ Basic (€4.99/თვე), რომ ნახოთ ყველა ნაპოვნი შეღავათი.",
+  "eligibilityUnlockCta": "გახსენით Basic-ით"
 }

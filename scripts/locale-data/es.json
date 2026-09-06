@@ -41,7 +41,7 @@
   "journeyCompleteEveryStep": "Has completado todos los pasos de",
   "estimated": "Estimado",
   "todaysTasks": "Tareas de hoy",
-  "checkYourEligibility": "¿A qué tengo derecho?",
+  "checkYourEligibility": "Ayudas y dinero",
   "checkEligibilityDesc": "Descubre a qué prestaciones francesas puedes tener derecho",
   "quickAiTools": "Herramientas IA rápidas",
   "allTools": "Todas las herramientas",
@@ -59,8 +59,8 @@
   "completedTapUndo": "Completado ✓ — toca para deshacer",
   "aiToolsTitle": "Herramientas IA",
   "aiToolsSubtitle": "Ayuda inteligente para trámites franceses",
-  "eligibilityChecker": "¿A qué tengo derecho?",
-  "eligibilityCheckerDesc": "Comprueba tu elegibilidad en 10 preguntas rápidas.",
+  "eligibilityChecker": "Ayudas y dinero",
+  "eligibilityCheckerDesc": "Encuentra ayudas y prestaciones en Francia — cuestionario corto.",
   "catAll": "Todos",
   "catPassport": "Pasaporte",
   "catVisa": "Visado",
@@ -95,7 +95,7 @@
   "whatHappensNext": "Qué pasa después",
   "stepNotFound": "No se encontró este paso.",
   "completedLabel": "Completado",
-  "eligibilityTitle": "¿A qué tengo derecho?",
+  "eligibilityTitle": "Ayudas y dinero",
   "yourResults": "Tus resultados",
   "questionOf": "Pregunta",
   "startThisJourney": "Empezar este recorrido",
@@ -286,5 +286,8 @@
   "cancelAnytimeStripe": "Cancela cuando quieras. Pagos seguros con Stripe.",
   "officialWebsite": "Sitio oficial",
   "pdfBrand": "PrefAI Assistant",
-  "pdfGeneratedFooter": "Generado con PrefAI Assistant — esta herramienta no sustituye los servicios administrativos oficiales."
+  "pdfGeneratedFooter": "Generado con PrefAI Assistant — esta herramienta no sustituye los servicios administrativos oficiales.",
+  "eligibilityUnlockTitle": "Más coincidencias bloqueadas",
+  "eligibilityUnlockMsg": "Suscríbete a Basic (4,99 €/mes) para ver todas las ayudas encontradas.",
+  "eligibilityUnlockCta": "Desbloquear con Basic"
 }

@@ -132,6 +132,9 @@ export type TranslationKey =
   | 'startOver'
   | 'resultsHeading'
   | 'eligibilityNoMatch'
+  | 'eligibilityUnlockTitle'
+  | 'eligibilityUnlockMsg'
+  | 'eligibilityUnlockCta'
   | 'eligibilityFollowUpPrompt'
   | 'eligibilityFollowUpPlaceholder'
   | 'eligibilityFollowUpSubmit'
@@ -385,7 +388,7 @@ const enCore: Dict = {
   journeyCompleteEveryStep: "You've completed every step of",
   estimated: 'Estimated',
   todaysTasks: "Today's Tasks",
-  checkYourEligibility: 'What Am I Eligible For?',
+  checkYourEligibility: 'Money & Benefits Finder',
   checkEligibilityDesc: 'See which French benefits you may qualify for',
   quickAiTools: 'Quick AI Tools',
   allTools: 'All tools',
@@ -403,8 +406,8 @@ const enCore: Dict = {
   completedTapUndo: 'Completed ✓ — tap to undo',
   aiToolsTitle: 'AI Tools',
   aiToolsSubtitle: 'Smart help for French paperwork',
-  eligibilityChecker: 'What Am I Eligible For?',
-  eligibilityCheckerDesc: 'Check your eligibility for French benefits in 10 quick questions.',
+  eligibilityChecker: 'Money & Benefits Finder',
+  eligibilityCheckerDesc: 'Find French money and benefits you may access — short quiz.',
   catAll: 'All',
   catPassport: 'Passport',
   catVisa: 'Visa',
@@ -439,7 +442,7 @@ const enCore: Dict = {
   whatHappensNext: 'What happens next',
   stepNotFound: 'This step could not be found.',
   completedLabel: 'Completed',
-  eligibilityTitle: 'What Am I Eligible For?',
+  eligibilityTitle: 'Money & Benefits Finder',
   yourResults: 'Your results',
   questionOf: 'Question',
   startThisJourney: 'Start this journey',
@@ -447,6 +450,9 @@ const enCore: Dict = {
   resultsHeading: 'Based on your answers, you may qualify for:',
   eligibilityNoMatch:
     "We couldn't confidently match a benefit from your answers. This doesn't mean you're not eligible — please verify directly with the relevant French authority.",
+  eligibilityUnlockTitle: 'More matches locked',
+  eligibilityUnlockMsg: 'Subscribe to Basic (€4.99/mo) to see every matched benefit.',
+  eligibilityUnlockCta: 'Unlock with Basic',
   eligibilityFollowUpPrompt: 'Anything else about your situation I should know?',
   eligibilityFollowUpPlaceholder: 'Optional — e.g. family situation, pending applications, special circumstances…',
   eligibilityFollowUpSubmit: 'Get AI guidance',
@@ -691,7 +697,7 @@ const frCore: Dict = {
   journeyCompleteEveryStep: 'Vous avez terminé toutes les étapes de',
   estimated: 'Estimé',
   todaysTasks: "Tâches d'aujourd'hui",
-  checkYourEligibility: 'À quoi ai-je droit ?',
+  checkYourEligibility: 'Aides & Argent',
   checkEligibilityDesc: 'Découvrez les aides françaises auxquelles vous pourriez avoir droit',
   quickAiTools: 'Outils IA rapides',
   allTools: 'Tous les outils',
@@ -709,8 +715,8 @@ const frCore: Dict = {
   completedTapUndo: 'Terminé ✓ — appuyez pour annuler',
   aiToolsTitle: 'Outils IA',
   aiToolsSubtitle: 'Aide intelligente pour vos démarches',
-  eligibilityChecker: 'À quoi ai-je droit ?',
-  eligibilityCheckerDesc: 'Vérifiez votre éligibilité aux aides en 10 questions.',
+  eligibilityChecker: 'Aides & Argent',
+  eligibilityCheckerDesc: 'Trouvez les aides et prestations françaises — quiz court.',
   catAll: 'Tous',
   catPassport: 'Passeport',
   catVisa: 'Visa',
@@ -745,7 +751,7 @@ const frCore: Dict = {
   whatHappensNext: 'Et ensuite',
   stepNotFound: 'Cette étape est introuvable.',
   completedLabel: 'Terminé',
-  eligibilityTitle: 'À quoi ai-je droit ?',
+  eligibilityTitle: 'Aides & Argent',
   yourResults: 'Vos résultats',
   questionOf: 'Question',
   startThisJourney: 'Commencer ce parcours',
@@ -753,6 +759,9 @@ const frCore: Dict = {
   resultsHeading: 'D\'après vos réponses, vous pourriez avoir droit à :',
   eligibilityNoMatch:
     'Nous n\'avons pas pu identifier une aide avec certitude. Cela ne signifie pas que vous n\'êtes pas éligible — vérifiez directement auprès de l\'organisme compétent.',
+  eligibilityUnlockTitle: 'Autres résultats verrouillés',
+  eligibilityUnlockMsg: 'Passez à Basic (4,99 €/mois) pour voir toutes les aides trouvées.',
+  eligibilityUnlockCta: 'Débloquer avec Basic',
   eligibilityFollowUpPrompt: 'Autre chose à savoir sur votre situation ?',
   eligibilityFollowUpPlaceholder: 'Facultatif — ex. situation familiale, dossiers en cours, circonstances particulières…',
   eligibilityFollowUpSubmit: 'Obtenir un conseil IA',
@@ -1006,7 +1015,7 @@ const ruCore: Dict = {
   journeyCompleteEveryStep: 'Вы завершили все шаги:',
   estimated: 'Примерно',
   todaysTasks: 'Задачи на сегодня',
-  checkYourEligibility: 'На что я могу претендовать?',
+  checkYourEligibility: 'Деньги и пособия',
   checkEligibilityDesc: 'Узнайте, на какие французские пособия вы можете претендовать',
   quickAiTools: 'Быстрые ИИ-инструменты',
   allTools: 'Все инструменты',
@@ -1024,8 +1033,8 @@ const ruCore: Dict = {
   completedTapUndo: 'Выполнено ✓ — нажмите, чтобы отменить',
   aiToolsTitle: 'ИИ-инструменты',
   aiToolsSubtitle: 'Умная помощь с французскими документами',
-  eligibilityChecker: 'На что я могу претендовать?',
-  eligibilityCheckerDesc: 'Проверьте право на французские пособия за 10 вопросов.',
+  eligibilityChecker: 'Деньги и пособия',
+  eligibilityCheckerDesc: 'Найдите французские пособия и выплаты — короткий опрос.',
   catAll: 'Все',
   catPassport: 'Паспорт',
   catVisa: 'Виза',
@@ -1060,7 +1069,7 @@ const ruCore: Dict = {
   whatHappensNext: 'Что будет дальше',
   stepNotFound: 'Этот шаг не найден.',
   completedLabel: 'Выполнено',
-  eligibilityTitle: 'На что я могу претендовать?',
+  eligibilityTitle: 'Деньги и пособия',
   yourResults: 'Ваши результаты',
   questionOf: 'Вопрос',
   startThisJourney: 'Начать этот путь',
@@ -1068,6 +1077,9 @@ const ruCore: Dict = {
   resultsHeading: 'По вашим ответам вы можете претендовать на:',
   eligibilityNoMatch:
     'Мы не смогли точно определить пособие по вашим ответам. Это не означает, что вы не имеете права — уточните напрямую в соответствующем французском органе.',
+  eligibilityUnlockTitle: 'Остальные совпадения закрыты',
+  eligibilityUnlockMsg: 'Подпишитесь на Basic (€4.99/мес), чтобы увидеть все найденные пособия.',
+  eligibilityUnlockCta: 'Открыть с Basic',
   eligibilityFollowUpPrompt: 'Что ещё важно знать о вашей ситуации?',
   eligibilityFollowUpPlaceholder: 'Необязательно — например семья, ожидающие заявки, особые обстоятельства…',
   eligibilityFollowUpSubmit: 'Получить совет ИИ',

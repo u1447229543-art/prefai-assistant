@@ -20,7 +20,6 @@ import { useApp } from '../context/AppContext';
 import * as storage from '../services/storage';
 import { CATEGORY_TO_BACKEND, ApiError, isNetworkError } from '../services/api';
 import { pickDocument, toStoredDocument, formatBytes, PickedDocument } from '../services/documents';
-import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 
 import { getCategoryLabel } from '../i18n/helpers';
@@ -79,7 +78,6 @@ export const DocumentVaultScreen: React.FC = () => {
     syncError,
   } = useApp();
   const navigation = useNavigation<Nav>();
-  const goUpgrade = () => navigation.navigate('Subscription');
   const [filter, setFilter] = useState<storage.DocumentCategory | 'all'>('all');
   const [picking, setPicking] = useState<PickedDocument | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -120,9 +118,6 @@ export const DocumentVaultScreen: React.FC = () => {
     } catch (e) {
       if (isNetworkError(e)) {
         setUploadError(t('couldNotReachServer'));
-      } else if (e instanceof Error && e.message === 'DOCUMENT_LIMIT') {
-        promptUpgrade(t, 'upgradeDocLimitMsg', goUpgrade);
-        setPicking(null);
       } else if (e instanceof ApiError) {
         setUploadError(e.message);
       } else {

@@ -33,9 +33,10 @@ export const UI_I18N = {
     pdfShareTitle: 'PrefAI letter',
     formPlaceholder: 'e.g. Demande APL CAF, CERFA 13360…',
     upgradeAiDailyMsg:
-      'Free plan allows 3 AI requests per day after your trial. Upgrade for unlimited access.',
-    upgradeDocLimitMsg: 'Free plan allows up to 5 documents. Upgrade to add more.',
-    upgradeJourneyLimitMsg: 'Free plan allows access to 2 journeys. Upgrade to unlock all journeys.',
+      'All AI tools are free. Basic (€4.99/mo) unlocks full Money & Benefits Finder results.',
+    upgradeDocLimitMsg: 'Documents are unlimited. Basic unlocks full Money & Benefits Finder results.',
+    upgradeJourneyLimitMsg:
+      'All journeys are free. Basic (€4.99/mo) unlocks full Money & Benefits Finder results.',
     trialDaysLeft: '{days} days left in your free trial',
     aiRequestsRemaining: '{count} AI requests left today',
     documentsRemaining: '{count} documents remaining',

@@ -1,9 +1,9 @@
 import { useApp } from '../context/AppContext';
-import { getPlan, FREE_DOCUMENT_LIMIT, FREE_AI_DAILY_LIMIT } from '../constants/pricing';
+import { getPlan, hasEligibilityUnlock } from '../constants/pricing';
 
 /**
- * Subscription / quota hook. Exposes the active plan, usage and helpers to
- * enforce free-tier limits (trial AI, daily AI, documents, journeys).
+ * Subscription hook. Feature usage is unlimited; Basic/Pro unlock full
+ * Money & Benefits Finder results.
  */
 export function useSubscription() {
   const {
@@ -18,18 +18,9 @@ export function useSubscription() {
     isInTrial,
     trialDaysLeft,
     aiRemainingToday,
-    documents,
   } = useApp();
 
   const plan = getPlan(planId);
-  const remaining =
-    plan.documentLimit === null
-      ? Infinity
-      : planId === 'free' && isInTrial
-        ? Infinity
-        : planId === 'free'
-          ? Math.max(0, FREE_DOCUMENT_LIMIT - documents.length)
-          : Math.max(0, plan.documentLimit - usage.documentsProcessed);
 
   return {
     plan,
@@ -44,8 +35,9 @@ export function useSubscription() {
     isInTrial,
     trialDaysLeft,
     aiRemainingToday,
-    remaining,
-    isUnlimited: plan.documentLimit === null || (planId === 'free' && isInTrial),
-    aiDailyLimit: FREE_AI_DAILY_LIMIT,
+    remaining: Infinity,
+    isUnlimited: true,
+    aiDailyLimit: Infinity,
+    hasEligibilityUnlock: hasEligibilityUnlock(planId),
   };
 }

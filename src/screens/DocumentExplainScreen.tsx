@@ -11,7 +11,6 @@ import { pickDocument, readDocumentText, toStoredDocument, PickedDocument, isExp
 import { explainDocument, explainDocumentFile, DocumentExplanation } from '../services/openai';
 import { CATEGORY_TO_BACKEND } from '../services/api';
 import * as storage from '../services/storage';
-import { promptUpgrade, fillTemplate } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -19,24 +18,13 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export const DocumentExplainScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const { language, t, uploadDocument, addCachedDocument } = useApp();
-  const {
-    registerDocumentUse,
-    remaining,
-    isUnlimited,
-    consumeAiRequest,
-    canAddDocument,
-    isInTrial,
-    trialDaysLeft,
-    aiRemainingToday,
-  } = useSubscription();
+  const { registerDocumentUse } = useSubscription();
 
   const [picked, setPicked] = useState<PickedDocument | null>(null);
   const [pastedText, setPastedText] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<DocumentExplanation | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const goUpgrade = () => navigation.navigate('Subscription');
 
   const onPick = async () => {
     try {
@@ -58,23 +46,8 @@ export const DocumentExplainScreen: React.FC = () => {
       return;
     }
 
-    if (picked && !canAddDocument) {
-      promptUpgrade(t, 'upgradeDocLimitMsg', goUpgrade);
-      return;
-    }
-
-    const aiOk = await consumeAiRequest();
-    if (!aiOk) {
-      promptUpgrade(t, 'upgradeAiDailyMsg', goUpgrade);
-      return;
-    }
-
     if (picked) {
-      const allowed = await registerDocumentUse();
-      if (!allowed) {
-        promptUpgrade(t, 'upgradeDocLimitMsg', goUpgrade);
-        return;
-      }
+      await registerDocumentUse();
     }
 
     setLoading(true);
@@ -107,17 +80,11 @@ export const DocumentExplainScreen: React.FC = () => {
         const local = toStoredDocument(picked, category, explanation.summary);
         try {
           await uploadDocument(local, CATEGORY_TO_BACKEND[category]);
-        } catch (e) {
-          if (e instanceof Error && e.message === 'DOCUMENT_LIMIT') {
-            promptUpgrade(t, 'upgradeDocLimitMsg', goUpgrade);
-          } else {
-            try {
-              await addCachedDocument(local);
-            } catch (err) {
-              if (err instanceof Error && err.message === 'DOCUMENT_LIMIT') {
-                promptUpgrade(t, 'upgradeDocLimitMsg', goUpgrade);
-              }
-            }
+        } catch {
+          try {
+            await addCachedDocument(local);
+          } catch {
+            /* offline cache best-effort */
           }
         }
       }
@@ -165,21 +132,6 @@ export const DocumentExplainScreen: React.FC = () => {
           value={pastedText}
           onChangeText={setPastedText}
         />
-
-        {!isUnlimited ? (
-          <Text style={styles.quota}>
-            {fillTemplate(t('documentsRemaining'), { count: remaining === Infinity ? '∞' : remaining })}
-          </Text>
-        ) : null}
-        {isInTrial ? (
-          <Text style={styles.quota}>
-            {fillTemplate(t('trialDaysLeft'), { days: trialDaysLeft })}
-          </Text>
-        ) : aiRemainingToday !== Infinity ? (
-          <Text style={styles.quota}>
-            {fillTemplate(t('aiRequestsRemaining'), { count: aiRemainingToday })}
-          </Text>
-        ) : null}
 
         <NeonButton
           title={t('explainTitle')}

@@ -7,7 +7,6 @@ import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
 import { Screen, Body, Header, Card, NeonButton } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { explainForm, FormFieldHelp } from '../services/openai';
-import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -82,7 +81,7 @@ const SUGGESTIONS: { label: string; query: string }[] = [
 
 export const FormAssistScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { language, t, consumeAiRequest } = useApp();
+  const { language, t } = useApp();
   const [form, setForm] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
@@ -95,11 +94,6 @@ export const FormAssistScreen: React.FC = () => {
     const query = (value ?? form).trim();
     if (!query) return;
     if (value) setForm(value);
-    const allowed = await consumeAiRequest();
-    if (!allowed) {
-      promptUpgrade(t, 'upgradeAiDailyMsg', () => navigation.navigate('Subscription'));
-      return;
-    }
     setLoading(true);
     setResult(null);
     try {

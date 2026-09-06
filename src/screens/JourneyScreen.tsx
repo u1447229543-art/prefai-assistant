@@ -7,7 +7,6 @@ import { Colors, FontSize, Radius, Spacing, glow } from '../constants/colors';
 import { Screen, Body, Card, ProgressBar } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { JOURNEYS, JourneyId, JourneyStep, getJourney, getJourneyTitle, getJourneySubtitle, getStepTitle, getStepPurpose, getStepDuration } from '../constants/journeys';
-import { promptUpgrade } from '../utils/quotaPrompt';
 import type { RootStackParamList } from '../navigation/types';
 import type { TranslationKey } from '../i18n/translations';
 
@@ -37,7 +36,7 @@ export const JourneyScreen: React.FC = () => {
       try {
         const ok = await selectJourney(id);
         if (!ok) {
-          promptUpgrade(t, 'upgradeJourneyLimitMsg', () => navigation.navigate('Subscription'));
+          showJourneyError(t('error'), t('error'));
         }
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);

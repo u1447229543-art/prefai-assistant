@@ -15,21 +15,26 @@ export interface Plan {
   features: string[];
 }
 
+/**
+ * Monetization model (current):
+ * - All app features are free and unlimited (AI, docs, journeys, tools).
+ * - The only paywall is Money & Benefits Finder: first 2 matches free;
+ *   remaining matches unlock with Basic (€4.99/mo) or Pro.
+ */
 export const PLANS: Plan[] = [
   {
     id: 'free',
     name: 'Free',
     price: 0,
     priceLabel: '€0',
-    tagline: 'Get started with the basics',
-    documentLimit: 5,
+    tagline: 'Everything free — unlock full benefit matches with Basic',
+    documentLimit: null,
     highlighted: false,
     stripePriceId: null,
     features: [
-      '7-day free AI trial, then 3 AI requests / day',
-      '5 documents total',
-      'Access to 2 journeys',
-      'Basic translation (10 languages)',
+      'Unlimited AI, documents, journeys & tools',
+      'Money & Benefits Finder — first 2 matches free',
+      'Upgrade to Basic to see every matched benefit',
     ],
   },
   {
@@ -37,17 +42,14 @@ export const PLANS: Plan[] = [
     name: 'Basic',
     price: 4.99,
     priceLabel: '€4.99',
-    tagline: 'For everyday admin tasks',
-    documentLimit: 50,
+    tagline: 'Unlock full Money & Benefits Finder results',
+    documentLimit: null,
     highlighted: true,
     stripePriceId: 'price_1TzeFdD753169kynzHXvXePj',
     features: [
-      '50 documents / month',
-      'Everything in Free',
-      'AI reply generator',
-      'Form field assistant',
-      'Deadline tracker & reminders',
-      'PDF letter generator',
+      'See every matched benefit without blur',
+      'Full Money & Benefits Finder unlock',
+      'All other PrefAI features stay free',
     ],
   },
   {
@@ -72,10 +74,18 @@ export const PLANS: Plan[] = [
 
 export const getPlan = (id: PlanId): Plan => PLANS.find((p) => p.id === id) ?? PLANS[0];
 
-export const FREE_DOCUMENT_LIMIT = 5;
-/** Days of unlimited AI on the free plan before the daily cap applies. */
-export const FREE_TRIAL_DAYS = 7;
-/** AI requests per calendar day on free after the trial ends. */
-export const FREE_AI_DAILY_LIMIT = 3;
-/** Distinct journeys a free user may unlock. */
-export const FREE_JOURNEY_LIMIT = 2;
+/** How many Money & Benefits Finder matches are visible without a paid plan. */
+export const FREE_ELIGIBILITY_VISIBLE = 2;
+
+/** @deprecated No longer enforced — all documents are unlimited. */
+export const FREE_DOCUMENT_LIMIT = Number.POSITIVE_INFINITY;
+/** @deprecated Trial removed — all features are free without a trial period. */
+export const FREE_TRIAL_DAYS = 0;
+/** @deprecated AI daily cap removed. */
+export const FREE_AI_DAILY_LIMIT = Number.POSITIVE_INFINITY;
+/** @deprecated Journey unlock cap removed. */
+export const FREE_JOURNEY_LIMIT = Number.POSITIVE_INFINITY;
+
+export function hasEligibilityUnlock(planId: PlanId): boolean {
+  return planId === 'basic' || planId === 'pro';
+}
