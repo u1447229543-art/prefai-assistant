@@ -333,6 +333,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.card,
     marginRight: Spacing.sm,
     marginBottom: Spacing.sm,
+    flexShrink: 0,
   },
-  chipText: { color: Colors.textSecondary, fontSize: FontSize.sm, fontWeight: '600' },
+  chipText: {
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    flexShrink: 0,
+  },
 });

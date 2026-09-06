@@ -155,6 +155,26 @@ export const DocumentVaultScreen: React.FC = () => {
           </Pressable>
         }
       />
+
+      {/* Outside Body so horizontal swipe is not trapped by the vertical ScrollView. */}
+      <ScrollView
+        horizontal
+        nestedScrollEnabled
+        showsHorizontalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        style={styles.filtersScroll}
+        contentContainerStyle={styles.filtersContent}
+      >
+        {CATEGORY_IDS.map((c) => (
+          <Chip
+            key={c.id}
+            label={t(c.key)}
+            active={filter === c.id}
+            onPress={() => setFilter(c.id)}
+          />
+        ))}
+      </ScrollView>
+
       <Body>
         <View style={styles.secureBanner}>
           <Ionicons name="lock-closed" size={16} color={Colors.success} />
@@ -174,22 +194,6 @@ export const DocumentVaultScreen: React.FC = () => {
             <Text style={styles.warnText}>{syncError}</Text>
           </View>
         ) : null}
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ marginBottom: Spacing.sm }}
-          contentContainerStyle={{ paddingVertical: 4 }}
-        >
-          {CATEGORY_IDS.map((c) => (
-            <Chip
-              key={c.id}
-              label={t(c.key)}
-              active={filter === c.id}
-              onPress={() => setFilter(c.id)}
-            />
-          ))}
-        </ScrollView>
 
         {!documentsLoading && filtered.length === 0 ? (
           <EmptyState
@@ -268,6 +272,18 @@ export const DocumentVaultScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  filtersScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+    maxHeight: 52,
+  },
+  filtersContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingBottom: Spacing.sm,
+    paddingRight: Spacing.lg,
+  },
   secureBanner: {
     flexDirection: 'row',
     alignItems: 'center',
