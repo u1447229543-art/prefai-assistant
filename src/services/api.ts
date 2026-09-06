@@ -394,7 +394,7 @@ export async function aiTranslate(
 }
 
 export async function aiGenerateReply(params: {
-  organization: AdminOrg;
+  organization: AdminOrg | string;
   situation: string;
   tone?: 'formal' | 'firm' | 'polite';
   language: string;

@@ -4,7 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Spacing } from '../constants/colors';
+import type { FormSuggestion } from '../constants/formSuggestions';
 import { Screen, Body, Header, Card, NeonButton } from '../components/ui';
+import { FormSuggestionPicker } from '../components/FormSuggestionPicker';
 import { useApp } from '../context/AppContext';
 import { AdminOrg, AdminReply, aiGenerateReply, ApiError } from '../services/api';
 import { copyOrShare } from '../services/clipboard';
@@ -33,6 +35,7 @@ export const AIReplyScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const { language, t, user } = useApp();
   const [org, setOrg] = useState<AdminOrg>('CAF');
+  const [otherForm, setOtherForm] = useState<FormSuggestion | null>(null);
   const [tone, setTone] = useState<'formal' | 'polite' | 'firm'>('formal');
   const [situation, setSituation] = useState('');
   const [result, setResult] = useState<AdminReply | null>(null);
@@ -40,14 +43,21 @@ export const AIReplyScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const selectOrg = (id: AdminOrg) => {
+    setOrg(id);
+    if (id !== 'Other') setOtherForm(null);
+  };
+
   const run = async () => {
     if (!situation.trim()) return;
+    const organization = org === 'Other' ? otherForm?.label ?? '' : org;
+    if (org === 'Other' && !organization) return;
     setLoading(true);
     setResult(null);
     setError(null);
     try {
       const out = await aiGenerateReply({
-        organization: org,
+        organization,
         situation: situation.trim(),
         tone,
         language,
@@ -97,7 +107,7 @@ export const AIReplyScreen: React.FC = () => {
             return (
               <Pressable
                 key={o.id}
-                onPress={() => setOrg(o.id)}
+                onPress={() => selectOrg(o.id)}
                 style={[styles.orgChip, active && styles.orgChipActive]}
               >
                 <Ionicons name={o.icon} size={16} color={active ? Colors.blue : Colors.textSecondary} />
@@ -106,6 +116,14 @@ export const AIReplyScreen: React.FC = () => {
             );
           })}
         </View>
+
+        {org === 'Other' ? (
+          <FormSuggestionPicker
+            selectedQuery={otherForm?.query ?? null}
+            onSelect={setOtherForm}
+            searchPlaceholder={t('formPlaceholder')}
+          />
+        ) : null}
 
         <Text style={styles.label}>{t('tone')}</Text>
         <View style={styles.toneRow}>
