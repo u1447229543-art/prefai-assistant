@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
   },
   estimateText: { color: Colors.success, fontSize: FontSize.sm, fontWeight: '700' },
   lockOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(4, 18, 26, 0.72)',
     alignItems: 'center',
     justifyContent: 'center',
