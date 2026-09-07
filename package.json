@@ -37,7 +37,8 @@
     "web": "expo start --web",
     "build": "expo export --platform web",
     "vercel-build": "expo export --platform web",
-    "translate:journey-steps": "node scripts/translate-journey-steps.cjs"
+    "translate:journey-steps": "node scripts/translate-journey-steps.cjs",
+    "sync:mes-aides": "node scripts/sync-mes-aides-benefits.cjs"
   },
   "private": true
 }

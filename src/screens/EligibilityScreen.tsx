@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   StyleSheet,
   Text,
@@ -15,10 +16,12 @@ import { Screen, Body, Header, Card, NeonButton, ProgressBar, ScrollableText } f
 import { useApp } from '../context/AppContext';
 import { JourneyId } from '../constants/journeys';
 import { QUESTIONS, Answers, evaluateEligibility, BenefitResult } from '../constants/eligibility';
+import { filterDepartments, departmentLabel } from '../constants/departments';
 import { FREE_ELIGIBILITY_VISIBLE, hasEligibilityUnlock } from '../constants/pricing';
 import { aiEligibilityFollowUp, ApiError } from '../services/api';
 import type { RootStackParamList } from '../navigation/types';
 import type { TranslationKey } from '../i18n/translations';
+import { MES_AIDES_SYNCED_AT } from '../data/mesAidesBenefits';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type TFn = (key: TranslationKey) => string;
@@ -98,6 +101,12 @@ export const EligibilityScreen: React.FC = () => {
             language={language}
             onUpgrade={() => navigation.navigate('Subscription')}
           />
+        ) : current.id === 'department' ? (
+          <DepartmentStep
+            t={t}
+            selected={answers.department}
+            onSelect={select}
+          />
         ) : (
           <View>
             <Text style={styles.question}>{t(current.questionKey)}</Text>
@@ -133,31 +142,124 @@ export const EligibilityScreen: React.FC = () => {
   );
 };
 
+const DepartmentStep: React.FC<{
+  t: TFn;
+  selected?: string;
+  onSelect: (id: string) => void;
+}> = ({ t, selected, onSelect }) => {
+  const [query, setQuery] = useState('');
+  const filtered = useMemo(() => filterDepartments(query), [query]);
+
+  return (
+    <View>
+      <Text style={styles.question}>{t('eligQDepartment')}</Text>
+      <Text style={styles.deptHint}>{t('eligQDepartmentHint')}</Text>
+
+      <Pressable
+        onPress={() => onSelect('skip')}
+        style={({ pressed }) => [
+          styles.option,
+          selected === 'skip' && styles.optionSelected,
+          pressed && { opacity: 0.85 },
+          { marginBottom: Spacing.sm },
+        ]}
+      >
+        <Text style={[styles.optionText, selected === 'skip' && styles.optionTextSelected]}>
+          {t('eligOptDeptSkip')}
+        </Text>
+        <Ionicons
+          name={selected === 'skip' ? 'radio-button-on' : 'radio-button-off'}
+          size={20}
+          color={selected === 'skip' ? Colors.blue : Colors.textMuted}
+        />
+      </Pressable>
+
+      <View style={styles.deptSearchRow}>
+        <Ionicons name="search" size={18} color={Colors.textMuted} />
+        <TextInput
+          style={styles.deptSearchInput}
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t('eligDeptSearchPlaceholder')}
+          placeholderTextColor={Colors.textMuted}
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+      </View>
+
+      <View style={styles.options}>
+        {filtered.slice(0, 40).map((d) => {
+          const active = selected === d.code;
+          return (
+            <Pressable
+              key={d.code}
+              onPress={() => onSelect(d.code)}
+              style={({ pressed }) => [
+                styles.option,
+                active && styles.optionSelected,
+                pressed && { opacity: 0.85 },
+              ]}
+            >
+              <Text style={[styles.optionText, active && styles.optionTextSelected]}>
+                {departmentLabel(d.code)}
+              </Text>
+              <Ionicons
+                name={active ? 'radio-button-on' : 'radio-button-off'}
+                size={20}
+                color={active ? Colors.blue : Colors.textMuted}
+              />
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+};
+
+const benefitTitle = (b: BenefitResult, t: TFn) =>
+  b.displayName ?? (b.nameKey ? t(b.nameKey) : b.id);
+const benefitExplain = (b: BenefitResult, t: TFn) =>
+  b.displayExplanation ?? (b.explanationKey ? t(b.explanationKey) : '');
+const benefitEstimate = (b: BenefitResult, t: TFn) =>
+  b.displayEstimate ?? (b.estimateKey ? t(b.estimateKey) : undefined);
+
 const BenefitCard: React.FC<{
   b: BenefitResult;
   locked: boolean;
   t: TFn;
   onStartJourney: (id: JourneyId) => void;
   onUpgrade: () => void;
-}> = ({ b, locked, t, onStartJourney, onUpgrade }) => (
+}> = ({ b, locked, t, onStartJourney, onUpgrade }) => {
+  const estimate = benefitEstimate(b, t);
+  return (
   <Card style={styles.benefitCard}>
     <View style={locked ? styles.lockedContent : undefined}>
       <View style={styles.benefitHead}>
         <Text style={styles.benefitEmoji}>{b.emoji}</Text>
-        <Text style={styles.benefitName}>{t(b.nameKey)}</Text>
+        <Text style={styles.benefitName}>{benefitTitle(b, t)}</Text>
       </View>
-      <Text style={styles.benefitExplain}>{t(b.explanationKey)}</Text>
-      {b.estimateKey ? (
+      <Text style={styles.benefitExplain}>{benefitExplain(b, t)}</Text>
+      {estimate ? (
         <View style={styles.estimateRow}>
           <Ionicons name="cash-outline" size={14} color={Colors.success} />
-          <Text style={styles.estimateText}>{t(b.estimateKey)}</Text>
+          <Text style={styles.estimateText}>{estimate}</Text>
         </View>
       ) : null}
-      {!locked ? (
+      {!locked && b.sourceUrl ? (
+        <Pressable
+          onPress={() => void Linking.openURL(b.sourceUrl!)}
+          style={styles.sourceLink}
+          hitSlop={8}
+        >
+          <Ionicons name="open-outline" size={14} color={Colors.blue} />
+          <Text style={styles.sourceLinkText}>{t('eligCatalogOfficialLink')}</Text>
+        </Pressable>
+      ) : null}
+      {!locked && b.journeyId ? (
         <NeonButton
           title={t('startThisJourney')}
           icon="navigate-outline"
-          onPress={() => onStartJourney(b.journeyId)}
+          onPress={() => onStartJourney(b.journeyId!)}
           style={{ marginTop: Spacing.sm }}
         />
       ) : null}
@@ -177,7 +279,8 @@ const BenefitCard: React.FC<{
       </View>
     ) : null}
   </Card>
-);
+  );
+};
 
 const ResultsView: React.FC<{
   answers: Answers;
@@ -208,9 +311,13 @@ const ResultsView: React.FC<{
       const answersLabeled = QUESTIONS.map((q) => {
         const optionId = answers[q.id];
         const opt = q.options.find((o) => o.id === optionId);
+        let answer = opt ? t(opt.labelKey) : optionId || '';
+        if (q.id === 'department' && optionId && optionId !== 'skip') {
+          answer = departmentLabel(optionId);
+        }
         return {
           question: t(q.questionKey),
-          answer: opt ? t(opt.labelKey) : optionId || '',
+          answer,
         };
       }).filter((row) => row.answer);
 
@@ -218,7 +325,7 @@ const ResultsView: React.FC<{
         note: trimmed,
         language,
         answersLabeled,
-        results: results.map((r) => ({ id: r.id, name: t(r.nameKey) })),
+        results: results.map((r) => ({ id: r.id, name: benefitTitle(r, t) })),
       });
       setGuidance(text);
     } catch (e) {
@@ -229,6 +336,7 @@ const ResultsView: React.FC<{
   };
 
   const shouldLockExtras = !unlocked && results.length > FREE_ELIGIBILITY_VISIBLE;
+  const syncedDate = MES_AIDES_SYNCED_AT.slice(0, 10);
 
   return (
     <View>
@@ -316,6 +424,12 @@ const ResultsView: React.FC<{
         <Ionicons name="alert-circle-outline" size={15} color={Colors.textMuted} />
         <Text style={styles.disclaimerText}>{t('eligibilityDisclaimer')}</Text>
       </View>
+      <View style={styles.disclaimer}>
+        <Ionicons name="library-outline" size={15} color={Colors.textMuted} />
+        <Text style={styles.disclaimerText}>
+          {t('eligCatalogAttribution').replace('{date}', syncedDate)}
+        </Text>
+      </View>
     </View>
   );
 };
@@ -331,6 +445,37 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     marginBottom: Spacing.lg,
   },
+  deptHint: {
+    color: Colors.textMuted,
+    fontSize: FontSize.sm,
+    lineHeight: 20,
+    marginTop: -Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  deptSearchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.card,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
+    gap: 8,
+  },
+  deptSearchInput: {
+    flex: 1,
+    color: Colors.white,
+    fontSize: FontSize.md,
+    paddingVertical: 12,
+  },
+  sourceLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: Spacing.sm,
+    gap: 6,
+  },
+  sourceLinkText: { color: Colors.blue, fontSize: FontSize.sm, fontWeight: '600' },
   options: { gap: Spacing.sm as unknown as number },
   option: {
     flexDirection: 'row',

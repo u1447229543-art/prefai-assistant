@@ -1,5 +1,6 @@
 import { JourneyId } from './journeys';
 import type { TranslationKey } from '../i18n/translations';
+import { matchMesAidesBenefits } from '../services/mesAidesCatalog';
 
 /**
  * Eligibility Checker data + scoring.
@@ -134,15 +135,27 @@ export const QUESTIONS: EligQuestion[] = [
       { id: 'over50', labelKey: 'eligOptOver50' },
     ],
   },
+  {
+    id: 'department',
+    questionKey: 'eligQDepartment',
+    /** Custom searchable picker in EligibilityScreen (not chip options). */
+    options: [{ id: 'skip', labelKey: 'eligOptDeptSkip' }],
+  },
 ];
 
 export interface BenefitResult {
   id: string;
-  nameKey: TranslationKey;
   emoji: string;
-  explanationKey: TranslationKey;
+  /** Built-in benefits use i18n keys. */
+  nameKey?: TranslationKey;
+  explanationKey?: TranslationKey;
   estimateKey?: TranslationKey;
-  journeyId: JourneyId;
+  /** Catalog benefits use plain text (official French labels preserved). */
+  displayName?: string;
+  displayExplanation?: string;
+  displayEstimate?: string;
+  sourceUrl?: string;
+  journeyId?: JourneyId;
 }
 
 /**
@@ -326,7 +339,9 @@ export function evaluateEligibility(a: Answers): BenefitResult[] {
     });
   }
 
-  return results;
+  // Additive: Mes Aides / 1jeune1solution catalog (Licence Ouverte) — age + département only.
+  const catalog = matchMesAidesBenefits(a, results);
+  return [...results, ...catalog];
 }
 
 /** @deprecated Use t('eligibilityDisclaimer') */
