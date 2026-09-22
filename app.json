@@ -2,7 +2,7 @@
   "expo": {
     "name": "PrefAI Assistant",
     "slug": "david",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "prefai",
@@ -22,7 +22,7 @@
     },
     "android": {
       "package": "com.prefai.assistant",
-      "versionCode": 4,
+      "versionCode": 10,
       "adaptiveIcon": {
         "backgroundColor": "#0A0A0F",
         "foregroundImage": "./assets/android-icon-foreground.png",
