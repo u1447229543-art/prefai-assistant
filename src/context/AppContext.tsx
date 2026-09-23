@@ -13,6 +13,8 @@ import { PlanId, getPlan } from '../constants/pricing';
 import { JourneyId, getJourney } from '../constants/journeys';
 import * as storage from '../services/storage';
 import * as api from '../services/api';
+import { registerExpoPushToken } from '../services/pushNotifications';
+import { migrateLocalDeadlinesIfNeeded } from '../services/deadlinesSync';
 import { ENGLISH, TRANSLATIONS, TranslationKey } from '../i18n/translations';
 
 const DEFAULT_TASKS: storage.StoredTask[] = [
@@ -265,6 +267,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSyncError(null);
     try {
       await Promise.all([refreshProfile(), refreshJourney(), refreshDocuments()]);
+      await migrateLocalDeadlinesIfNeeded();
+      void registerExpoPushToken();
     } catch (e) {
       if (!api.isNetworkError(e)) {
         setSyncError(e instanceof Error ? e.message : 'Sync failed');
@@ -333,6 +337,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         await storage.setToken(token);
         await applyUser(apiUser);
         await Promise.all([refreshJourney(), refreshDocuments()]);
+        await migrateLocalDeadlinesIfNeeded();
+        void registerExpoPushToken();
       } finally {
         setAuthLoading(false);
       }
@@ -359,6 +365,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         await storage.setToken(token);
         await applyUser(apiUser);
         await Promise.all([refreshJourney(), refreshDocuments()]);
+        await migrateLocalDeadlinesIfNeeded();
+        void registerExpoPushToken();
       } finally {
         setAuthLoading(false);
       }

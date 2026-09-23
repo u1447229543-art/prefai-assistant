@@ -13,6 +13,13 @@ import {
   scheduleDeadlineReminders,
   notificationsSupported,
 } from '../services/notifications';
+import {
+  createDeadlineSynced,
+  deleteDeadlineSynced,
+  loadDeadlinesSynced,
+  persistDeadlinesCache,
+  updateDeadlineSynced,
+} from '../services/deadlinesSync';
 import { daysUntil } from '../utils/deadlines';
 
 export const DeadlineTrackerScreen: React.FC = () => {
@@ -42,12 +49,12 @@ export const DeadlineTrackerScreen: React.FC = () => {
         return d;
       })
     );
-    if (changed) await storage.saveDeadlines(next);
+    if (changed) await persistDeadlinesCache(next);
     return next;
   }, []);
 
   const reload = useCallback(() => {
-    storage.loadDeadlines().then(async (list) => {
+    loadDeadlinesSynced().then(async (list) => {
       setItems(await ensureReminders(list));
     });
   }, [ensureReminders]);
@@ -67,9 +74,9 @@ export const DeadlineTrackerScreen: React.FC = () => {
     [items, selectedDate]
   );
 
-  const persist = async (next: storage.StoredDeadline[]) => {
+  const persistLocal = async (next: storage.StoredDeadline[]) => {
     setItems(next);
-    await storage.saveDeadlines(next);
+    await persistDeadlinesCache(next);
   };
 
   const toggle = async (item: storage.StoredDeadline) => {
@@ -81,7 +88,15 @@ export const DeadlineTrackerScreen: React.FC = () => {
     } else {
       notificationIds = await scheduleDeadlineReminders(item);
     }
-    await persist(items.map((d) => (d.id === item.id ? { ...d, done: nowDone, notificationIds } : d)));
+    const updated: storage.StoredDeadline = { ...item, done: nowDone, notificationIds };
+    const next = items.map((d) => (d.id === item.id ? updated : d));
+    setItems(next);
+    await persistDeadlinesCache(next);
+    try {
+      await updateDeadlineSynced(updated);
+    } catch (e) {
+      console.warn('[deadlines] toggle sync failed', e);
+    }
   };
 
   const removeItem = (item: storage.StoredDeadline) => {
@@ -92,7 +107,14 @@ export const DeadlineTrackerScreen: React.FC = () => {
         style: 'destructive',
         onPress: async () => {
           await cancelReminders(item.notificationIds);
-          await persist(items.filter((d) => d.id !== item.id));
+          const next = items.filter((d) => d.id !== item.id);
+          setItems(next);
+          await persistDeadlinesCache(next);
+          try {
+            await deleteDeadlineSynced(item.id);
+          } catch (e) {
+            console.warn('[deadlines] delete sync failed', e);
+          }
         },
       },
     ]);
@@ -111,19 +133,25 @@ export const DeadlineTrackerScreen: React.FC = () => {
       Alert.alert('Missing info', 'Please enter a title and a date in the format YYYY-MM-DD.');
       return;
     }
-    const base: storage.StoredDeadline = {
-      id: `dl_${Date.now()}`,
-      title: title.trim(),
-      date: date.trim(),
-      organization: org.trim() || undefined,
-      description: description.trim() || undefined,
-      done: false,
-    };
-    const notificationIds = await scheduleDeadlineReminders(base);
-    const next = [{ ...base, notificationIds }, ...items].sort((a, b) => a.date.localeCompare(b.date));
-    await persist(next);
-    setAdding(false);
-    setSelectedDate(base.date);
+    try {
+      const created = await createDeadlineSynced({
+        title: title.trim(),
+        date: date.trim(),
+        organization: org.trim() || undefined,
+        description: description.trim() || undefined,
+        done: false,
+      });
+      const notificationIds = await scheduleDeadlineReminders(created);
+      const withNotif = { ...created, notificationIds };
+      const next = [withNotif, ...items.filter((d) => d.id !== withNotif.id)].sort((a, b) =>
+        a.date.localeCompare(b.date)
+      );
+      await persistLocal(next);
+      setAdding(false);
+      setSelectedDate(withNotif.date);
+    } catch (e) {
+      Alert.alert(t('error'), e instanceof Error ? e.message : String(e));
+    }
   };
 
   const hasItems = items.length > 0;

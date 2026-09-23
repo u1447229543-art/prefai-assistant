@@ -9,6 +9,7 @@ import { useApp } from '../context/AppContext';
 import * as storage from '../services/storage';
 import { getJourney, getJourneyTitle, getStepDuration, getStepTitle } from '../constants/journeys';
 import { daysUntil, urgencyColor } from '../utils/deadlines';
+import { loadDeadlinesSynced } from '../services/deadlinesSync';
 import { greetingKey, getTaskTitle } from '../i18n/helpers';
 import type { TranslationKey } from '../i18n/translations';
 
@@ -35,7 +36,7 @@ export const HomeScreen: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       let active = true;
-      storage.loadDeadlines().then((list) => {
+      loadDeadlinesSynced().then((list) => {
         if (!active) return;
         const upcoming = list
           .filter((d) => !d.done && daysUntil(d.date) >= 0)

@@ -465,4 +465,75 @@ export async function aiAskAnything(
   });
 }
 
+// ---- Expiry items (Deadline Tracker cloud sync) ---------------------------
+
+export type ExpiryCategory =
+  | 'logement'
+  | 'sante'
+  | 'travail'
+  | 'famille'
+  | 'documents'
+  | 'finance';
+
+export interface ApiExpiryItem {
+  id: string;
+  title: string;
+  category: ExpiryCategory;
+  expiryDate: string;
+  reminderDaysBefore: number[];
+  status: 'active' | 'expired' | 'renewed';
+  notes: string;
+  organization: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export async function listExpiryItems(): Promise<{ items: ApiExpiryItem[] }> {
+  return request('/api/expiry-items');
+}
+
+export async function createExpiryItem(body: {
+  title: string;
+  category?: ExpiryCategory;
+  expiryDate: string;
+  reminderDaysBefore?: number[];
+  status?: 'active' | 'expired' | 'renewed';
+  notes?: string;
+  organization?: string;
+}): Promise<{ item: ApiExpiryItem }> {
+  return request('/api/expiry-items', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export async function updateExpiryItem(
+  id: string,
+  body: Partial<{
+    title: string;
+    category: ExpiryCategory;
+    expiryDate: string;
+    reminderDaysBefore: number[];
+    status: 'active' | 'expired' | 'renewed';
+    notes: string;
+    organization: string;
+  }>
+): Promise<{ item: ApiExpiryItem }> {
+  return request(`/api/expiry-items/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteExpiryItem(id: string): Promise<{ success: boolean }> {
+  return request(`/api/expiry-items/${id}`, { method: 'DELETE' });
+}
+
+export async function savePushToken(token: string | null): Promise<{ success: boolean }> {
+  return request('/api/user/push-token', {
+    method: 'POST',
+    body: JSON.stringify({ token: token || '' }),
+  });
+}
+
 export { API_URL };

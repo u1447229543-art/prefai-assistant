@@ -11,6 +11,7 @@ import { pickDocument, readDocumentText, toStoredDocument, PickedDocument, isExp
 import { explainDocument, explainDocumentFile, DocumentExplanation } from '../services/openai';
 import { CATEGORY_TO_BACKEND } from '../services/api';
 import * as storage from '../services/storage';
+import { createDeadlineSynced } from '../services/deadlinesSync';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -90,16 +91,20 @@ export const DocumentExplainScreen: React.FC = () => {
       }
 
       if (explanation.deadlines.length > 0) {
-        await storage.addDeadlines(
-          explanation.deadlines.map((d, i) => ({
-            id: `dl_${Date.now()}_${i}`,
-            title: `${explanation.organization} ${t('deadlineTitleSuffix')}`,
-            date: normalizeDate(d),
-            description: d,
-            organization: explanation.organization,
-            done: false,
-          }))
-        );
+        for (let i = 0; i < explanation.deadlines.length; i++) {
+          const d = explanation.deadlines[i];
+          try {
+            await createDeadlineSynced({
+              title: `${explanation.organization} ${t('deadlineTitleSuffix')}`,
+              date: normalizeDate(d),
+              description: d,
+              organization: explanation.organization,
+              done: false,
+            });
+          } catch {
+            /* best-effort */
+          }
+        }
       }
     } catch (e) {
       setError(String(e instanceof Error ? e.message : e));
