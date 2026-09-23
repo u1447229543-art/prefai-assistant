@@ -22,7 +22,7 @@
     },
     "android": {
       "package": "com.prefai.assistant",
-      "versionCode": 10,
+      "versionCode": 11,
       "adaptiveIcon": {
         "backgroundColor": "#0A0A0F",
         "foregroundImage": "./assets/android-icon-foreground.png",
