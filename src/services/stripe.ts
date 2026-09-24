@@ -1,4 +1,5 @@
 import { PlanId, getPlan } from '../constants/pricing';
+import * as storage from './storage';
 
 /**
  * Stripe service.
@@ -30,15 +31,17 @@ export interface CheckoutResult {
 /**
  * Starts a subscription checkout for the given plan.
  * With a real backend this returns a Stripe Checkout URL to open in a browser.
+ * Identity is taken from the JWT on the server — do not send userId in the body.
  */
-export async function startCheckout(
-  planId: PlanId,
-  customerEmail: string
-): Promise<CheckoutResult> {
+export async function startCheckout(planId: PlanId): Promise<CheckoutResult> {
   const plan = getPlan(planId);
 
   if (planId === 'free') {
     return { success: true, planId, message: 'You are on the Free plan.' };
+  }
+
+  if (planId !== 'basic') {
+    throw new Error('This plan is not available for purchase.');
   }
 
   if (!API_URL) {
@@ -59,14 +62,20 @@ export async function startCheckout(
     );
   }
 
+  const token = await storage.getToken();
+  if (!token) {
+    throw new Error('Not signed in.');
+  }
+
   const res = await fetch(`${API_URL}/api/create-checkout-session`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({
       priceId: plan.stripePriceId,
-      email: customerEmail,
-      planId,
-      publishableKey: PUBLISHABLE_KEY,
+      planId: 'basic',
       success_url: 'https://prefai.app/subscription?success=1&session_id={CHECKOUT_SESSION_ID}',
       cancel_url: 'https://prefai.app/subscription?canceled=1',
     }),
@@ -85,29 +94,37 @@ export async function startCheckout(
   };
 }
 
-export async function cancelSubscription(customerEmail: string): Promise<boolean> {
+export async function cancelSubscription(): Promise<boolean> {
   if (!isConfigured()) {
     throw new Error(
       'Payments are not configured. Set EXPO_PUBLIC_API_URL and EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY.'
     );
   }
+  const token = await storage.getToken();
+  if (!token) {
+    throw new Error('Not signed in.');
+  }
   const res = await fetch(`${API_URL}/api/cancel-subscription`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: customerEmail }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
   });
   return res.ok;
 }
 
-export async function getSubscriptionStatus(
-  customerEmail: string
-): Promise<{ planId: PlanId; active: boolean }> {
+export async function getSubscriptionStatus(): Promise<{ planId: PlanId; active: boolean }> {
   if (!isConfigured()) {
     return { planId: 'free', active: true };
   }
-  const res = await fetch(
-    `${API_URL}/api/subscription-status?email=${encodeURIComponent(customerEmail)}`
-  );
+  const token = await storage.getToken();
+  if (!token) {
+    return { planId: 'free', active: true };
+  }
+  const res = await fetch(`${API_URL}/api/subscription-status`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   if (!res.ok) return { planId: 'free', active: true };
   return res.json();
 }

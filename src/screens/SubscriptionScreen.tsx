@@ -5,14 +5,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing } from '../constants/colors';
 import { Screen, Body, Header } from '../components/ui';
 import { PricingCard } from '../components/PricingCard';
-import { PLANS, PlanId } from '../constants/pricing';
+import { OFFERED_PLANS, PlanId } from '../constants/pricing';
 import { useApp } from '../context/AppContext';
 import { useSubscription } from '../hooks/useSubscription';
 import { startCheckout } from '../services/stripe';
 
 export const SubscriptionScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { user, t } = useApp();
+  const { t } = useApp();
   const { planId, setPlan } = useSubscription();
   const [loadingPlan, setLoadingPlan] = useState<PlanId | null>(null);
 
@@ -20,7 +20,7 @@ export const SubscriptionScreen: React.FC = () => {
     if (id === planId) return;
     setLoadingPlan(id);
     try {
-      const result = await startCheckout(id, user?.email ?? 'demo@prefai.app');
+      const result = await startCheckout(id);
       if (result.url) {
         await Linking.openURL(result.url);
       } else if (result.success) {
@@ -43,11 +43,11 @@ export const SubscriptionScreen: React.FC = () => {
         <Text style={styles.heading}>{t('choosePlan')}</Text>
         <Text style={styles.sub}>{t('cancelAnytimeStripe')}</Text>
 
-        {PLANS.map((plan) => (
+        {OFFERED_PLANS.map((plan) => (
           <PricingCard
             key={plan.id}
             plan={plan}
-            isCurrent={plan.id === planId}
+            isCurrent={plan.id === planId || (plan.id === 'basic' && planId === 'pro')}
             loading={loadingPlan === plan.id}
             onSelect={() => choose(plan.id)}
             popularLabel={t('mostPopular')}
