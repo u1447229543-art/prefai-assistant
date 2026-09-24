@@ -283,7 +283,7 @@ export const ProfileScreen: React.FC = () => {
               <Text style={styles.subPlan}>{planName}</Text>
             </View>
             <View style={styles.planBadge}>
-              <Ionicons name={plan.id === 'pro' ? 'star' : 'flash'} size={14} color={Colors.blue} />
+              <Ionicons name={plan.id === 'free' ? 'flash' : 'star'} size={14} color={Colors.blue} />
               <Text style={styles.planBadgeText}>
                 {plan.priceLabel}
                 {plan.price > 0 ? t('perMonth') : ''}
@@ -301,7 +301,7 @@ export const ProfileScreen: React.FC = () => {
               ? t('unlimitedDocuments')
               : `${usage.documentsProcessed} ${t('of')} ${plan.documentLimit} ${t('documentsUsedThisMonth')}`}
           </Text>
-          {plan.id !== 'pro' ? (
+          {plan.id === 'free' ? (
             <NeonButton
               title={t('upgrade')}
               onPress={() => navigation.navigate('Subscription' as never)}

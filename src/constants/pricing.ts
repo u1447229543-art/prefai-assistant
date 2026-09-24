@@ -17,9 +17,10 @@ export interface Plan {
 
 /**
  * Monetization model (current):
- * - All app features are free and unlimited (AI, docs, journeys, tools).
- * - The only paywall is Support & Benefits Finder: first 2 matches free;
- *   remaining matches unlock with Basic (€4.99/mo) or Pro.
+ * - Single paid tier: Basic (€4.99/mo).
+ * - Everything else in the app is free (AI, docs, journeys, tools, reminders, daily question).
+ * - Only paywall: Support & Benefits Finder — first 2 matches free; Basic unlocks all.
+ * - `pro` remains a PlanId for legacy DB/storage only; it is not offered for purchase.
  */
 export const PLANS: Plan[] = [
   {
@@ -33,6 +34,7 @@ export const PLANS: Plan[] = [
     stripePriceId: null,
     features: [
       'Unlimited AI, documents, journeys & tools',
+      'Deadline & appointment reminders',
       'Support & Benefits Finder — first 2 matches free',
       'Upgrade to Basic to see every matched benefit',
     ],
@@ -52,27 +54,34 @@ export const PLANS: Plan[] = [
       'All other PrefAI features stay free',
     ],
   },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 9.99,
-    priceLabel: '€9.99',
-    tagline: 'Unlimited power for complex cases',
-    documentLimit: null,
-    highlighted: false,
-    stripePriceId: 'price_1TzeFeD753169kyng0Yij4fA',
-    features: [
-      'Unlimited documents',
-      'Everything in Basic',
-      'Priority AI (GPT-4o)',
-      'Secure document vault',
-      'Full guides library',
-      'Priority support',
-    ],
-  },
 ];
 
-export const getPlan = (id: PlanId): Plan => PLANS.find((p) => p.id === id) ?? PLANS[0];
+/** Plans shown on the Subscription screen (Free + Basic only). */
+export const OFFERED_PLANS: Plan[] = PLANS;
+
+export const getPlan = (id: PlanId): Plan => {
+  const found = PLANS.find((p) => p.id === id);
+  if (found) return found;
+  // Legacy `pro` subscribers: same entitlement as Basic; not offered for purchase.
+  if (id === 'pro') {
+    return {
+      ...PLANS.find((p) => p.id === 'basic')!,
+      id: 'pro',
+      name: 'Pro',
+      price: 9.99,
+      priceLabel: '€9.99',
+      stripePriceId: 'price_1TzeFeD753169kyng0Yij4fA',
+      highlighted: false,
+      tagline: 'Legacy plan — same unlock as Basic',
+      features: [
+        'See every matched benefit without blur',
+        'Full Support & Benefits Finder unlock',
+        'All other PrefAI features stay free',
+      ],
+    };
+  }
+  return PLANS[0];
+};
 
 /** How many Support & Benefits Finder matches are visible without a paid plan. */
 export const FREE_ELIGIBILITY_VISIBLE = 2;
