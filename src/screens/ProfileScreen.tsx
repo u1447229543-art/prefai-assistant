@@ -166,6 +166,20 @@ export const ProfileScreen: React.FC = () => {
           </Pressable>
         </Card>
 
+        <Pressable
+          style={styles.dailyBanner}
+          onPress={() => navigation.navigate('DailyQuestion' as never)}
+        >
+          <View style={styles.dailyIcon}>
+            <Ionicons name="help-circle" size={22} color="#04121A" />
+          </View>
+          <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+            <Text style={styles.dailyTitle}>{t('dailyQuestionCta')}</Text>
+            <Text style={styles.dailySub}>{t('dailyQuestionDesc')}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.blue} />
+        </Pressable>
+
         {/* 3 — Personal info (editable) */}
         <SectionTitle>{t('personalInformation')}</SectionTitle>
         <Card>
@@ -378,6 +392,28 @@ const styles = StyleSheet.create({
   journeyPct: { color: Colors.blue, fontSize: FontSize.lg, fontWeight: '800' },
   changeJourney: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 as unknown as number, marginTop: Spacing.md, paddingVertical: 10, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.blue },
   changeJourneyText: { color: Colors.blue, fontSize: FontSize.sm, fontWeight: '700' },
+
+  dailyBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: '#7B61FF',
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  dailyIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.md,
+    backgroundColor: '#7B61FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dailyTitle: { color: Colors.white, fontSize: FontSize.md, fontWeight: '800' },
+  dailySub: { color: Colors.textSecondary, fontSize: FontSize.xs, marginTop: 2 },
 
   // Personal info
   label: { color: Colors.textSecondary, fontSize: FontSize.xs, fontWeight: '600', marginBottom: 6, marginTop: Spacing.sm },

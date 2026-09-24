@@ -38,6 +38,7 @@
     "build": "expo export --platform web",
     "vercel-build": "expo export --platform web",
     "translate:journey-steps": "node scripts/translate-journey-steps.cjs",
+    "translate:daily-questions": "node scripts/translate-daily-questions.cjs",
     "sync:mes-aides": "node scripts/sync-mes-aides-benefits.cjs"
   },
   "private": true

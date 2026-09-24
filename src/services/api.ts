@@ -536,4 +536,39 @@ export async function savePushToken(token: string | null): Promise<{ success: bo
   });
 }
 
+// ---- Daily True/False question --------------------------------------------
+
+export interface DailyQuestionPublic {
+  questionNumber: number;
+  category: string;
+  lang: string;
+  question: string;
+}
+
+export interface DailyQuestionAnswerResult {
+  correct: boolean;
+  explanation: string;
+  sourceName: string;
+  sourceUrl: string | null;
+  answer: boolean;
+}
+
+export async function getTodaysDailyQuestion(
+  lang?: string
+): Promise<{ question: DailyQuestionPublic }> {
+  const q = lang ? `?lang=${encodeURIComponent(lang)}` : '';
+  return request(`/api/daily-question${q}`);
+}
+
+export async function submitDailyQuestionAnswer(
+  questionNumber: number,
+  userAnswer: boolean,
+  lang?: string
+): Promise<DailyQuestionAnswerResult> {
+  return request('/api/daily-question/answer', {
+    method: 'POST',
+    body: JSON.stringify({ questionNumber, userAnswer, ...(lang ? { lang } : {}) }),
+  });
+}
+
 export { API_URL };

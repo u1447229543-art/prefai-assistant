@@ -40,3 +40,30 @@ export async function registerExpoPushToken(): Promise<string | null> {
     return null;
   }
 }
+
+/**
+ * Daily-question entry fallback (same registerExpoPushToken path as auth / expiry).
+ * - undetermined → prompt once per JS runtime via registerExpoPushToken
+ * - already granted → silent token refresh (no prompt)
+ * - denied → no-op (do not re-prompt)
+ */
+let undeterminedPromptAttempted = false;
+
+export async function maybeRegisterExpoPushToken(): Promise<string | null> {
+  if (isWeb) return null;
+  try {
+    const current = await Notifications.getPermissionsAsync();
+    if (current.granted) {
+      return registerExpoPushToken();
+    }
+    if (current.status === 'undetermined') {
+      if (undeterminedPromptAttempted) return null;
+      undeterminedPromptAttempted = true;
+      return registerExpoPushToken();
+    }
+    return null;
+  } catch (err) {
+    console.warn('[push] maybeRegister failed', err);
+    return null;
+  }
+}
