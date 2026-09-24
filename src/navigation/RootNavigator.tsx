@@ -19,6 +19,7 @@ import { AIReplyScreen } from '../screens/AIReplyScreen';
 import { FormAssistScreen } from '../screens/FormAssistScreen';
 import { DeadlineTrackerScreen } from '../screens/DeadlineTrackerScreen';
 import { DailyQuestionScreen } from '../screens/DailyQuestionScreen';
+import { FeedbackScreen } from '../screens/FeedbackScreen';
 import { PDFGeneratorScreen } from '../screens/PDFGeneratorScreen';
 import { GuidesScreen } from '../screens/GuidesScreen';
 import { SubscriptionScreen } from '../screens/SubscriptionScreen';
@@ -78,6 +79,7 @@ export const RootNavigator: React.FC = () => {
             <Stack.Screen name="FormAssist" component={FormAssistScreen} />
             <Stack.Screen name="DeadlineTracker" component={DeadlineTrackerScreen} />
             <Stack.Screen name="DailyQuestion" component={DailyQuestionScreen} />
+            <Stack.Screen name="Feedback" component={FeedbackScreen} />
             <Stack.Screen name="PDFGenerator" component={PDFGeneratorScreen} />
             <Stack.Screen name="Guides" component={GuidesScreen} />
             <Stack.Screen name="Chat" component={ChatScreen} />

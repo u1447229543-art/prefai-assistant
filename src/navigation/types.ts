@@ -19,6 +19,7 @@ export type RootStackParamList = {
   FormAssist: undefined;
   DeadlineTracker: undefined;
   DailyQuestion: undefined;
+  Feedback: undefined;
   PDFGenerator: undefined;
   Guides: undefined;
   Subscription: undefined;

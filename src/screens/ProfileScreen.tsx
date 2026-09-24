@@ -180,6 +180,20 @@ export const ProfileScreen: React.FC = () => {
           <Ionicons name="chevron-forward" size={20} color={Colors.blue} />
         </Pressable>
 
+        <Pressable
+          style={styles.feedbackBanner}
+          onPress={() => navigation.navigate('Feedback' as never)}
+        >
+          <View style={styles.feedbackIcon}>
+            <Ionicons name="chatbubble-ellipses" size={22} color="#04121A" />
+          </View>
+          <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+            <Text style={styles.dailyTitle}>{t('feedbackCta')}</Text>
+            <Text style={styles.dailySub}>{t('feedbackDesc')}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.blue} />
+        </Pressable>
+
         {/* 3 — Personal info (editable) */}
         <SectionTitle>{t('personalInformation')}</SectionTitle>
         <Card>
@@ -414,6 +428,25 @@ const styles = StyleSheet.create({
   },
   dailyTitle: { color: Colors.white, fontSize: FontSize.md, fontWeight: '800' },
   dailySub: { color: Colors.textSecondary, fontSize: FontSize.xs, marginTop: 2 },
+
+  feedbackBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: Colors.blue,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  feedbackIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
   // Personal info
   label: { color: Colors.textSecondary, fontSize: FontSize.xs, fontWeight: '600', marginBottom: 6, marginTop: Spacing.sm },

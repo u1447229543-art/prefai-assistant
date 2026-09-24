@@ -571,4 +571,15 @@ export async function submitDailyQuestionAnswer(
   });
 }
 
+export async function submitFeedback(input: {
+  message: string;
+  appVersion?: string;
+  platform?: 'ios' | 'android' | 'web';
+}): Promise<{ success: boolean; feedback: { id: string; createdAt: string } }> {
+  return request('/api/feedback', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
 export { API_URL };
